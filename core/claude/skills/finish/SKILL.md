@@ -28,9 +28,8 @@ explore subagent with a focused question.
 
 ## Finish workflow
 
-1. **Confirm done.** Verify the implementation is already complete and reviewed. Do not
-   finalize work that is not finished. Implementation runs in **OpenCode** (`@implement` /
-   `@implement-task`), not Claude Code — do not dispatch implementation fixes from here.
+1. **Confirm done.** Confirm the feature is already complete and reviewed. Do not
+   finalize work that is not finished; stop and tell the user what is missing.
 2. **Write the feature doc** to `docs/features/<feature>.md` as durable reference
    documentation — not a status report, implementation diary, or verification log. Use
    present tense and concrete names (routes, job names, table names, config vars, file

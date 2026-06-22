@@ -80,11 +80,6 @@ document. The gate is approval, not capability:
 When pushing approved spec/plan edits, always use
 `git push origin $(git rev-parse --abbrev-ref HEAD)`. Never push to `main`.
 
-## Verification
-
-Verification is the implement agent's responsibility (`@implement` / `@implement-task`),
-not this skill's. Do not run verification commands.
-
 ## External / GitHub comments
 
 When reviewing external or GitHub PR feedback, use the `github-pr-comments` skill. Always
