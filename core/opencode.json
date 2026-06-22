@@ -1,0 +1,50 @@
+{
+  "agent": {
+    "brainstorm": {
+      "model": "opencode-go/qwen3.7-max"
+    },
+    "bugfix": {
+      "model": "opencode-go/kimi-2.7-code"
+    },
+    "explore": {
+      "model": "opencode-go/mimo-v2.5"
+    },
+    "finish": {
+      "model": "opencode-go/mimo-v2.5-pro"
+    },
+    "implement": {
+      "model": "opencode-go/mimo-v2.5-pro"
+    },
+    "implement-task": {
+      "model": "opencode-go/mimo-v2.5",
+      "mode": "subagent"
+    },
+    "planner": {
+      "model": "opencode-go/mimo-v2.5-pro"
+    },
+    "review-code": {
+      "model": "opencode-go/kimi-2.7-code"
+    },
+    "review-plan": {
+      "model": "opencode-go/kimi-2.7-code"
+    }
+  },
+  "default_agent": "brainstorm",
+  "model": "opencode-go/deepseek-v4-pro",
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "git branch -d *": "deny",
+      "git branch -D *": "deny",
+      "git worktree remove *": "deny"
+    },
+    "edit": {
+      "*": "allow"
+    },
+    "read": {
+      "*": "allow"
+    },
+    "webfetch": "ask"
+  }
+}

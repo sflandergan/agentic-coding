@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Grep(./**)",
+      "Glob(./**)",
+      "Read(./**)",
+
+      "Edit(./**)",
+      "Write(./**)",
+
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git status:*)",
+      "Bash(git grep:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)",
+      "Bash(git mv:*)",
+      "Bash(git rebase:*)",
+      "Bash(git pull:*)",
+      "Bash(git pull)",
+
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(sort:*)",
+      "Bash(pwd)",
+      "Bash(echo:*)",
+      "Bash(date:*)",
+      "Bash(which:*)",
+      "Bash(mkdir:*)",
+
+      "Bash(bash .claude/skills/github-pr-comments/scripts/fetch-pr-comments.sh:*)",
+      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/create-bug-issue.sh:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh search issues:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(gh pr create:*)",
+      "Bash(rm:*)",
+      "Bash(rm -rf:*)",
+      "Bash(bash .claude/skills/github-pr-comments/scripts/reply-to-pr-comment.sh:*)",
+      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/update-bug-issue.sh:*)"
+    ],
+    "deny": [
+      "Bash(git branch -d:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git worktree remove:*)"
+    ]
+  }
+}
