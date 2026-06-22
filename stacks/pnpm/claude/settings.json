@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)"
+    ],
+    "deny": [
+      "Bash(pnpm *-g:*)",
+      "Bash(pnpm *--global:*)"
+    ]
+  }
+}
