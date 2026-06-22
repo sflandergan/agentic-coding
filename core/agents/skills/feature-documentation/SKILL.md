@@ -16,7 +16,7 @@ Use this skill whenever creating or updating `docs/features/*.md`.
 
 - Write in present tense: describe current behavior.
 - Prefer concrete names: routes, job names, table names, config variables, modules, and file paths.
-- Explain ownership boundaries, especially API-vs-crawler-vs-database responsibilities.
+- Explain ownership boundaries that exist in your project; do not invent roles that the codebase does not actually have.
 - Include only sections that apply to the feature.
 - Keep implementation history out of the doc unless it explains a durable design decision.
 
@@ -30,7 +30,7 @@ Do not include:
 
 ## Document Shape
 
-Use this sample as the default shape. Rename, omit, or add sections only when the feature needs it.
+Use this sample as the default shape. Rename, omit, or add sections only when the feature needs it. If a section does not apply to the feature, omit it.
 
 ```markdown
 # <Feature Name> Feature
@@ -49,21 +49,17 @@ Describe public/internal APIs if the feature adds or changes any.
 
 ### Public API
 
-All `/api/**` routes are unauthenticated and intended for browser or frontend consumption.
-
 | Method | Route | Purpose |
 |---|---|---|
 | `GET` | `/api/example` | Describe what the route returns and why it exists. |
 
 ### Internal APIs
 
-All `/internal/**` routes are protected by internal machine authentication.
-
 - `METHOD /internal/example` — purpose and important behavior.
 
-## Jobs / Workflows
+## Background Work / Operational Flows
 
-Describe jobs, scripts, or operational flows.
+Describe jobs, scripts, or operational flows when the feature includes any.
 
 - `job-name`
   - What it does.
@@ -91,7 +87,7 @@ Describe important tables, fields, uniqueness, and ownership boundaries.
 
 1. Read the relevant plan/spec files to understand the feature scope.
 2. Identify the durable concepts users will need later: APIs, jobs, database state, configuration, workflows, code locations, and operational behavior.
-3. Draft the feature doc using the sample shape above.
+3. Draft the feature doc using the sample shape above. Omit any section that does not apply.
 4. Remove transient implementation details.
 5. Check that every section answers "what exists and how should I understand/use it?"
 

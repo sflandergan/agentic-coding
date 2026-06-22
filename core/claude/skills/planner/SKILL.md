@@ -13,34 +13,28 @@ Spec or requirements (if provided): $ARGUMENTS
 
 ## Load first
 
-Load the approved spec first. Then read `docs/agents/planner.md` and load every doc it
-lists for the area you are planning.
+Load the approved spec first. Then read `docs/agents/planner.md` and follow its document
+list exactly.
 
 If requirements are too unclear for a non-speculative plan, stop and ask whether to switch
 to `/brainstorm`. Do not invoke brainstorming automatically.
 
-Use the **`workflow-planning`** and **`grill-with-docs`** symlinked authored skills for the
-planning methodology and domain grilling. Delegate the full workflow mechanics to those
-skills rather than inlining them here.
+Use the `workflow-planning` and `grill-with-docs` skills for the planning methodology
+and domain grilling. Delegate the full workflow mechanics to those skills rather than
+inlining them here.
 
 ## Method
 
-1. **Investigate before planning.** Dispatch the **Explore** subagent via the Agent tool
-   whenever you need exact file paths, module boundaries, or assumptions verified. Do not
-   continue with weak context — e.g. if a task depends on how a module is structured,
-   send Explore a focused question rather than guessing.
+1. **Investigate before planning.** Use `@explore` whenever you need exact file paths,
+   module boundaries, or assumptions verified. Do not continue with weak context — e.g.
+   if a task depends on how a module is structured, launch an explore subagent with a
+   focused question.
 2. **Scope check.** If the spec covers multiple independent subsystems, suggest splitting
    into separate plans — one per subsystem, each producing working, testable software.
 3. **Map the file structure first.** Before defining tasks, list which files are created
    or modified and what each is responsible for. Prefer small, focused files with one
    clear responsibility; files that change together live together. Follow existing
    patterns in the codebase.
-4. **Grill the plan (baked-in, proportional).** Invoke the `grill-with-docs` skill to
-   stress-test the plan against the domain model. Always do a quick glossary check; ramp
-   to relentless interrogation + inline `CONTEXT.md`/ADR updates only when the plan
-   introduces new or fuzzy domain language or a real, hard-to-reverse decision. Skip the
-   deep pass for plans that introduce no new terms or decisions. Keep `CONTEXT.md` a
-   glossary only.
 
 ## Plan requirements
 
@@ -53,18 +47,27 @@ skills rather than inlining them here.
   code (not "add error handling"), concrete test names, exact commands with expected
   failure/pass output, and the commit message. Repeat code rather than writing "similar
   to Task N".
-- Include package-level and root verification commands, and integration tests for API,
-  database, crawler, or cross-package changes when the project's testing guidance
-  requires them.
+- Include package-level and root verification commands, and integration tests for
+  cross-package changes when the project's testing guidance requires them.
 - Keep task boundaries small enough that the implementer executes without guessing.
 - State which docs you used.
 
-## Plan self-review
+## Domain grilling
 
-After writing the plan, check it against the spec with fresh eyes: (1) spec coverage —
-every requirement maps to a task; (2) placeholder scan — fix any TBD/vague steps;
-(3) type consistency — names and signatures match across tasks. Fix inline; add a task
-for any uncovered requirement.
+- When a plan introduces new domain language or non-trivial decisions, *offer* to grill
+  it against the domain model with `grill-with-docs`. Do not invoke it automatically,
+  and skip it for plans that introduce no new terms or decisions.
+- Read `CONTEXT-MAP.md` and the relevant `docs/contexts/<context>/CONTEXT.md` first. If
+  a term resolves or a real decision is made, update the relevant `CONTEXT.md` glossary
+  and add an ADR under `docs/adr/` inline. Keep `CONTEXT.md` a glossary only.
+
+## Shell guidance
+
+- Prefer relative workspace paths in commands and examples (e.g.
+  `mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
+  requires them.
+- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never use bare
+  `git push` to avoid accidentally pushing to `main`.
 
 ## Stop conditions
 
@@ -73,9 +76,3 @@ for any uncovered requirement.
 - After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
 - Implementation runs in **OpenCode** (`@implement` / `@implement-task`), not Claude Code.
   Hand off to OpenCode for execution.
-
-## Shell guidance
-
-Prefer relative workspace paths in commands and examples (e.g.
-`mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
-requires them.

@@ -65,6 +65,7 @@ done
 # ---------------------------------------------------------------------------
 # 3. Prompt for model option
 # ---------------------------------------------------------------------------
+OPENAI_BRAINSTORM=false
 echo ""
 echo "Select model option:"
 select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
@@ -75,6 +76,12 @@ select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
       ;;
     "opencode-go + OpenAI")
       MODELS="opencode-go+openai"
+      echo ""
+      read -rp "Also override brainstorm to openai/gpt-5.5? [y/N]: " BRAINSTORM_REPLY
+      BRAINSTORM_REPLY_LOWER="$(echo "${BRAINSTORM_REPLY:-n}" | tr '[:upper:]' '[:lower:]')"
+      if [[ "$BRAINSTORM_REPLY_LOWER" == "y" || "$BRAINSTORM_REPLY_LOWER" == "yes" ]]; then
+        OPENAI_BRAINSTORM=true
+      fi
       break
       ;;
     *)
@@ -200,7 +207,12 @@ rm -f "$_seen_tmp"
 
 # --- 5f. OpenAI patch (model option) ---
 if [[ "$MODELS" == "opencode-go+openai" ]]; then
-  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$ROOT/core/models-openai.json" > "$STAGE/opencode.json.tmp"
+  if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
+    OPENAI_PATCH_FILE="$ROOT/core/models-openai-brainstorm.json"
+  else
+    OPENAI_PATCH_FILE="$ROOT/core/models-openai.json"
+  fi
+  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$OPENAI_PATCH_FILE" > "$STAGE/opencode.json.tmp"
   mv "$STAGE/opencode.json.tmp" "$STAGE/opencode.json"
 fi
 
@@ -284,6 +296,11 @@ echo ""
 echo "  Target:      $TARGET"
 echo "  Stack:       $STACK"
 echo "  Models:      $MODELS"
+if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
+  echo "  OpenAI brainstorm override: yes"
+else
+  echo "  OpenAI brainstorm override: no"
+fi
 echo ""
 echo "Installed assets:"
 echo "  - OpenCode agents in .opencode/agents/"

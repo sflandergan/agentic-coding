@@ -27,10 +27,4 @@ Keep the Act phase to a single call when possible. Multiple assertions in one te
 
 ## Test Layout
 
-```
-<package>/
-  src/
-  test/ or tests/
-```
-
-Adapt the layout to the package's framework conventions; keep production and test code clearly separated.
+Follow the conventions of the package's chosen test framework and language (for example, JUnit/Maven for Java, Jest/Vitest for TypeScript, pytest for Python, Go's `*_test.go` co-location). Production source and test code must be clearly separated, but the exact directory shape, file suffix, and discovery rules are framework-defined — do not invent a custom layout when a framework convention already exists.

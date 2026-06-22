@@ -14,11 +14,17 @@ Feature (if provided): $ARGUMENTS
 ## Load first
 
 Check git state before doing anything. Then read `docs/agents/finish.md` and load what it
-lists.
+lists. Load the feature `spec.md`, `plan.md`, and existing `summary.md` if present.
+
+Use the `feature-documentation` skill for writing durable feature docs. Use
+`grill-with-docs` only when a domain divergence genuinely needs interrogating.
 
 ## Subagent usage
 
-Dispatch the **Explore** subagent via the Agent tool when finalization depends on repository investigation: implemented code locations, changed routes or jobs, public behavior, git history, or possible domain-language drift. Do not write durable feature docs from weak context; send Explore a focused question instead of guessing.
+Use `@explore` when finalization depends on repository investigation: implemented code
+locations, changed routes or jobs, public behavior, git history, or possible
+domain-language drift. Do not write durable feature docs from weak context; launch an
+explore subagent with a focused question.
 
 ## Finish workflow
 
@@ -39,25 +45,15 @@ Dispatch the **Explore** subagent via the Agent tool when finalization depends o
    `grill-with-docs` only when a divergence genuinely needs interrogating. Keep
    `CONTEXT.md` a glossary only.
 4. **Clean up** by removing `plans/<feature-dir>/spec.md` and `plan.md` only after the
-   feature doc is written and the user approves cleanup.
-5. **Commit** the feature doc and cleanup only when the user requests it.
+   feature doc is written and the user approves cleanup. Use `git rm` for tracked
+   files; use plain `rm` only for untracked paths.
+5. **Commit and push.** Commit the feature doc and cleanup when the user requests it,
+   then push the current scoped branch with
+   `git push origin $(git rev-parse --abbrev-ref HEAD)`.
 
-## Verification before any completion claim
+## Push boundaries
 
-Claiming work is complete without fresh evidence is dishonesty, not efficiency. Before you
-say anything is complete, fixed, passing, or ready: identify the command that proves it,
-run the FULL command now, read the output and exit code, and only then state the result
-with that evidence. "Should pass", "looks correct", a previous run, or an agent's success
-report do not count.
-
-Verification baseline (source of truth: the plan + the relevant `docs/agents/` role doc):
-
-- Docs-only or comment-only changes need no workspace verification.
-- Code changes in one package/app: run the project's lint, typecheck, test, and build
-  commands from the repo root. Follow whatever verification commands the project defines.
-- If the user requested narrower verification, follow that and state what was not run.
-
-## Boundaries
-
-Push only when the user requests or approves it. Do not create PRs, force-push, amend
-commits, delete branches, close comments, or remove worktrees.
+Push only with `git push origin $(git rev-parse --abbrev-ref HEAD)`. Never use bare
+`git push`, push to `main`, force-push, delete remote refs, push tags, or push
+arbitrary refspecs without explicit approval. Do not create PRs, amend commits, delete
+branches, close comments, or remove worktrees.

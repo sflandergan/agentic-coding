@@ -8,8 +8,8 @@
 
 ## Code Shape
 
-- Keep functions small and focused on one responsibility.
-- Prefer pure functions and immutable data where practical.
+- Keep units of behavior small and focused on one responsibility. The exact form depends on the language (functions, methods, procedures, classes, modules), but the principle is the same: each unit does one thing.
+- Prefer pure units of behavior and immutable data structures where practical.
 - Keep files focused; split when a file grows past a single responsibility.
 - Make the smallest correct change; do not refactor unrelated code in the same change.
 

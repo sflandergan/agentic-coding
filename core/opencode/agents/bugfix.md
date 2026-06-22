@@ -11,7 +11,6 @@ permission:
     "*": ask
 
     # Skill scripts — primary tools
-    "bash .agents/skills/workflow-bug-analysis/scripts/db.sh *": allow
     "bash .agents/skills/workflow-bug-analysis/scripts/create-bug-issue.sh *": allow
     "bash .agents/skills/workflow-bug-analysis/scripts/update-bug-issue.sh *": allow
 

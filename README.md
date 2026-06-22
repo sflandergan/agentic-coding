@@ -28,7 +28,7 @@ The toolkit is stack-agnostic in `core/`. Stack overlays add verification comman
 
 | Tool | Install | Notes |
 |---|---|---|
-| `jq` | `brew install jq` | Required by init and copy scripts |
+| `jq` | [Official jq install docs](https://jqlang.github.io/jq/download/) | Required by init and copy scripts |
 | `ctx7` | [Upstream docs](https://github.com/anthropics/ctx7) | Used for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
 
 ## Quick Start: init.sh
@@ -43,7 +43,8 @@ The script prompts for:
 
 1. **Stack** — e.g. `pnpm` or `maven`
 2. **Model option** — `opencode-go only` (default) or `opencode-go + OpenAI`
-3. **Target path** — where to create the project
+3. **OpenAI brainstorm override** — when the OpenAI option is chosen, also override `brainstorm` to `openai/gpt-5.5` (y/N)
+4. **Target path** — where to create the project
 
 ## Quick Start: copy.sh
 
@@ -67,7 +68,19 @@ During init you choose a model option:
 | Option | Default | Behavior |
 |---|---|---|
 | `opencode-go only` | Yes | All agents use the bundled default model |
-| `opencode-go + OpenAI` | No | Overrides `bugfix`, `review-code`, `review-plan` agents to use `openai/gpt-5.5` |
+| `opencode-go + OpenAI` | No | Overrides `bugfix`, `review-code`, `review-plan` agents to use `openai/gpt-5.5`. Optionally also overrides `brainstorm` when you answer yes to the follow-up prompt. |
+
+### Model Choice Rationale
+
+The bundled `opencode.json` assigns models by workflow strength profile:
+
+- **Strong models** for `brainstorm` (`qwen3.7-max`) and the three `review*` agents (`kimi-2.7-code`). These workflows need the most reasoning depth, and the OpenAI option swaps them to `openai/gpt-5.5` for the same reason.
+- **Mid-tier models** for `planner`, `finish`, and the `implement` controller (`mimo-v2.5-pro`). These need reliability and structured output but not the strongest reasoning.
+- **Cheap / fast models** for `explore` and `implement-task` (`mimo-v2.5`). These are invoked frequently on tightly scoped work, so speed and cost dominate.
+- **Mimo vs. DeepSeek** is a preference / reliability tradeoff. The default falls back to the `mimo-v2.5*` family because it is the more consistently available option for this toolkit's target projects. Switch to a `deepseek-v4*` family for higher peak reasoning on long-context work, accepting that availability is less stable.
+- **Minimax** (`minimax-m3`) is intentionally not the default. It is not selected because its availability and value outside of promotional periods is weaker than the families above for this workload. It remains a usable alternative for individual agents via `opencode.json` overrides.
+
+When you pick the `opencode-go + OpenAI` option, the installer applies `core/models-openai.json`, which overrides `bugfix`, `review-code`, and `review-plan` to `openai/gpt-5.5`. Because brainstorming also benefits from the strongest model available, the installer follows up with a yes/no prompt: answering yes adds a `brainstorm` override on top so `brainstorm` uses `openai/gpt-5.5` as well. Answering no leaves `brainstorm` on its bundled strong model.
 
 ## Installed Assets
 
@@ -126,7 +139,7 @@ The 6 workflow entry skills are real directories. The 7 authored skills are syml
 
 Each symlinked skill has `user-invocable: false` in its `SKILL.md` frontmatter so it stays hidden from Claude Code's user-facing skill list.
 
-> **Note:** `workflow-implementation` is **not** symlinked into Claude in the first release — it is reserved for OpenCode's `@implement` / `@implement-task` flow.
+> **Note:** `workflow-implementation` is **not** symlinked into Claude — it is reserved for OpenCode's `@implement` / `@implement-task` flow.
 
 ## Recommended Human-in-the-Loop Workflow
 
@@ -164,6 +177,6 @@ To add a new stack:
 
 ## Future Work
 
-Framework-specific stacks such as NestJS, Next.js/UI, Spring Boot, Java, and Kotlin conventions are out of scope for the first release. The toolkit is intentionally stack-agnostic in `core/`.
+Framework-specific stacks such as NestJS, Next.js/UI, Spring Boot, Java, and Kotlin conventions are out of scope. The toolkit is intentionally stack-agnostic in `core/`.
 
 For Claude-specific workflow details, see `core/claude/README.md`.

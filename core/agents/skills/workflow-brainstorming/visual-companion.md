@@ -34,7 +34,7 @@ The server watches a directory for HTML files and serves the newest one to the b
 
 ```bash
 # Start server with persistence (mockups saved to project-local .temp/)
-.opencode/skills/workflow-brainstorming/scripts/start-server.sh --project-dir /path/to/project
+./scripts/start-server.sh --project-dir /path/to/project
 
 # Returns: {"type":"server-started","port":52341,"url":"http://localhost:52341",
 #           "screen_dir":"/path/to/project/.temp/brainstorm/12345-1706000000/content",
@@ -52,7 +52,7 @@ Save `screen_dir` and `state_dir` from the response. Tell user to open the URL.
 **Claude Code (macOS / Linux):**
 ```bash
 # Default mode works — the script backgrounds the server itself
-.opencode/skills/workflow-brainstorming/scripts/start-server.sh --project-dir /path/to/project
+./scripts/start-server.sh --project-dir /path/to/project
 ```
 
 **Claude Code (Windows):**
@@ -60,7 +60,7 @@ Save `screen_dir` and `state_dir` from the response. Tell user to open the URL.
 # Windows auto-detects and uses foreground mode, which blocks the tool call.
 # Use run_in_background: true on the Bash tool call so the server survives
 # across conversation turns.
-.opencode/skills/workflow-brainstorming/scripts/start-server.sh --project-dir /path/to/project
+./scripts/start-server.sh --project-dir /path/to/project
 ```
 When calling this via the Bash tool, set `run_in_background: true`. Then read `$STATE_DIR/server-info` on the next turn to get the URL and port.
 
@@ -68,14 +68,14 @@ When calling this via the Bash tool, set `run_in_background: true`. Then read `$
 ```bash
 # Codex reaps background processes. The script auto-detects CODEX_CI and
 # switches to foreground mode. Run it normally — no extra flags needed.
-.opencode/skills/workflow-brainstorming/scripts/start-server.sh --project-dir /path/to/project
+./scripts/start-server.sh --project-dir /path/to/project
 ```
 
 **Gemini CLI:**
 ```bash
 # Use --foreground and set is_background: true on your shell tool call
 # so the process survives across turns
-.opencode/skills/workflow-brainstorming/scripts/start-server.sh --project-dir /path/to/project --foreground
+./scripts/start-server.sh --project-dir /path/to/project --foreground
 ```
 
 **Other environments:** The server must keep running in the background across conversation turns. If your environment reaps detached processes, use `--foreground` and launch the command with your platform's background execution mechanism.
@@ -83,7 +83,7 @@ When calling this via the Bash tool, set `run_in_background: true`. Then read `$
 If the URL is unreachable from your browser (common in remote/containerized setups), bind a non-loopback host:
 
 ```bash
-.opencode/skills/workflow-brainstorming/scripts/start-server.sh \
+./scripts/start-server.sh \
   --project-dir /path/to/project \
   --host 0.0.0.0 \
   --url-host localhost
@@ -276,12 +276,12 @@ If `$STATE_DIR/events` doesn't exist, the user didn't interact with the browser 
 ## Cleaning Up
 
 ```bash
-.opencode/skills/workflow-brainstorming/scripts/stop-server.sh $SESSION_DIR
+./scripts/stop-server.sh $SESSION_DIR
 ```
 
 If the session used `--project-dir`, mockup files persist in `.temp/brainstorm/` for later reference. Clean up `.temp/` after the session or task is complete.
 
 ## Reference
 
-- Frame template (CSS reference): `.opencode/skills/workflow-brainstorming/scripts/frame-template.html`
-- Helper script (client-side): `.opencode/skills/workflow-brainstorming/scripts/helper.js`
+- Frame template (CSS reference): `./scripts/frame-template.html`
+- Helper script (client-side): `./scripts/helper.js`

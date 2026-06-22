@@ -12,8 +12,6 @@ This is a placeholder project description. Replace this section with a one-parag
 - Do not revert, overwrite, or clean up changes you did not make unless the user explicitly asks.
 - Prefer the smallest correct change over broad refactors.
 - Prefer `git rm` over raw `rm` for tracked files.
-- Load the matching role document under `docs/agents/` for the current workflow agent.
-- Load only the docs named by that role document and the current task.
 
 ## Git Conventions
 
@@ -49,7 +47,6 @@ When a workflow change affects both pipelines, update both definitions in the sa
 
 ## Permissions
 
-- Prefer `git rm` over raw `rm` for tracked files.
 - Do not delete branches or remove worktrees.
 - Do not force-push.
 

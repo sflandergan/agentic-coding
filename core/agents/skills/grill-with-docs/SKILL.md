@@ -18,52 +18,64 @@ If a question can be answered by exploring the codebase, explore the codebase in
 
 ## Domain awareness
 
-During codebase exploration, read the existing documentation. This repo's layout is fixed and authoritative — `/CONTEXT-MAP.md` is the entry point.
+During codebase exploration, read the existing documentation. `CONTEXT-MAP.md` is the
+entry point for the project's bounded contexts.
 
 ### File structure
 
-This repo is multi-context. `CONTEXT-MAP.md` at the repo root lists the contexts and points to where each glossary lives. Glossaries are **centralized** under `docs/contexts/`; ADRs are **flat** under `docs/adr/`:
+`CONTEXT-MAP.md` lists the contexts and points to where each glossary lives. Glossaries
+are **centralized** under `docs/contexts/`; ADRs are **flat** under `docs/adr/`:
 
 ```
 /
 ├── CONTEXT-MAP.md                      ← lists the contexts + relationships
 ├── docs/
 │   ├── contexts/
-│   │   ├── catalog/CONTEXT.md
-│   │   ├── dealer-network/CONTEXT.md
-│   │   ├── dealer-inventory/CONTEXT.md
-│   │   └── crawling/CONTEXT.md
+│   │   ├── <context-a>/CONTEXT.md
+│   │   ├── <context-b>/CONTEXT.md
+│   │   └── <context-c>/CONTEXT.md
 │   └── adr/                            ← all decisions, flat + numbered
-│       ├── 0001-monorepo-with-turborepo.md
-│       └── 0002-nextjs-app-router-for-ssr.md
+│       ├── 0001-<decision-slug>.md
+│       └── 0002-<decision-slug>.md
 └── ...
 ```
 
-Do **not** co-locate `CONTEXT.md` with source code. Read `CONTEXT-MAP.md` first to find the relevant context, then open its glossary.
+Do **not** co-locate `CONTEXT.md` with source code. Read `CONTEXT-MAP.md` first to find
+the relevant context, then open its glossary.
 
 ## During the session
 
 ### Challenge against the glossary
 
-When the user uses a term that conflicts with the existing language in `CONTEXT.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+When the user uses a term that conflicts with the existing language in `CONTEXT.md`, call
+it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y —
+which is it?"
 
 ### Sharpen fuzzy language
 
-When the user uses vague or overloaded terms, propose a precise canonical term. "You're saying 'account' — do you mean the Customer or the User? Those are different things."
+When the user uses vague or overloaded terms, propose a precise canonical term. "You're
+saying 'account' — do you mean the Customer or the User? Those are different things."
 
 ### Discuss concrete scenarios
 
-When domain relationships are being discussed, stress-test them with specific scenarios. Invent scenarios that probe edge cases and force the user to be precise about the boundaries between concepts.
+When domain relationships are being discussed, stress-test them with specific scenarios.
+Invent scenarios that probe edge cases and force the user to be precise about the
+boundaries between concepts.
 
 ### Cross-reference with code
 
-When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"
+When the user states how something works, check whether the code agrees. If you find a
+contradiction, surface it: "Your code cancels entire Orders, but you just said partial
+cancellation is possible — which is right?"
 
 ### Update CONTEXT.md inline
 
-When a term is resolved, update `CONTEXT.md` right there. Don't batch these up — capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+When a term is resolved, update `CONTEXT.md` right there. Don't batch these up — capture
+them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
 
-`CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+`CONTEXT.md` should be totally devoid of implementation details. Do not treat
+`CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It
+is a glossary and nothing else.
 
 ### Offer ADRs sparingly
 
@@ -73,6 +85,7 @@ Only offer to create an ADR when all three are true:
 2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
 3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+If any of the three is missing, skip the ADR. Use the format in
+[ADR-FORMAT.md](./ADR-FORMAT.md).
 
 </supporting-info>

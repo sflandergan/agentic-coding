@@ -1,6 +1,6 @@
 ---
 name: workflow-bug-analysis
-description: Systematic bug investigation methodology — classify input, reproduce, trace code paths, query databases, inspect logs, form hypotheses, and produce a structured GitHub issue.
+description: Systematic bug investigation methodology — classify input, reproduce, trace code paths, inspect logs, form hypotheses, and produce a structured GitHub issue.
 user-invocable: false
 ---
 
@@ -21,7 +21,7 @@ Determine the input type and extract key signals:
 
 Run the relevant test or code path to confirm the symptom exists:
 
-- Use `pnpm test`, `pnpm test:integration`, or targeted test commands.
+- Use the project's test commands (e.g. `pnpm test`, `pnpm test:integration`, or targeted test commands).
 - If no existing test covers the bug, add a temporary reproduction test or log statement, run it, and report the result.
 - Temporary working-tree changes must not be committed.
 
@@ -36,35 +36,14 @@ Use `@explore` to map the affected code. Start from the error location or the de
 
 Do not continue investigation from weak context — launch one or more explore subagents with focused questions. Multiple explore subagents may run in parallel when their questions are independent.
 
-### 4. Query the database
-
-When the bug involves data state, use the `db.sh` script:
-
-```bash
-# Copy the database to .temp/ for investigation
-bash .agents/skills/workflow-bug-analysis/scripts/db.sh copy api
-bash .agents/skills/workflow-bug-analysis/scripts/db.sh copy crawler
-
-# Check schema
-bash .agents/skills/workflow-bug-analysis/scripts/db.sh schema api
-
-# Query suspect data
-bash .agents/skills/workflow-bug-analysis/scripts/db.sh query api "SELECT count(*) FROM bikes"
-
-# Re-copy (force overwrite)
-bash .agents/skills/workflow-bug-analysis/scripts/db.sh refresh api
-```
-
-For complex joins or multi-statement queries, use `sqlite3` directly on the local copy in `.temp/`.
-
-### 5. Inspect logs
+### 4. Inspect logs
 
 When the bug involves runtime behavior, inspect the relevant logs. See `docs/agents/bugfix.md` for project-specific log locations and conventions.
 
 - Look for error and warning entries near the reported symptom time.
 - Match log levels to the project's conventions.
 
-### 6. Form a hypothesis
+### 5. Form a hypothesis
 
 Based on gathered evidence, state:
 
@@ -72,7 +51,7 @@ Based on gathered evidence, state:
 - Why the evidence supports this conclusion
 - What alternative explanations were considered and ruled out
 
-### 7. Write the issue body
+### 6. Write the issue body
 
 Structure findings into the issue template and save to `.temp/<slug>-issue-body.md`:
 
@@ -86,10 +65,6 @@ Structure findings into the issue template and save to `.temp/<slug>-issue-body.
 ### Logs (if applicable)
 
 <Relevant log excerpts with timestamps>
-
-### Database State (if applicable)
-
-<Query results showing suspect data>
 
 ### Code Path
 
@@ -109,7 +84,7 @@ Structure findings into the issue template and save to `.temp/<slug>-issue-body.
 <Steps to reproduce, if identified>
 ```
 
-### 8. Create the issue
+### 7. Create the issue
 
 ```bash
 bash .agents/skills/workflow-bug-analysis/scripts/create-bug-issue.sh \

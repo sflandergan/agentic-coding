@@ -2,8 +2,8 @@
 
 ## Load
 
-- Approved spec
-- Approved plan, if present
+- Approved plan
+- Approved spec, if present
 - Git diff or PR diff under review
 - `docs/CODING_GUIDELINES.md`
 - `docs/LOGGING.md`
