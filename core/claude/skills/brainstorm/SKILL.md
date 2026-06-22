@@ -18,12 +18,6 @@ shape, or clarify a feature. Write specs to `plans/YYYY-MM-DD-feature-name/spec.
 
 Use `grill-with-docs` when the brainstorm needs domain grilling.
 
-<HARD-GATE>
-Do NOT write code, scaffold anything, or take any implementation action until you have
-presented a design and the user has approved it. This applies regardless of how simple
-the feature seems — "simple" features are where unexamined assumptions waste the most work.
-</HARD-GATE>
-
 ## Subagent usage
 
 - Use `@explore` when brainstorming needs additional repository investigation before
