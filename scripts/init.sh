@@ -134,6 +134,7 @@ cp -R "$ROOT/core/docs" "$STAGE/docs"
 
 # --- 5b. Copy root files from core ---
 cp "$ROOT/core/AGENTS.md" "$STAGE/AGENTS.md"
+cp "$ROOT/core/CLAUDE.md" "$STAGE/CLAUDE.md"
 cp "$ROOT/core/CONTEXT-MAP.md" "$STAGE/CONTEXT-MAP.md"
 cp "$ROOT/core/opencode.json" "$STAGE/opencode.json"
 cp "$ROOT/core/models-openai.json" "$STAGE/models-openai.json"
