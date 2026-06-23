@@ -49,9 +49,7 @@ permission:
     "tr *": allow
     "uniq *": allow
     "echo *": allow
-    "echo *> *": deny
-    "echo *>> *": deny
-    "echo *>| *": deny
+    "echo *>*": deny
     "date *": allow
     "mkdir *": allow
     "mkdir -p *": allow
