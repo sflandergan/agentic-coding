@@ -29,7 +29,7 @@ The toolkit is stack-agnostic in `core/`. Stack overlays add verification comman
 | Tool | Install | Notes |
 |---|---|---|
 | `jq` | [Official jq install docs](https://jqlang.github.io/jq/download/) | Required by init and copy scripts |
-| `ctx7` | [Upstream docs](https://github.com/upstash/context7) | Used for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
+| `npx` (Node.js) | [nodejs.org](https://nodejs.org) | Runs the [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add …`) for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
 
 ## Quick Start: init.sh
 

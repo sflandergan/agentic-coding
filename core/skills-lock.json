@@ -7,13 +7,11 @@
     },
     "write-a-skill": {
       "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/productivity/write-a-skill/SKILL.md"
+      "sourceType": "github"
     },
     "zoom-out": {
       "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/zoom-out/SKILL.md"
+      "sourceType": "github"
     }
   }
 }

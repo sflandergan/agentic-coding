@@ -89,8 +89,8 @@ echo "Target project: $TARGET"
 # 3. Check required tools
 # ---------------------------------------------------------------------------
 require_tool jq "Install with: brew install jq"
-CTX7_AVAILABLE=true
-warn_tool ctx7 "Install the ctx7 CLI per the upstream docs. Remote skill installation will be skipped." || CTX7_AVAILABLE=false
+NPX_AVAILABLE=true
+warn_tool npx "Install Node.js (provides npx) to enable remote skill installation. It will be skipped." || NPX_AVAILABLE=false
 
 # ---------------------------------------------------------------------------
 # 4. Prompt for stack
@@ -476,22 +476,40 @@ fi
 # 17. Install remote skills from merged lock file
 # ---------------------------------------------------------------------------
 echo ""
-if [[ "$CTX7_AVAILABLE" == "true" ]]; then
+if [[ "$NPX_AVAILABLE" == "true" ]]; then
   echo "Installing remote skills from skills-lock.json..."
   skill_keys=$(jq -r '.skills | keys[]' "$TARGET/skills-lock.json")
   for key in $skill_keys; do
     source_repo=$(jq -r ".skills[\"$key\"].source // empty" "$TARGET/skills-lock.json")
     source_type=$(jq -r ".skills[\"$key\"].sourceType // empty" "$TARGET/skills-lock.json")
-    if [[ -n "$source_repo" ]]; then
-      echo "  Installing $key from $source_type/$source_repo..."
-      if [[ "$source_type" == "github" ]]; then
-        ctx7 install "$source_repo" || echo "  WARNING: failed to install $key"
+    [[ -n "$source_repo" ]] || continue
+    # Map the lock source to a `skills` CLI source arg:
+    #   github -> owner/repo shorthand; gitlab -> full URL.
+    case "$source_type" in
+      gitlab) src="https://gitlab.com/$source_repo" ;;
+      *)      src="$source_repo" ;;
+    esac
+    echo "  Installing $key from $src ..."
+    # Install the canonical SKILL.md tree into .agents/skills/ (also read by
+    # OpenCode), then symlink it into .claude/skills/ like the authored skills.
+    if ( cd "$TARGET" && npx --yes skills add "$src" --skill "$key" -a opencode --yes ); then
+      link_path="$TARGET/.claude/skills/$key"
+      expected_target="../../.agents/skills/$key"
+      if [[ -L "$link_path" && "$(readlink "$link_path")" == "$expected_target" ]]; then
+        : # already correct
+      elif [[ -e "$link_path" || -L "$link_path" ]]; then
+        echo "  NOTE: $link_path already exists; leaving it untouched."
+      else
+        mkdir -p "$TARGET/.claude/skills"
+        ln -s "$expected_target" "$link_path"
       fi
+    else
+      echo "  WARNING: failed to install $key"
     fi
   done
 else
   echo ""
-  echo "ctx7 not installed; manually install these remote skills:"
+  echo "npx not available; manually install these remote skills with 'npx skills add':"
   jq -r '.skills | keys[]' "$TARGET/skills-lock.json" | while read -r key; do
     source_repo=$(jq -r ".skills[\"$key\"].source // empty" "$TARGET/skills-lock.json")
     source_type=$(jq -r ".skills[\"$key\"].sourceType // empty" "$TARGET/skills-lock.json")
