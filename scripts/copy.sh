@@ -301,8 +301,9 @@ COPIED=()
 # ---------------------------------------------------------------------------
 if [[ -s "$TARGET/AGENTS.md" ]]; then
   echo ""
-  if ask_yn "Skip AGENTS.md?" "y"; then
-    SKIPPED+=("AGENTS.md (existing non-empty, skipped)")
+  echo "AGENTS.md already exists in the target."
+  if ask_yn "Keep it as-is? (no = append the toolkit's AGENTS.md to it)" "y"; then
+    SKIPPED+=("AGENTS.md (existing non-empty, kept as-is)")
   else
     {
       cat "$TARGET/AGENTS.md"
