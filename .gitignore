@@ -1,0 +1,5 @@
+# Scratch directory for smoke runs and throwaway work
+.temp/
+
+# Keep Claude Code local settings private
+.claude/settings.local.json
