@@ -57,7 +57,14 @@ rm -rf .temp/smoke-test .temp/smoke-copy
 No compilation check, but verify:
 - SKILL.md frontmatter has required `name` and `description`
 - Agent `.md` files have required `description` in frontmatter
+- Run `codespell` on changed markdown, agent, skill, README, and prose-heavy script files
 - No broken relative links (manual spot-check)
+
+```bash
+codespell README.md .agents/skills/agent-planning/SKILL.md
+```
+
+Scope `codespell` to changed files by default. Run it more broadly when a plan explicitly calls for repo-wide spelling validation.
 
 ### Consistency checks
 

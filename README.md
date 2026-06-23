@@ -30,6 +30,7 @@ The toolkit is stack-agnostic in `core/`. Stack overlays add verification comman
 |---|---|---|
 | `jq` | [Official jq install docs](https://jqlang.github.io/jq/download/) | Required by init and copy scripts |
 | `npx` (Node.js) | [nodejs.org](https://nodejs.org) | Runs the [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add …`) for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
+| `codespell` | `brew install codespell` | Spellchecks markdown templates, agent/skill files, README content, and user-facing script text |
 
 ## Quick Start: init.sh
 

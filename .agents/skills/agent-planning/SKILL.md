@@ -32,7 +32,11 @@ Each task is one focused commit. Steps within a task are 2-5 minute actions:
 - "Verify syntax" — step
 - "Commit" — step
 
-No rigid TDD — verification is shellcheck, bash -n, smoke runs, and consistency checks.
+No rigid TDD — verification is shellcheck, bash -n, smoke runs, codespell for prose-heavy changes, and consistency checks.
+
+## Spellcheck Planning
+
+When a task creates or modifies markdown templates, agent files, skill files, README content, or user-facing script text, include a `codespell` verification step for the changed files. Keep it scoped to the files touched by the task unless the plan intentionally adds or updates repo-wide spelling policy.
 
 ## Plan Document Header
 
@@ -64,6 +68,7 @@ No rigid TDD — verification is shellcheck, bash -n, smoke runs, and consistenc
 - [ ] **Step 2: Verify**
 
 Run: `shellcheck scripts/foo.sh`
+Run: `codespell exact/path/to/file.md`
 Expected: no errors
 
 - [ ] **Step 3: Commit**
