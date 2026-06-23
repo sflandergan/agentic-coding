@@ -27,6 +27,10 @@ permission:
     "git branch *": allow
     "git checkout *": allow
     "git commit *": allow
+    # Publish helper
+    "codespell *": allow
+    "scripts/publish-branch.sh": allow
+    "bash scripts/publish-branch.sh": allow
     # Protective denials are last because opencode uses last-match-wins permissions
     "git branch -d *": deny
     "git branch -D *": deny
@@ -63,4 +67,4 @@ Plan requirements:
 
 Use `@explore` when you need to investigate before planning. Continue after the context is strong enough to support the plan.
 
-After writing the plan, report the plan path and any open questions.
+After writing the plan, commit the plan file, run `scripts/publish-branch.sh` to push the branch and create or report the PR, and report the plan path, PR URL, and any open questions.

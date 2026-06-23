@@ -26,13 +26,13 @@ Before defining tasks, map out which files will be created or modified. For each
 
 ## Task Granularity
 
-Each task is one focused commit. Steps within a task are 2-5 minute actions:
+Each task is one focused commit. Steps within a task are small concrete actions:
 
 - "Write the file" — step
 - "Verify syntax" — step
 - "Commit" — step
 
-No rigid TDD — verification is shellcheck, bash -n, smoke runs, codespell for prose-heavy changes, and consistency checks.
+Verification should match the changed files: shellcheck and `bash -n` for bash scripts, smoke runs for script behavior changes, `codespell` for prose-heavy changes, and consistency checks for README, lockfiles, symlinks, and dot-mapping.
 
 ## Spellcheck Planning
 
