@@ -4,9 +4,9 @@
 
 **Goal:** Add a self-maintenance agent + skill surface to this toolkit repo so it can maintain its own markdown templates and bash scripts.
 
-**Architecture:** Four thin agents (`plan`, `implement`, `implement-task`, `review`) delegate to `agent-*` prefixed skills. Shared repo conventions live in a root `AGENTS.md` (ambient, not a skill). Skills are symlinked from `.claude/skills/` to `.agents/skills/` for Claude Code compatibility. A `writing-skills` remote skill from `obra/superpowers` replaces the old `mattpocock/skills` entry.
+**Configuration shape:** Four thin agents (`planning`, `implement`, `implement-task`, `review`) delegate to `agent-*` prefixed skills. Shared repo conventions live in a root `AGENTS.md` (ambient, not a skill). Skills are symlinked from `.claude/skills/` to `.agents/skills/` for Claude Code compatibility. A `writing-skills` remote skill from `obra/superpowers` replaces the old `mattpocock/skills` entry.
 
-**Tech Stack:** OpenCode agents (markdown frontmatter), bash, shellcheck, `npx skills`.
+**Configuration surface:** OpenCode agent/config markdown, Claude Code skill compatibility symlinks, bash helper scripts, shellcheck, `npx skills`.
 
 **Target Branch:** `chore/self-maintenance-agents`
 
@@ -78,7 +78,8 @@ The files this repo's agents operate on:
 
 - Markdown templates under `core/` and `stacks/`
 - `README.md`
-- `skills-lock.json` and `core/skills-lock.json`
+- `skills-lock.json` for this repo's self-maintenance skills
+- `core/skills-lock.json` for the toolkit installed into target repos
 - `scripts/init.sh` (~325 lines), `scripts/copy.sh` (~618 lines)
 
 ## Dot-Mapping (Source → Target)
@@ -92,18 +93,17 @@ The scripts copy these source directories to target dot-directories:
 | `core/agents/` | `.agents/` |
 | `core/docs/` | `docs/` |
 
-The self-maintenance agents in this repo use the **target** paths directly (`.opencode/`, `.agents/`, `.claude/`).
-
 ## Core + Stacks Dual-Maintenance
 
-A change to a core template often needs the matching `stacks/*` overlay updated too. When modifying a file under `core/`, check whether `stacks/pnpm/` or `stacks/maven/` has an overlay for the same file and update it.
+When modifying a file under `core/`, check whether `stacks/pnpm/` or `stacks/maven/` has an overlay for the same file. Update stack overlays when the change affects stack-specific installed output, especially when adding a new template or changing behavior that an overlay intentionally customizes.
 
 ## Sync Invariants
 
 These must stay consistent with the actual files:
 
 - `README.md` agent/skill lists
-- `skills-lock.json` and `core/skills-lock.json`
+- `skills-lock.json` reflects skills installed in this repo for self-maintenance
+- `core/skills-lock.json` reflects skills installed into target repos by the toolkit templates
 - The dot-mapping table above
 - Agent file names in `.opencode/agents/` vs what `opencode.json` references
 
@@ -119,7 +119,7 @@ user-invocable: false     # for skills only loaded by agents, not users
 
 ## Symlink Model
 
-OpenCode reads skills from `.agents/skills/<name>/SKILL.md`. Each skill is symlinked into `.claude/skills/<name>` (`ln -s ../../.agents/skills/<name>`) so Claude Code also sees it. This matches the model `copy.sh` uses for authored skills.
+OpenCode is configured to read skills from `.agents/skills/<name>/SKILL.md`. Each skill is symlinked into `.claude/skills/<name>` (`ln -s ../../.agents/skills/<name>`) so Claude Code also sees it. This matches the model `copy.sh` uses for authored skills.
 
 ## .temp/ Scratch Rule
 
@@ -131,15 +131,15 @@ All smoke runs and throwaway work goes in `.temp/`, never `/tmp`. Clean up after
 - Branches use `feature/`, `fix/`, or `chore/` prefixes with short kebab-case descriptions.
 - Commits are concise, imperative, and focused on why.
 - Prefer `git mv` for moves/renames of tracked paths. Use `git rm` for removals of tracked paths.
-- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never bare `git push`.
-- Do not delete branches or remove worktrees. Do not force-push.
-- Do not add `Co-Authored-By` lines.
+- Use `scripts/publish-branch.sh` for branch publishing and PR creation so branch-safety checks are centralized.
+- Keep branch deletion, worktree removal, and force-push operations under explicit human control.
+- Write commits without `Co-Authored-By` trailers.
 
 ## Verification Baseline
 
 For changes in this repo:
 
-- Docs-only or comment-only changes do not require workspace verification.
+- Markdown-only changes require format-specific validation: agent frontmatter, skill frontmatter, README inventory sync, and link/symlink spot checks as applicable.
 - Bash script changes require `shellcheck` and `bash -n`.
 - Script changes also require a smoke run against `.temp/`.
 - Agent/skill/config changes require consistency checks: README lists, lockfiles, dot-mapping, and symlink integrity.
@@ -199,6 +199,60 @@ git commit -m "chore: add CLAUDE.md referencing AGENTS.md"
 
 ---
 
+## Task 3A: Create branch publishing helper
+
+**Files:**
+- Create: `scripts/publish-branch.sh`
+
+**Context:** Centralize branch publishing and PR creation behind one safety-checked command. This avoids relying on `git push origin $(git rev-parse --abbrev-ref HEAD)`, which still pushes `main` when the current branch is `main`.
+
+- [ ] **Step 1: Write `scripts/publish-branch.sh`**
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+  printf 'Refusing to publish protected branch: %s\n' "$branch" >&2
+  exit 1
+fi
+
+git push -u origin "$branch"
+
+pr_url="$(gh pr list --head "$branch" --json url --jq '.[0].url')"
+if [ -n "$pr_url" ]; then
+  printf '%s\n' "$pr_url"
+else
+  gh pr create --fill
+fi
+```
+
+- [ ] **Step 2: Make script executable**
+
+```bash
+chmod +x scripts/publish-branch.sh
+```
+
+- [ ] **Step 3: Verify script syntax**
+
+```bash
+shellcheck scripts/publish-branch.sh
+bash -n scripts/publish-branch.sh
+```
+
+Expected: both commands exit 0.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add scripts/publish-branch.sh
+git commit -m "chore: add safe branch publishing helper"
+```
+
+---
+
 ## Task 4: Create `agent-planning` skill
 
 **Files:**
@@ -237,7 +291,7 @@ Before defining tasks, map out which files will be created or modified. For each
 
 - What it is responsible for
 - Whether a `stacks/*` overlay also needs updating (core+stacks dual-maintenance)
-- Whether `README.md`, `skills-lock.json`, or the dot-mapping table need syncing
+- Whether `README.md`, this repo's `skills-lock.json`, `core/skills-lock.json`, or the dot-mapping table need updates for their distinct scopes
 
 ## Task Granularity
 
@@ -258,9 +312,9 @@ No rigid TDD — verification is shellcheck, bash -n, smoke runs, and consistenc
 
 **Goal:** [One sentence]
 
-**Architecture:** [2-3 sentences]
+**Configuration shape:** [2-3 sentences]
 
-**Tech Stack:** [Key technologies]
+**Configuration surface:** [Key files, tools, and validation commands]
 ```
 
 ## Task Structure
@@ -291,7 +345,7 @@ git commit -m "chore: description"
 
 ## No Placeholders
 
-Every step must contain actual content. Never write: "TBD", "TODO", "implement later", "add appropriate handling", "similar to Task N".
+Every step must contain actual content. Replace placeholder phrases such as "TBD", "TODO", "implement later", "add appropriate handling", and "similar to Task N" with concrete instructions.
 
 ## Self-Review
 
@@ -299,7 +353,7 @@ After writing the plan:
 
 1. **Spec coverage:** Can you point to a task for each spec requirement?
 2. **Placeholder scan:** Search for red-flag patterns.
-3. **Sync check:** Do README, lockfiles, and dot-mapping need updates? Are those tasks included?
+3. **Sync check:** Do README, repo lockfile, core template lockfile, and dot-mapping need updates for their separate scopes? Are those tasks included?
 
 Fix inline. No re-review needed.
 
@@ -358,7 +412,7 @@ Controller orchestration for implementing plans against this toolkit repo.
 
 **Core principle:** Fresh `implement-task` worker per task + verification gate = quality commits.
 
-**Continuous execution:** Do not pause between tasks. Execute all tasks from the plan. Stop only for: BLOCKED status, genuine ambiguity, or all tasks complete.
+**Continuous execution:** Execute all tasks from the plan without routine pauses between tasks. Stop for: BLOCKED status, genuine ambiguity, or all tasks complete.
 
 ## The Process
 
@@ -386,24 +440,23 @@ The `implement-task` worker:
 - **NEEDS_CONTEXT:** Provide missing context and re-dispatch.
 - **BLOCKED:** Assess: context problem → provide more; plan wrong → escalate to human.
 
-Never ignore an escalation. If the worker said it's stuck, something needs to change.
+Treat every worker escalation as actionable. If the worker said it's stuck, something needs to change.
 
-## Red Flags
+## Operating Rules
 
-- Never start on `main` without explicit user consent
-- Never skip verification
-- Never proceed with unfixed issues
-- Never dispatch multiple workers in parallel unless tasks are independent and touch disjoint files
-- Never skip scene-setting context for the worker
+- Start from a scoped branch.
+- Run the relevant verification before status claims and before moving to the next task.
+- Resolve correctness issues before continuing.
+- Dispatch workers sequentially by default; use parallel workers only for independent tasks touching disjoint files.
+- Give each worker the task text, relevant context, and branch state.
 
 ## Completion
 
 After all tasks complete and final verification passes:
 
 1. Commit all changes.
-2. Push with `git push origin $(git rev-parse --abbrev-ref HEAD)`.
-3. Create PR if one doesn't exist (`gh pr list --head $(git rev-parse --abbrev-ref HEAD)`).
-4. Never push to `main`.
+2. If the human asked for publishing, run `scripts/publish-branch.sh`.
+3. Report the final verification evidence and PR URL when one was created.
 ```
 
 - [ ] **Step 2: Validate frontmatter**
@@ -511,7 +564,7 @@ No compilation check, but verify:
 ls .opencode/agents/          # should match README's agent list
 ls .agents/skills/            # should match README's skill list
 
-# skills-lock.json matches installed skills
+# Lockfiles match their distinct scopes
 jq '.skills | keys' skills-lock.json
 jq '.skills | keys' core/skills-lock.json
 
@@ -519,12 +572,12 @@ jq '.skills | keys' core/skills-lock.json
 ls -la .claude/skills/        # each should point to ../../.agents/skills/<name>
 ```
 
-## Red Flags
+## Claim Rules
 
-- Never use "should", "probably", "seems to"
-- Never express satisfaction before verification
-- Never commit/push without running relevant checks
-- Trust no agent success report — verify independently
+- Use evidence-based language tied to command output.
+- Run verification before success claims.
+- Run relevant checks before commits, publishing, or PR creation.
+- Verify agent success reports independently.
 
 ## When To Apply
 
@@ -604,7 +657,8 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 - [ ] SKILL.md frontmatter has `name` and `description`
 - [ ] Agent `.md` has `description` in frontmatter
 - [ ] Symlinks in `.claude/skills/` resolve correctly
-- [ ] `skills-lock.json` and `core/skills-lock.json` are consistent
+- [ ] `skills-lock.json` reflects this repo's self-maintenance skills
+- [ ] `core/skills-lock.json` reflects target-project template skills
 - [ ] README agent/skill lists match actual files
 - [ ] Shell scripts pass shellcheck and bash -n
 - [ ] No force-push, no branch deletion, no worktree removal
@@ -622,7 +676,7 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 
 Present findings ordered by severity with file and line references. If no findings, say so.
 
-Do not edit files directly. Suggest fixes only. After user approval, the implement agent handles changes.
+Review and report findings without editing files directly. Provide suggested fixes when useful.
 ```
 
 - [ ] **Step 2: Validate frontmatter**
@@ -700,12 +754,12 @@ git commit -m "chore: add .claude/skills symlinks for Claude Code compatibility"
 
 ---
 
-## Task 9: Create `plan` agent
+## Task 9: Create `planning` agent
 
 **Files:**
-- Create: `.opencode/agents/plan.md`
+- Create: `.opencode/agents/planning.md`
 
-**Context:** Mode primary. Replaces the built-in `plan` agent (custom definition overrides built-in). Edit restricted to `plans/**`. Loads `agent-planning` and `writing-skills`.
+**Context:** Mode primary. Uses a distinct `planning` name instead of overriding OpenCode's built-in `plan` agent. Edit restricted to `plans/**`. Loads `agent-planning` and `writing-skills`.
 
 - [ ] **Step 1: Create directory and write agent**
 
@@ -724,6 +778,16 @@ permission:
     "plans/**": allow
   bash:
     "*": ask
+    # File read and inspection
+    "grep *": allow
+    "ls *": allow
+    "wc *": allow
+    "date *": allow
+    "which *": allow
+    # Directory creation for plans
+    "mkdir plans/*": allow
+    "mkdir -p plans/*": allow
+    # Git inspection and plan commits
     "git diff *": allow
     "git log *": allow
     "git rev-parse *": allow
@@ -731,26 +795,18 @@ permission:
     "git status *": allow
     "git add plans/*": allow
     "git branch *": allow
-    "git branch -d *": deny
-    "git branch -D *": deny
     "git checkout *": allow
     "git commit *": allow
+    # Protective denials are last because opencode uses last-match-wins permissions
+    "git branch -d *": deny
+    "git branch -D *": deny
     "git worktree remove *": deny
-    "git push origin *": allow
     "git push --force *": deny
     "git push -f *": deny
     "git push origin --force *": deny
     "git push origin -f *": deny
     "git push origin main*": deny
     "git push origin +main*": deny
-    "grep *": allow
-    "ls *": allow
-    "wc *": allow
-    "mkdir plans/*": allow
-    "mkdir -p plans/*": allow
-    "echo *": allow
-    "date *": allow
-    "which *": allow
   task:
     "*": deny
     "explore": allow
@@ -764,7 +820,7 @@ You are the planning agent for this toolkit repo.
 
 Load the approved spec first. Use the `agent-planning` skill to write the plan.
 
-Your job is to write implementation plans, not code. Write plans to `plans/YYYY-MM-DD-feature-name/plan.md` next to the spec.
+Your task is to write implementation plans to `plans/YYYY-MM-DD-feature-name/plan.md` next to the spec.
 
 Plan requirements:
 
@@ -772,18 +828,18 @@ Plan requirements:
 - Split work into tasks with one logical commit per task.
 - Include exact file paths, concrete steps, verification commands, and commit messages.
 - Check that README, lockfiles, and sync invariants are addressed.
-- No placeholders. Every step has actual content.
+- Every step has actual content.
 - State which docs were used.
 
-Use `@explore` when you need to investigate before planning. Do not continue with weak context.
+Use `@explore` when you need to investigate before planning. Continue after the context is strong enough to support the plan.
 
-After writing the plan, stop. Suggest `@review` before handoff to `@implement`.
+After writing the plan, report the plan path and any open questions.
 ```
 
 - [ ] **Step 2: Validate frontmatter**
 
 ```bash
-head -4 .opencode/agents/plan.md
+head -4 .opencode/agents/planning.md
 ```
 
 Expected:
@@ -796,8 +852,8 @@ mode: primary
 - [ ] **Step 3: Commit**
 
 ```bash
-git add .opencode/agents/plan.md
-git commit -m "chore: add plan agent for self-maintenance"
+git add .opencode/agents/planning.md
+git commit -m "chore: add planning agent for self-maintenance"
 ```
 
 ---
@@ -820,13 +876,13 @@ permission:
   edit: allow
   bash:
     "*": ask
+    # GitHub PR operations
     "gh pr create *": allow
     "gh pr list *": allow
     "gh pr view *": allow
+    # Git write and inspection operations
     "git add *": allow
     "git branch *": allow
-    "git branch -d *": deny
-    "git branch -D *": deny
     "git checkout *": allow
     "git commit *": allow
     "git diff *": allow
@@ -838,10 +894,50 @@ permission:
     "git rebase *": allow
     "git reset --soft *": allow
     "git reset --mixed *": allow
-    "git reset --hard *": ask
     "git pull *": allow
     "git show *": allow
     "git status *": allow
+    # File read and inspection
+    "cat *": allow
+    "diff *": allow
+    "find *": allow
+    "grep *": allow
+    "head *": allow
+    "ls *": allow
+    "rg *": allow
+    "sed -n *": allow
+    "sort *": allow
+    "tail *": allow
+    "wc *": allow
+    # File write and transformation helpers
+    "cp *": allow
+    "chmod +x scripts/*": allow
+    "chmod 755 scripts/*": allow
+    "jq *": allow
+    "file *": allow
+    "stat *": allow
+    "tr *": allow
+    "cut *": allow
+    "uniq *": allow
+    "paste *": allow
+    "echo *": allow
+    "date *": allow
+    "mkdir *": allow
+    "mkdir -p *": allow
+    "mkdir .temp/*": allow
+    "mkdir -p .temp/*": allow
+    # Verification commands
+    "shellcheck *": allow
+    "bash -n *": allow
+    "rm -rf .temp/*": allow
+    "rm -rf .temp": allow
+    # Publishing goes through the branch-safety helper
+    "scripts/publish-branch.sh": allow
+    "bash scripts/publish-branch.sh": allow
+    # Protective rules are last because opencode uses last-match-wins permissions
+    "git branch -d *": deny
+    "git branch -D *": deny
+    "git reset --hard *": ask
     "git worktree remove *": deny
     "git push": ask
     "git push origin *": ask
@@ -856,38 +952,6 @@ permission:
     "git push origin *:*": ask
     "git push origin --tags*": ask
     "git push origin tag *": ask
-    "git push origin $(git rev-parse --abbrev-ref HEAD)": allow
-    "cat *": allow
-    "diff *": allow
-    "find *": allow
-    "grep *": allow
-    "head *": allow
-    "ls *": allow
-    "rg *": allow
-    "sed -n *": allow
-    "sort *": allow
-    "tail *": allow
-    "wc *": allow
-    "cp *": allow
-    "chmod +x *": allow
-    "chmod 755 *": allow
-    "jq *": allow
-    "file *": allow
-    "stat *": allow
-    "tr *": allow
-    "cut *": allow
-    "uniq *": allow
-    "paste *": allow
-    "echo *": allow
-    "date *": allow
-    "mkdir *": allow
-    "mkdir -p *": allow
-    "mkdir .temp/*": allow
-    "mkdir -p .temp/*": allow
-    "shellcheck *": allow
-    "bash -n *": allow
-    "rm -rf .temp/*": allow
-    "rm -rf .temp": allow
   task:
     "*": deny
     "explore": allow
@@ -904,15 +968,15 @@ Use the `agent-implementation` skill for orchestration. Use `agent-verification`
 
 Execution rules:
 
-- Never implement on `main`; create or ask for a scoped branch.
+- Work from a scoped branch before editing.
 - Prefer `git mv` for moves/renames, `git rm` for removals of tracked paths.
-- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never bare `git push`.
+- Use `scripts/publish-branch.sh` for publishing and PR creation.
 - Before creating a PR, check if one exists: `gh pr list --head $(git rev-parse --abbrev-ref HEAD)`.
 - Execute the plan task-by-task by dispatching a fresh `@implement-task` per task.
 - Review each worker's report and diff before moving on.
-- Do not pause between tasks for routine approval.
+- Continue between tasks without routine approval pauses.
 - Stop only for: BLOCKED status, genuine ambiguity, or all tasks complete.
-- After final verification, commit, push, and create PR if needed.
+- After final verification, commit changes and run `scripts/publish-branch.sh` when the human asks for publishing.
 
 Verification for this repo:
 
@@ -962,7 +1026,7 @@ permission:
   edit: allow
   bash:
     "*": ask
-    "git push *": deny
+    # Git inspection and single-task commits
     "git diff *": allow
     "git grep *": allow
     "git log *": allow
@@ -971,14 +1035,12 @@ permission:
     "git show *": allow
     "git status *": allow
     "git branch *": allow
-    "git branch -d *": deny
-    "git branch -D *": deny
-    "git worktree remove *": deny
     "git add *": allow
     "git checkout *": allow
     "git commit *": allow
     "git mv *": allow
     "git rm *": allow
+    # File read and inspection
     "cat *": allow
     "diff *": allow
     "find *": allow
@@ -991,9 +1053,10 @@ permission:
     "sed -n *": allow
     "tail *": allow
     "wc *": allow
+    # File write and transformation helpers
     "cp *": allow
-    "chmod +x *": allow
-    "chmod 755 *": allow
+    "chmod +x scripts/*": allow
+    "chmod 755 scripts/*": allow
     "jq *": allow
     "file *": allow
     "stat *": allow
@@ -1008,11 +1071,17 @@ permission:
     "mkdir .temp/*": allow
     "mkdir -p .temp/*": allow
     "touch *": allow
+    # Verification and symlink commands
     "shellcheck *": allow
     "bash -n *": allow
     "ln -s *": allow
     "rm -rf .temp/*": allow
     "rm -rf .temp": allow
+    # Protective rules are last because opencode uses last-match-wins permissions
+    "git push *": deny
+    "git branch -d *": deny
+    "git branch -D *": deny
+    "git worktree remove *": deny
   task:
     "*": deny
     "explore": allow
@@ -1023,17 +1092,17 @@ permission:
 
 You are the single-task implementation worker for this toolkit repo.
 
-Implement exactly one task provided by `@implement`. Do not read or execute unrelated tasks.
+Implement exactly one task provided by `@implement`. Keep context and edits scoped to that task.
 
 Rules:
 
-- Never work on `main`.
+- Work from a scoped branch.
 - Follow the provided task text, spec context, plan context, and repo docs.
 - Make the smallest correct change.
 - Prefer `git mv` for moves/renames, `git rm` for removals of tracked paths.
 - Run verification: `shellcheck` and `bash -n` on changed scripts, smoke runs when applicable, consistency checks.
 - Commit exactly the task changes with the message from the plan.
-- Do not push, create PRs, amend commits, or dispatch other workers.
+- Leave publishing, PR creation, commit amendment, and worker dispatch to the controller or human.
 - If requirements are unclear, report `NEEDS_CONTEXT` before editing.
 - If blocked after three attempts, report `BLOCKED` with what you tried.
 
@@ -1092,10 +1161,13 @@ permission:
     "plans/**": allow
   bash:
     "*": ask
+    # File read and inspection
     "ls": allow
     "ls *": allow
     "ls .temp/*": allow
     "find .temp/*": allow
+    "grep *": allow
+    # Git inspection
     "git branch --show-current": allow
     "git diff *": allow
     "git log *": allow
@@ -1104,14 +1176,15 @@ permission:
     "git show *": allow
     "git branch": allow
     "git branch *": allow
+    # Verification commands
+    "shellcheck *": allow
+    "bash -n *": allow
+    # Protective rules are last because opencode uses last-match-wins permissions
     "git branch -d *": deny
     "git branch -D *": deny
     "git worktree remove *": deny
     "git push *": ask
     "git push origin main*": deny
-    "grep *": allow
-    "shellcheck *": allow
-    "bash -n *": allow
   task:
     "*": deny
     "explore": allow
@@ -1132,7 +1205,7 @@ Review goals:
 
 Combine your findings into one deduplicated, prioritized list. Separate blocking issues from advisory suggestions. Cite file paths and sections.
 
-Do not edit files directly. Suggest fixes only. After user approval, the `@implement` agent handles changes.
+Review and report findings without editing files directly. Provide suggested fixes when useful.
 
 Use `@explore` when you need to investigate before judging a finding.
 ```
@@ -1164,21 +1237,27 @@ git commit -m "chore: add review agent for self-maintenance"
 **Files:**
 - Create: `opencode.json`
 
-**Context:** Root config assigns models, disables built-in `build`, overrides built-in `plan` with our restricted version, sets `default_agent: plan`.
+**Context:** Root config assigns models, registers `.agents/skills`, disables built-in `build` and `plan`, and sets `default_agent: planning`.
 
 - [ ] **Step 1: Write config**
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "plan",
+  "default_agent": "planning",
   "model": "opencode-go/mimo-v2.5-pro",
   "small_model": "opencode-go/mimo-v2.5",
+  "skills": {
+    "paths": [".agents/skills"]
+  },
   "agent": {
     "build": {
       "disable": true
     },
     "plan": {
+      "disable": true
+    },
+    "planning": {
       "model": "opencode-go/mimo-v2.5-pro"
     },
     "implement": {
@@ -1210,7 +1289,7 @@ git commit -m "chore: add review agent for self-maintenance"
 }
 ```
 
-**Note:** The `plan` agent here is our custom `.opencode/agents/plan.md` file, which overrides the built-in `plan` agent. The built-in `build` agent is explicitly disabled.
+**Note:** The built-in `plan` and `build` agents are explicitly disabled. The custom planning agent is `.opencode/agents/planning.md`.
 
 - [ ] **Step 2: Validate JSON**
 
@@ -1420,9 +1499,9 @@ writing-skills -> ../../.agents/skills/writing-skills
 - [ ] **Step 4: Verify file existence**
 
 ```bash
-ls .opencode/agents/plan.md .opencode/agents/implement.md .opencode/agents/implement-task.md .opencode/agents/review.md
+ls .opencode/agents/planning.md .opencode/agents/implement.md .opencode/agents/implement-task.md .opencode/agents/review.md
 ls .agents/skills/agent-planning/SKILL.md .agents/skills/agent-implementation/SKILL.md .agents/skills/agent-verification/SKILL.md .agents/skills/agent-review/SKILL.md .agents/skills/writing-skills/SKILL.md
-ls AGENTS.md CLAUDE.md .gitignore opencode.json skills-lock.json
+ls AGENTS.md CLAUDE.md .gitignore opencode.json skills-lock.json scripts/publish-branch.sh
 ```
 
 - [ ] **Step 5: Smoke-run `init.sh` (optional but recommended)**
@@ -1451,11 +1530,11 @@ Expected: Toolkit merged into existing repo, `writing-skills` installed.
 
 Add a "Self-Maintenance Agents" section documenting:
 
-- The 4 agents: `plan`, `implement`, `implement-task`, `review`
+- The 4 agents: `planning`, `implement`, `implement-task`, `review`
 - The 5 skills: `agent-planning`, `agent-implementation`, `agent-verification`, `agent-review`, `writing-skills`
 - The `AGENTS.md` + `CLAUDE.md` convention
 - That `writing-skills` is sourced from `obra/superpowers`
-- How to invoke them (`@plan`, `@implement`, `@review` in OpenCode; `/agent-planning`, etc. in Claude Code)
+- How to invoke them (`@planning`, `@implement`, `@review` in OpenCode; `/agent-planning`, etc. in Claude Code)
 
 Also update any existing agent/skill inventory lists to include the new entries.
 
@@ -1498,9 +1577,9 @@ jq . core/skills-lock.json
 ls -la .claude/skills/
 
 # 4. Required files exist
-ls .opencode/agents/plan.md .opencode/agents/implement.md .opencode/agents/implement-task.md .opencode/agents/review.md
+ls .opencode/agents/planning.md .opencode/agents/implement.md .opencode/agents/implement-task.md .opencode/agents/review.md
 ls .agents/skills/agent-planning/SKILL.md .agents/skills/agent-implementation/SKILL.md .agents/skills/agent-verification/SKILL.md .agents/skills/agent-review/SKILL.md .agents/skills/writing-skills/SKILL.md
-ls AGENTS.md CLAUDE.md .gitignore opencode.json skills-lock.json
+ls AGENTS.md CLAUDE.md .gitignore opencode.json skills-lock.json scripts/publish-branch.sh
 
 # 5. README sync (manual compare)
 ls .opencode/agents/
@@ -1515,18 +1594,12 @@ All checks must pass before creating a PR.
 
 After final verification passes:
 
-1. Push the branch:
+1. Publish the branch and create/view the PR:
    ```bash
-   git push origin $(git rev-parse --abbrev-ref HEAD)
+   scripts/publish-branch.sh
    ```
 
-2. Create a PR if one doesn't exist:
-   ```bash
-   gh pr list --head $(git rev-parse --abbrev-ref HEAD)
-   gh pr create --title "chore: add self-maintenance agents and skills" --body "Implements the self-maintenance agent + skill surface per plans/2026-06-23-self-maintenance-agents-spec.md."
-   ```
-
-3. Report the PR URL and final status.
+2. Report the PR URL and final status.
 
 ---
 
@@ -1537,4 +1610,6 @@ After final verification passes:
 - `core/agents/skills/workflow-planning/SKILL.md`, `core/agents/skills/workflow-implementation/SKILL.md`, `core/agents/skills/workflow-verification/SKILL.md` (template skill patterns)
 - `core/opencode.json` (template config pattern)
 - `scripts/init.sh`, `scripts/copy.sh` (lockfile and symlink logic)
-- `https://opencode.ai/config.json` (schema validation)
+- `https://opencode.ai/config.json` (schema validation, agent fields, permission object shape)
+- OpenCode permission model guidance: per-tool permission objects use insertion order with last matching rule winning
+- Claude Code skills compatibility model via `.claude/skills/<name>` symlinks to `.agents/skills/<name>`
