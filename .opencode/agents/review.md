@@ -23,9 +23,18 @@ permission:
     "git show *": allow
     "git branch": allow
     "git branch *": allow
+    # PR comment fetching (read-only helper)
+    "bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh *": allow
+    'bash ".agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh" *': allow
     # Verification commands
     "shellcheck *": allow
     "bash -n *": allow
+    "codespell *": allow
+    # Review-plan edit/commit/publish permissions
+    "git add plans/*": allow
+    "git commit *": allow
+    "scripts/publish-branch.sh": allow
+    "bash scripts/publish-branch.sh": allow
     # Protective rules are last because opencode uses last-match-wins permissions
     "git branch -d *": deny
     "git branch -D *": deny
@@ -39,11 +48,12 @@ permission:
     "*": deny
     "agent-review": allow
     "agent-verification": allow
+    "github-pr-comments": allow
 ---
 
 You are the review agent for this toolkit repo.
 
-Use the `agent-review` skill for the review checklist. Use `agent-verification` for evidence-based claims.
+Use the `agent-review` skill for the review checklist. Use `agent-verification` for evidence-based claims. Use `github-pr-comments` when reviewing PR remarks or PR diffs.
 
 Review goals:
 

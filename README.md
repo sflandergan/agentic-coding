@@ -207,9 +207,10 @@ Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compat
 | `agent-implementation` | Controller orchestration, worker status handling, completion |
 | `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
 | `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
+| `github-pr-comments` | PR comment fetching, classification, and reply workflow |
 | `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
 
-Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, or `/agent-review`. The `writing-skills` skill is also exposed as `/writing-skills`.
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/github-pr-comments`. The `writing-skills` skill is also exposed as `/writing-skills`.
 
 ### Lockfiles
 

@@ -40,6 +40,32 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 3. Convention violations from AGENTS.md
 4. Unnecessary scope expansion
 
+## PR Comment Review
+
+Use the `github-pr-comments` skill and run:
+
+```bash
+bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh [<pr>]
+```
+
+Inline comments must be checked against the current diff before accepting or dismissing them. Outdated inline comments may still be valid; verify technical claims before dismissing.
+
+## Required Workflow
+
+Use this standard self-maintenance review workflow unless the user explicitly requests a different scope:
+
+1. Read open PR comments first by using the `github-pr-comments` skill. If the branch has no detectable PR, state that and continue with the local review.
+2. Identify whether the review target is a spec/plan or a diff. If multiple candidate plans exist and the user did not state which one to use, ask before continuing the plan-conformance part of the review.
+3. Review the target yourself against `AGENTS.md`, repository conventions, sync invariants, and any approved spec or plan.
+4. Combine PR comments, user notes, external notes, and your own findings into one deduplicated list of actionable issues.
+5. Present suggested fixes as blocking issues and advisory suggestions first. Do not edit files yet.
+6. For approved spec/plan review fixes, update the reviewed spec or plan directly under `plans/**`.
+7. For approved diff review fixes that need planning or exceed trivial review-scoped changes, write a review-finding implementation plan next to the original plan, for example `plans/<feature-dir>/review-findings.md`. Do not adapt an unrelated implementation plan for new review findings, and do not create a new date-prefixed folder for review findings when an original plan exists.
+8. After plan updates or review-finding plan creation, self-review every tracked remark and finding. Map each item to the changed section, review-finding plan section, or intentional unresolved status.
+9. Draft exact GitHub replies for resolved PR comments and ask for explicit approval before posting. Approval to edit files or write a plan does not authorize posting GitHub comments.
+
+**Distinction:** Plan review updates the reviewed plan/spec after approval; diff review writes a review-finding implementation plan for `@implement` after approval.
+
 ## Output
 
 Present findings ordered by severity with file and line references. If no findings, say so.
