@@ -5,8 +5,8 @@
       "source": "upstash/context7",
       "sourceType": "github"
     },
-    "write-a-skill": {
-      "source": "mattpocock/skills",
+    "writing-skills": {
+      "source": "obra/superpowers",
       "sourceType": "github"
     }
   }
