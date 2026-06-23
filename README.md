@@ -175,6 +175,50 @@ To add a new stack:
 
 3. The `init.sh` and `copy.sh` scripts already support the new stack once the directory exists — no script changes needed.
 
+## Self-Maintenance Agents
+
+This repo maintains its own markdown templates and bash scripts with a small agent + skill surface. The agents and skills below are **not** installed into target projects — they are only loaded when working on this repo itself.
+
+### Shared Conventions
+
+`AGENTS.md` at the repo root carries the conventions every agent needs (maintenance surface, dot-mapping, sync invariants, git conventions, verification baseline). It is loaded ambiently by OpenCode and inherited by Claude Code via `CLAUDE.md`, which is a one-line file containing `@AGENTS.md`.
+
+### Agents
+
+Under `.opencode/agents/`:
+
+| Agent | Mode | Purpose |
+|---|---|---|
+| `planning` | primary | Writes lightweight plans to `plans/YYYY-MM-DD-<feature>/plan.md` |
+| `implement` | primary | Controller that dispatches `implement-task` workers per plan task |
+| `implement-task` | subagent (hidden) | Worker for exactly one task — verifies, commits, reports |
+| `review` | primary | Reviews plans and diffs against `AGENTS.md` conventions |
+
+Invoke with `@planning`, `@implement`, `@implement-task`, or `@review` in OpenCode.
+
+### Skills
+
+Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compatibility):
+
+| Skill | Purpose |
+|---|---|
+| `agent-planning` | Plan structure, file mapping, task granularity, self-review |
+| `agent-implementation` | Controller orchestration, worker status handling, completion |
+| `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
+| `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
+| `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
+
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, or `/agent-review`. The `writing-skills` skill is also exposed as `/writing-skills`.
+
+### Lockfiles
+
+Two lockfiles track remote skills at different scopes and are not expected to match:
+
+- `skills-lock.json` — remote skills installed in this repo for self-maintenance.
+- `core/skills-lock.json` — remote skills installed into target repos by the toolkit.
+
+When updating skills, edit only the lockfile for the scope you changed.
+
 ## Future Work
 
 Framework-specific stacks such as NestJS, Next.js/UI, Spring Boot, Java, and Kotlin conventions are out of scope. The toolkit is intentionally stack-agnostic in `core/`.
