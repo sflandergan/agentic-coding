@@ -102,10 +102,17 @@ When modifying a file under `core/`, check whether `stacks/pnpm/` or `stacks/mav
 These must stay consistent with the actual files:
 
 - `README.md` agent/skill lists
-- `skills-lock.json` reflects skills installed in this repo for self-maintenance
-- `core/skills-lock.json` reflects skills installed into target repos by the toolkit templates
 - The dot-mapping table above
 - Agent file names in `.opencode/agents/` vs what `opencode.json` references
+
+## Skill Lockfile Scopes
+
+The two lockfiles have different scopes and are not expected to match.
+
+- `skills-lock.json` tracks remote skills installed in this repo for self-maintenance. Compare it against remote-sourced skill directories under `.agents/skills/`.
+- `core/skills-lock.json` tracks remote skills installed into target repos by `scripts/init.sh` and `scripts/copy.sh`. Compare it against the skills the toolkit templates install for downstream projects.
+
+When updating skills, edit only the lockfile for the scope you changed.
 
 ## SKILL.md Frontmatter Conventions
 
