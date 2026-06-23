@@ -298,7 +298,7 @@ SKIPPED=()
 COPIED=()
 
 # ---------------------------------------------------------------------------
-# 7. AGENTS.md handling
+# 7. AGENTS.md and CLAUDE.md handling
 # ---------------------------------------------------------------------------
 if [[ -s "$TARGET/AGENTS.md" ]]; then
   echo ""
@@ -319,9 +319,6 @@ else
   COPIED+=("AGENTS.md (new)")
 fi
 
-# ---------------------------------------------------------------------------
-# 7a. CLAUDE.md handling
-# ---------------------------------------------------------------------------
 if [[ -f "$TARGET/CLAUDE.md" ]]; then
   SKIPPED+=("CLAUDE.md (existing, skipped)")
 else
