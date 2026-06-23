@@ -214,7 +214,7 @@ set -euo pipefail
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 
-if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+if [ "$branch" = "main" ]; then
   printf 'Refusing to publish protected branch: %s\n' "$branch" >&2
   exit 1
 fi
