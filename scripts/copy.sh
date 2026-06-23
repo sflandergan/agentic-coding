@@ -56,6 +56,46 @@ ask_yn() {
   [[ "$reply_lower" == "y" || "$reply_lower" == "yes" ]]
 }
 
+# Ensure the .claude/skills/<name> symlink reflects the chosen SKILLS_MODE.
+#   skip     -> never touch symlinks
+#   add      -> create only when nothing exists (new or unlinked skill)
+#   override -> always (re)point to the canonical target
+ensure_symlink() {
+  local skill_name="$1"
+  local link_path="$TARGET/.claude/skills/$skill_name"
+  local expected_target="../../.agents/skills/$skill_name"
+
+  case "$SKILLS_MODE" in
+    skip)
+      return
+      ;;
+    add)
+      [[ -d "$TARGET/.agents/skills/$skill_name" ]] || return
+      # Leave anything already present untouched in add-only mode.
+      [[ -L "$link_path" || -e "$link_path" ]] && return
+      mkdir -p "$TARGET/.claude/skills"
+      ln -s "$expected_target" "$link_path"
+      COPIED+=(".claude/skills/$skill_name symlink (new)")
+      ;;
+    override)
+      mkdir -p "$TARGET/.claude/skills"
+      if [[ -L "$link_path" ]]; then
+        [[ "$(readlink "$link_path")" == "$expected_target" ]] && return
+        rm -f "$link_path"
+        ln -s "$expected_target" "$link_path"
+        COPIED+=(".claude/skills/$skill_name symlink (repointed)")
+      elif [[ -e "$link_path" ]]; then
+        rm -rf "$link_path"
+        ln -s "$expected_target" "$link_path"
+        COPIED+=(".claude/skills/$skill_name symlink (replaced non-symlink)")
+      else
+        ln -s "$expected_target" "$link_path"
+        COPIED+=(".claude/skills/$skill_name symlink (new)")
+      fi
+      ;;
+  esac
+}
+
 # ---------------------------------------------------------------------------
 # 1. Validate arguments
 # ---------------------------------------------------------------------------
@@ -128,6 +168,31 @@ select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
     *)
       echo "Invalid selection. Please choose 1 or 2."
       ;;
+  esac
+done
+
+# Ask up front whether to override an existing opencode.json's model selection.
+# Only relevant when the target already has one; a new file always gets the
+# selected models regardless.
+OVERRIDE_MODELS=false
+if [[ -f "$TARGET/opencode.json" ]]; then
+  echo ""
+  if ask_yn "Override model selection in existing opencode.json?" "n"; then
+    OVERRIDE_MODELS=true
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# 5b. Prompt for skills handling mode
+# ---------------------------------------------------------------------------
+echo ""
+echo "How should skills be handled?"
+select SKILLS_choice in "Don't modify skills" "Add skills only" "Override skills"; do
+  case "$SKILLS_choice" in
+    "Don't modify skills") SKILLS_MODE="skip"; break ;;
+    "Add skills only")     SKILLS_MODE="add"; break ;;
+    "Override skills")      SKILLS_MODE="override"; break ;;
+    *) echo "Invalid selection. Please choose 1, 2, or 3." ;;
   esac
 done
 
@@ -256,12 +321,31 @@ fi
 # 8. opencode.json handling
 # ---------------------------------------------------------------------------
 if [[ -f "$TARGET/opencode.json" ]]; then
-  jq -s '
-    .[0] as $existing | .[1] as $staged |
-    $existing | .agent = (($staged.agent // {}) * ($existing.agent // {}))
-  ' "$TARGET/opencode.json" "$STAGE/opencode.json" > "$STAGE/opencode.json.tmp"
-  mv "$STAGE/opencode.json.tmp" "$TARGET/opencode.json"
-  COPIED+=("opencode.json (merged agent entries)")
+  if [[ "$OVERRIDE_MODELS" == "true" ]]; then
+    # Overlay the selected model values (top-level model/small_model and each
+    # agent's model) onto the existing file. Provider/permission keys and any
+    # existing per-agent customizations are preserved.
+    jq -s '
+      .[0] as $existing | .[1] as $staged |
+      $existing
+      | .model = ($staged.model // $existing.model)
+      | .small_model = ($staged.small_model // $existing.small_model)
+      | .agent = (
+          reduce ($staged.agent // {} | to_entries[]) as $e
+            ($existing.agent // {};
+             .[$e.key] = ((.[$e.key] // $e.value) + {model: $e.value.model}))
+        )
+    ' "$TARGET/opencode.json" "$STAGE/opencode.json" > "$STAGE/opencode.json.tmp"
+    mv "$STAGE/opencode.json.tmp" "$TARGET/opencode.json"
+    COPIED+=("opencode.json (models overridden)")
+  else
+    jq -s '
+      .[0] as $existing | .[1] as $staged |
+      $existing | .agent = (($staged.agent // {}) * ($existing.agent // {}))
+    ' "$TARGET/opencode.json" "$STAGE/opencode.json" > "$STAGE/opencode.json.tmp"
+    mv "$STAGE/opencode.json.tmp" "$TARGET/opencode.json"
+    COPIED+=("opencode.json (merged agent entries)")
+  fi
 else
   cp "$STAGE/opencode.json" "$TARGET/opencode.json"
   COPIED+=("opencode.json (new)")
@@ -295,16 +379,20 @@ echo ""
 for agent_file in "$STAGE/.opencode/agents/"*.md; do
   [[ -f "$agent_file" ]] || continue
   fname="$(basename "$agent_file")"
-  if [[ -f "$TARGET/.opencode/agents/$fname" ]]; then
-    if ask_yn "Overwrite .opencode/agents/$fname?" "n"; then
-      cp "$agent_file" "$TARGET/.opencode/agents/$fname"
+  dst="$TARGET/.opencode/agents/$fname"
+  if [[ -e "$dst" ]]; then
+    if [[ "$SKILLS_MODE" == "override" ]]; then
+      mkdir -p "$TARGET/.opencode/agents"
+      cp "$agent_file" "$dst"
       COPIED+=(".opencode/agents/$fname (overwritten)")
     else
       SKIPPED+=(".opencode/agents/$fname (existing, skipped)")
     fi
+  elif [[ "$SKILLS_MODE" == "skip" ]]; then
+    SKIPPED+=(".opencode/agents/$fname (new, skipped: don't modify)")
   else
     mkdir -p "$TARGET/.opencode/agents"
-    cp "$agent_file" "$TARGET/.opencode/agents/$fname"
+    cp "$agent_file" "$dst"
     COPIED+=(".opencode/agents/$fname (new)")
   fi
 done
@@ -317,14 +405,17 @@ CLAUDE_SKILLS=(brainstorm bugfix finish planner review-code review-plan)
 for skill_name in "${CLAUDE_SKILLS[@]}"; do
   src="$STAGE/.claude/skills/$skill_name"
   dst="$TARGET/.claude/skills/$skill_name"
-  if [[ -d "$dst" ]]; then
-    if ask_yn "Overwrite .claude/skills/$skill_name/?" "n"; then
+  if [[ -e "$dst" ]]; then
+    if [[ "$SKILLS_MODE" == "override" ]]; then
       rm -rf "$dst"
+      mkdir -p "$TARGET/.claude/skills"
       cp -R "$src" "$dst"
       COPIED+=(".claude/skills/$skill_name/ (overwritten)")
     else
       SKIPPED+=(".claude/skills/$skill_name/ (existing, skipped)")
     fi
+  elif [[ "$SKILLS_MODE" == "skip" ]]; then
+    SKIPPED+=(".claude/skills/$skill_name/ (new, skipped: don't modify)")
   else
     mkdir -p "$TARGET/.claude/skills"
     cp -R "$src" "$dst"
@@ -348,19 +439,24 @@ AUTHORED_SKILLS=(
 for skill_name in "${AUTHORED_SKILLS[@]}"; do
   src="$STAGE/.agents/skills/$skill_name"
   dst="$TARGET/.agents/skills/$skill_name"
-  if [[ -d "$dst" ]]; then
-    if ask_yn "Overwrite .agents/skills/$skill_name/?" "n"; then
+  if [[ -e "$dst" ]]; then
+    if [[ "$SKILLS_MODE" == "override" ]]; then
       rm -rf "$dst"
+      mkdir -p "$TARGET/.agents/skills"
       cp -R "$src" "$dst"
       COPIED+=(".agents/skills/$skill_name/ (overwritten)")
     else
       SKIPPED+=(".agents/skills/$skill_name/ (existing, skipped)")
     fi
+  elif [[ "$SKILLS_MODE" == "skip" ]]; then
+    SKIPPED+=(".agents/skills/$skill_name/ (new, skipped: don't modify)")
   else
     mkdir -p "$TARGET/.agents/skills"
     cp -R "$src" "$dst"
     COPIED+=(".agents/skills/$skill_name/ (new)")
   fi
+  # Symlink follows the skill action (see ensure_symlink / SKILLS_MODE).
+  ensure_symlink "$skill_name"
 done
 
 # ---------------------------------------------------------------------------
@@ -422,44 +518,7 @@ for subdir in agents contexts adr features; do
 done
 
 # ---------------------------------------------------------------------------
-# 15. Authored-skill symlinks
-# ---------------------------------------------------------------------------
-echo ""
-for skill_name in "${AUTHORED_SKILLS[@]}"; do
-  link_path="$TARGET/.claude/skills/$skill_name"
-  expected_target="../../.agents/skills/$skill_name"
-  if [[ -L "$link_path" ]]; then
-    current_target="$(readlink "$link_path")"
-    if [[ "$current_target" == "$expected_target" ]]; then
-      continue  # Already correct, skip silently
-    else
-      if ask_yn "Replace existing symlink $link_path (points to $current_target)?" "n"; then
-        rm "$link_path"
-        ln -s "$expected_target" "$link_path"
-        COPIED+=(".claude/skills/$skill_name symlink (replaced)")
-      else
-        SKIPPED+=(".claude/skills/$skill_name symlink (existing different target, skipped)")
-      fi
-    fi
-  elif [[ -e "$link_path" ]]; then
-    # Something else exists at that path
-    if ask_yn "Replace existing $link_path?" "n"; then
-      rm -rf "$link_path"
-      ln -s "$expected_target" "$link_path"
-      COPIED+=(".claude/skills/$skill_name symlink (replaced non-symlink)")
-    else
-      SKIPPED+=(".claude/skills/$skill_name (non-symlink exists, skipped)")
-    fi
-  else
-    # No symlink exists; create one if the .claude/skills dir exists
-    mkdir -p "$TARGET/.claude/skills"
-    ln -s "$expected_target" "$link_path"
-    COPIED+=(".claude/skills/$skill_name symlink (new)")
-  fi
-done
-
-# ---------------------------------------------------------------------------
-# 16. skills-lock.json handling
+# 15. skills-lock.json handling
 # ---------------------------------------------------------------------------
 echo ""
 if [[ -f "$TARGET/skills-lock.json" ]]; then
@@ -473,16 +532,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 17. Install remote skills from merged lock file
+# 16. Install remote skills from merged lock file
 # ---------------------------------------------------------------------------
 echo ""
-if [[ "$NPX_AVAILABLE" == "true" ]]; then
+if [[ "$SKILLS_MODE" == "skip" ]]; then
+  echo "Skills mode is 'don't modify'; skipping remote skill installation."
+elif [[ "$NPX_AVAILABLE" == "true" ]]; then
   echo "Installing remote skills from skills-lock.json..."
   skill_keys=$(jq -r '.skills | keys[]' "$TARGET/skills-lock.json")
   for key in $skill_keys; do
     source_repo=$(jq -r ".skills[\"$key\"].source // empty" "$TARGET/skills-lock.json")
     source_type=$(jq -r ".skills[\"$key\"].sourceType // empty" "$TARGET/skills-lock.json")
     [[ -n "$source_repo" ]] || continue
+    # add-only: leave already-installed skills untouched.
+    if [[ "$SKILLS_MODE" == "add" && -e "$TARGET/.agents/skills/$key" ]]; then
+      echo "  Skipping $key (already present; add-only mode)."
+      SKIPPED+=("remote skill $key (existing, skipped)")
+      continue
+    fi
     # Map the lock source to a `skills` CLI source arg:
     #   github -> owner/repo shorthand; gitlab -> full URL.
     case "$source_type" in
@@ -493,16 +560,7 @@ if [[ "$NPX_AVAILABLE" == "true" ]]; then
     # Install the canonical SKILL.md tree into .agents/skills/ (also read by
     # OpenCode), then symlink it into .claude/skills/ like the authored skills.
     if ( cd "$TARGET" && npx --yes skills add "$src" --skill "$key" -a opencode --yes ); then
-      link_path="$TARGET/.claude/skills/$key"
-      expected_target="../../.agents/skills/$key"
-      if [[ -L "$link_path" && "$(readlink "$link_path")" == "$expected_target" ]]; then
-        : # already correct
-      elif [[ -e "$link_path" || -L "$link_path" ]]; then
-        echo "  NOTE: $link_path already exists; leaving it untouched."
-      else
-        mkdir -p "$TARGET/.claude/skills"
-        ln -s "$expected_target" "$link_path"
-      fi
+      ensure_symlink "$key"
     else
       echo "  WARNING: failed to install $key"
     fi
@@ -518,7 +576,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 18. Print summary
+# 17. Print summary
 # ---------------------------------------------------------------------------
 echo ""
 echo "========================================"
@@ -528,6 +586,7 @@ echo ""
 echo "  Target: $TARGET"
 echo "  Stack:  $STACK"
 echo "  Models: $MODELS"
+echo "  Skills: $SKILLS_MODE"
 if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
   echo "  OpenAI brainstorm override: yes"
 else
