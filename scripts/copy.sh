@@ -320,7 +320,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7b. CLAUDE.md handling
+# 7a. CLAUDE.md handling
 # ---------------------------------------------------------------------------
 if [[ -f "$TARGET/CLAUDE.md" ]]; then
   SKIPPED+=("CLAUDE.md (existing, skipped)")
