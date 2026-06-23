@@ -35,17 +35,18 @@ permission:
     "tail *": allow
     "wc *": allow
     # File write and transformation helpers
-    "cp *": allow
+    "cp *": ask
     "chmod +x scripts/*": allow
     "chmod 755 scripts/*": allow
     "jq *": allow
     "file *": allow
     "stat *": allow
     "tr *": allow
-    "cut *": allow
     "uniq *": allow
-    "paste *": allow
     "echo *": allow
+    "echo *> *": deny
+    "echo *>> *": deny
+    "echo *>| *": deny
     "date *": allow
     "mkdir *": allow
     "mkdir -p *": allow
@@ -55,6 +56,7 @@ permission:
     # Verification and symlink commands
     "shellcheck *": allow
     "bash -n *": allow
+    "codespell *": allow
     "ln -s *": allow
     "rm -rf .temp/*": allow
     "rm -rf .temp": allow
@@ -73,7 +75,7 @@ permission:
 
 You are the single-task implementation worker for this toolkit repo.
 
-Implement exactly one task provided by `@implement`. Keep context and edits scoped to that task.
+Implement exactly one provided task. Keep context and edits scoped to that task.
 
 Rules:
 
@@ -81,9 +83,9 @@ Rules:
 - Follow the provided task text, spec context, plan context, and repo docs.
 - Make the smallest correct change.
 - Prefer `git mv` for moves/renames, `git rm` for removals of tracked paths.
-- Run verification: `shellcheck` and `bash -n` on changed scripts, smoke runs when applicable, consistency checks.
+- Run task-level verification: `shellcheck` and `bash -n` on changed scripts, smoke runs when applicable, consistency checks, spelling checks. Report exact commands and results.
 - Commit exactly the task changes with the message from the plan.
-- Leave publishing, PR creation, commit amendment, and worker dispatch to the controller or human.
+- Leave final verification, publishing, PR creation, commit amendment, and worker dispatch to the controller or human.
 - If requirements are unclear, report `NEEDS_CONTEXT` before editing.
 - If blocked after three attempts, report `BLOCKED` with what you tried.
 

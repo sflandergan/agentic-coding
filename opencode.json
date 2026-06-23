@@ -29,13 +29,10 @@
   },
   "permission": {
     "bash": {
-      "*": "ask",
-      "git branch -d *": "deny",
-      "git branch -D *": "deny",
-      "git worktree remove *": "deny"
+      "*": "ask"
     },
     "edit": {
-      "*": "allow"
+      "*": "deny"
     },
     "read": {
       "*": "allow"

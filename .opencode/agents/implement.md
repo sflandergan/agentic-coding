@@ -40,17 +40,18 @@ permission:
     "tail *": allow
     "wc *": allow
     # File write and transformation helpers
-    "cp *": allow
+    "cp *": ask
     "chmod +x scripts/*": allow
     "chmod 755 scripts/*": allow
     "jq *": allow
     "file *": allow
     "stat *": allow
     "tr *": allow
-    "cut *": allow
     "uniq *": allow
-    "paste *": allow
     "echo *": allow
+    "echo *> *": deny
+    "echo *>> *": deny
+    "echo *>| *": deny
     "date *": allow
     "mkdir *": allow
     "mkdir -p *": allow
@@ -59,6 +60,7 @@ permission:
     # Verification commands
     "shellcheck *": allow
     "bash -n *": allow
+    "codespell *": allow
     "rm -rf .temp/*": allow
     "rm -rf .temp": allow
     # Publishing goes through the branch-safety helper
@@ -69,19 +71,7 @@ permission:
     "git branch -D *": deny
     "git reset --hard *": ask
     "git worktree remove *": deny
-    "git push": ask
-    "git push origin *": ask
-    "git push --force *": deny
-    "git push -f *": deny
-    "git push origin --force *": deny
-    "git push origin -f *": deny
-    "git push origin main*": deny
-    "git push origin +main*": deny
-    "git push origin --delete *": deny
-    "git push origin :*": deny
-    "git push origin *:*": ask
-    "git push origin --tags*": ask
-    "git push origin tag *": ask
+    "git push *": deny
   task:
     "*": deny
     "explore": allow
@@ -100,7 +90,7 @@ Execution rules:
 
 - Work from a scoped branch before editing.
 - Prefer `git mv` for moves/renames, `git rm` for removals of tracked paths.
-- Use `scripts/publish-branch.sh` for publishing and PR creation.
+- Use `scripts/publish-branch.sh` for publishing and PR creation. Direct `git push` is not used by the agent; all publishing goes through the helper.
 - Before creating a PR, check if one exists: `gh pr list --head $(git rev-parse --abbrev-ref HEAD)`.
 - Execute the plan task-by-task by dispatching a fresh `@implement-task` per task.
 - Review each worker's report and diff before moving on.
@@ -113,3 +103,4 @@ Verification for this repo:
 - `shellcheck` and `bash -n` on changed scripts.
 - Smoke-run `init.sh`/`copy.sh` against `.temp/` when scripts changed.
 - Consistency checks: README lists ↔ actual files ↔ lockfiles ↔ dot-mapping.
+- Final verification is the controller's responsibility.
