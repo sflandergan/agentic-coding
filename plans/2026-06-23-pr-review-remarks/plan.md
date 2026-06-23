@@ -28,13 +28,13 @@
 |---|---|---|
 | `.agents/skills/github-pr-comments` | Add symlink | Points to `../../core/agents/skills/github-pr-comments`; self-maintenance-only reuse of existing core skill. |
 | `.claude/skills/github-pr-comments` | Add symlink | Points to `../../.agents/skills/github-pr-comments`, matching repo symlink model. |
-| `.opencode/agents/review.md` | Modify | Allow `github-pr-comments` skill and read-only fetch helper. |
+| `.opencode/agents/review.md` | Modify | Allow `github-pr-comments` skill, read-only fetch helper, review-plan commit/publish commands, and `codespell` for markdown review verification. |
 | `.agents/skills/agent-review/SKILL.md` | Modify | Split plan/diff review guidance and add PR comment fetch workflow. |
 | `README.md` | Modify | Add `github-pr-comments` to self-maintenance skill inventory and invocation text. |
 | `opencode.json` | Modify | Reduce global permissions to safe defaults. |
-| `.opencode/agents/implement.md` | Modify | Tighten shell permissions and direct-push policy. |
-| `.opencode/agents/implement-task.md` | Modify | Tighten shell permissions, wording, and verification contract. |
-| `.opencode/agents/planning.md` | Modify | Publish/open PR through helper after writing plan. |
+| `.opencode/agents/implement.md` | Modify | Tighten shell permissions and direct-push policy; keep verification permissions including `codespell`. |
+| `.opencode/agents/implement-task.md` | Modify | Tighten shell permissions, wording, and verification contract; keep verification permissions including `codespell`. |
+| `.opencode/agents/planning.md` | Modify | Publish/open PR through helper after writing plan; allow `codespell` for plan/prose verification. |
 | `.agents/skills/agent-planning/SKILL.md` | Modify | Simplify task granularity and verification wording. |
 | `scripts/publish-branch.sh` | Modify | Remove `master` protected branch check. |
 
@@ -73,7 +73,25 @@ In `.opencode/agents/review.md`:
 
 ```yaml
     "bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh *": allow
+    'bash ".agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh" *': allow
 ```
+
+- Add review-plan edit/commit/publish permissions needed when approved review feedback updates `plans/**` or writes a review-finding plan:
+
+```yaml
+    "git add plans/*": allow
+    "git commit *": allow
+    "scripts/publish-branch.sh": allow
+    "bash scripts/publish-branch.sh": allow
+```
+
+- Add spelling verification permission for changed markdown/prose files:
+
+```yaml
+    "codespell *": allow
+```
+
+- Keep direct branch deletion, worktree removal, and direct push protected; publishing should go through `scripts/publish-branch.sh` rather than direct `git push`.
 
 - Add the skill permission under `permission.skill`:
 
@@ -209,6 +227,12 @@ In `.opencode/agents/implement-task.md`:
     "git push *": deny
 ```
 
+- Add spelling verification permission because task-level verification may include markdown, agent, skill, README, or user-facing script prose:
+
+```yaml
+    "codespell *": allow
+```
+
 - [ ] **Step 3: Tighten implement controller shell permissions**
 
 In `.opencode/agents/implement.md`:
@@ -251,6 +275,12 @@ In `.opencode/agents/implement.md`:
 ```yaml
     "scripts/publish-branch.sh": allow
     "bash scripts/publish-branch.sh": allow
+```
+
+- Add spelling verification permission because final verification may include changed markdown, agent, skill, README, or user-facing script prose:
+
+```yaml
+    "codespell *": allow
 ```
 
 - [ ] **Step 4: Refine implement-task wording**
@@ -308,11 +338,12 @@ git commit -m "chore: tighten self-maintenance agent permissions"
 In `.opencode/agents/planning.md`, add helper permissions under `permission.bash`:
 
 ```yaml
+    "codespell *": allow
     "scripts/publish-branch.sh": allow
     "bash scripts/publish-branch.sh": allow
 ```
 
-Do not add direct `git push` permissions.
+Keep existing `git add plans/*`, `git commit *`, and `git rev-parse *` permissions because planning writes and commits plan files. Do not add direct `git push` permissions; branch publishing should go through the helper.
 
 - [ ] **Step 2: Update planning final behavior**
 
