@@ -1,10 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "context7-cli": {
-      "source": "upstash/context7",
-      "sourceType": "github"
-    },
     "writing-skills": {
       "source": "obra/superpowers",
       "sourceType": "github"
