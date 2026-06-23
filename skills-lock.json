@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "skills": {
+    "writing-skills": {
+      "source": "obra/superpowers",
+      "sourceType": "github"
+    }
+  }
+}
