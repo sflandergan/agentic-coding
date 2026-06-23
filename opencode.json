@@ -1,0 +1,45 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "planning",
+  "model": "opencode-go/mimo-v2.5-pro",
+  "small_model": "opencode-go/mimo-v2.5",
+  "skills": {
+    "paths": [".agents/skills"]
+  },
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "planning": {
+      "model": "opencode-go/mimo-v2.5-pro"
+    },
+    "implement": {
+      "model": "opencode-go/mimo-v2.5-pro"
+    },
+    "implement-task": {
+      "model": "opencode-go/mimo-v2.5",
+      "mode": "subagent"
+    },
+    "review": {
+      "model": "opencode-go/kimi-k2.7-code"
+    }
+  },
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "git branch -d *": "deny",
+      "git branch -D *": "deny",
+      "git worktree remove *": "deny"
+    },
+    "edit": {
+      "*": "allow"
+    },
+    "read": {
+      "*": "allow"
+    },
+    "webfetch": "ask"
+  }
+}
