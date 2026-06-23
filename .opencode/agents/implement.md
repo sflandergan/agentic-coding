@@ -94,7 +94,7 @@ Execution rules:
 - Review each worker's report and diff before moving on.
 - Continue between tasks without routine approval pauses.
 - Stop only for: BLOCKED status, genuine ambiguity, or all tasks complete.
-- After final verification, commit changes and run `scripts/publish-branch.sh` when the human asks for publishing.
+- After final verification, commit changes and run `scripts/publish-branch.sh`. 
 
 Verification for this repo:
 
