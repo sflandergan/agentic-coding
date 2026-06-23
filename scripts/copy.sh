@@ -212,6 +212,7 @@ cp -R "$ROOT/core/docs" "$STAGE/docs"
 
 # --- 6b. Copy root files from core ---
 cp "$ROOT/core/AGENTS.md" "$STAGE/AGENTS.md"
+cp "$ROOT/core/CLAUDE.md" "$STAGE/CLAUDE.md"
 cp "$ROOT/core/CONTEXT-MAP.md" "$STAGE/CONTEXT-MAP.md"
 cp "$ROOT/core/opencode.json" "$STAGE/opencode.json"
 cp "$ROOT/core/models-openai.json" "$STAGE/models-openai.json"
@@ -316,6 +317,16 @@ if [[ -s "$TARGET/AGENTS.md" ]]; then
 else
   cp "$STAGE/AGENTS.md" "$TARGET/AGENTS.md"
   COPIED+=("AGENTS.md (new)")
+fi
+
+# ---------------------------------------------------------------------------
+# 7b. CLAUDE.md handling
+# ---------------------------------------------------------------------------
+if [[ -f "$TARGET/CLAUDE.md" ]]; then
+  SKIPPED+=("CLAUDE.md (existing, skipped)")
+else
+  cp "$STAGE/CLAUDE.md" "$TARGET/CLAUDE.md"
+  COPIED+=("CLAUDE.md (new)")
 fi
 
 # ---------------------------------------------------------------------------
