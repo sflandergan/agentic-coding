@@ -26,7 +26,7 @@ The `implement-task` worker:
 
 - Implements exactly one task
 - Creates or modifies only the files specified
-- Runs verification (shellcheck, bash -n, smoke runs as applicable)
+- Runs task-level verification on changed files (shellcheck, bash -n, codespell on changed prose/markdown files)
 - Commits with a focused message
 - Reports status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED
 - Does not push, create PRs, or dispatch other workers
