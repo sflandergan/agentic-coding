@@ -39,7 +39,9 @@ These shared skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 - `github-pr-comments` — used by `/review-plan`, `/review-code` (+ OpenCode)
 
 Remote skills (e.g. `context7-cli`, `next-best-practices`, `shadcn`, `zoom-out`,
-`write-a-skill`) are installed through `skills-lock.json`.
+`write-a-skill`) are declared in `skills-lock.json` and installed via the
+[`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add`). Each
+lands in `.agents/skills/` and is symlinked into `.claude/skills/`.
 
 ## Shared files referenced by path (not duplicated)
 

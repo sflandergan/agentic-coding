@@ -46,8 +46,8 @@ die() {
 # 1. Check required tools
 # ---------------------------------------------------------------------------
 require_tool jq "Install with: brew install jq"
-CTX7_AVAILABLE=true
-warn_tool ctx7 "Install the ctx7 CLI per the upstream docs. Remote skill installation will be skipped." || CTX7_AVAILABLE=false
+NPX_AVAILABLE=true
+warn_tool npx "Install Node.js (provides npx) to enable remote skill installation. It will be skipped." || NPX_AVAILABLE=false
 
 # ---------------------------------------------------------------------------
 # 2. Prompt for stack
@@ -260,24 +260,32 @@ done
 # ---------------------------------------------------------------------------
 # 8. Install remote skills from merged lock file
 # ---------------------------------------------------------------------------
-if [[ "$CTX7_AVAILABLE" == "true" ]]; then
+if [[ "$NPX_AVAILABLE" == "true" ]]; then
   echo "Installing remote skills from skills-lock.json..."
   skill_keys=$(jq -r '.skills | keys[]' "$TARGET/skills-lock.json")
   for key in $skill_keys; do
     source_repo=$(jq -r ".skills[\"$key\"].source // empty" "$TARGET/skills-lock.json")
     source_type=$(jq -r ".skills[\"$key\"].sourceType // empty" "$TARGET/skills-lock.json")
-    skill_path=$(jq -r ".skills[\"$key\"].skillPath // empty" "$TARGET/skills-lock.json")
-    if [[ -n "$source_repo" ]]; then
-      # TODO: confirm ctx7 install syntax; for now call: ctx7 install <github-source>
-      echo "  Installing $key from $source_type/$source_repo..."
-      if [[ "$source_type" == "github" ]]; then
-        ctx7 install "$source_repo" || echo "  WARNING: failed to install $key"
-      fi
+    [[ -n "$source_repo" ]] || continue
+    # Map the lock source to a `skills` CLI source arg:
+    #   github -> owner/repo shorthand; gitlab -> full URL.
+    case "$source_type" in
+      gitlab) src="https://gitlab.com/$source_repo" ;;
+      *)      src="$source_repo" ;;
+    esac
+    echo "  Installing $key from $src ..."
+    # Install the canonical SKILL.md tree into .agents/skills/ (the shared
+    # agents dir, also read by OpenCode), then symlink it into .claude/skills/
+    # exactly like the authored skills above.
+    if ( cd "$TARGET" && npx --yes skills add "$src" --skill "$key" -a opencode --yes ); then
+      ln -sfn "../../.agents/skills/$key" "$TARGET/.claude/skills/$key"
+    else
+      echo "  WARNING: failed to install $key"
     fi
   done
 else
   echo ""
-  echo "ctx7 not installed; manually install these remote skills:"
+  echo "npx not available; manually install these remote skills with 'npx skills add':"
   jq -r '.skills | keys[]' "$TARGET/skills-lock.json" | while read -r key; do
     source_repo=$(jq -r ".skills[\"$key\"].source // empty" "$TARGET/skills-lock.json")
     source_type=$(jq -r ".skills[\"$key\"].sourceType // empty" "$TARGET/skills-lock.json")
