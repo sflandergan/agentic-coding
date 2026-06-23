@@ -12,7 +12,7 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 
 ### For plans
 
-- [ ] Spec coverage: every requirement has a task
+- [ ] If spec is present, check coverage: every requirement has a task
 - [ ] File mapping includes core/stack ripple check
 - [ ] Sync invariants addressed (README, lockfiles, dot-mapping)
 - [ ] No placeholders (TBD, TODO, "similar to Task N")
