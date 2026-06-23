@@ -98,7 +98,8 @@ Execution rules:
 
 Verification for this repo:
 
+- Final verification is the controller's responsibility; the worker only verifies changed files.
 - `shellcheck` and `bash -n` on changed scripts.
 - Smoke-run `init.sh`/`copy.sh` against `.temp/` when scripts changed.
-- Consistency checks: README lists ↔ actual files ↔ lockfiles ↔ dot-mapping.
-- Final verification is the controller's responsibility.
+- Consistency checks: README lists ↔ actual files ↔ lockfiles ↔ dot-mapping ↔ symlinks.
+- `codespell` on changed prose/markdown files.
