@@ -8,10 +8,6 @@
     "write-a-skill": {
       "source": "mattpocock/skills",
       "sourceType": "github"
-    },
-    "zoom-out": {
-      "source": "mattpocock/skills",
-      "sourceType": "github"
     }
   }
 }
