@@ -144,19 +144,30 @@ Each symlinked skill has `user-invocable: false` in its `SKILL.md` frontmatter s
 
 ## Recommended Human-in-the-Loop Workflow
 
-| # | Step |
-|---|---|
-| 1 | Brainstorm feature/spec; optionally grill with docs. |
-| 2 | Human reviews the spec and may comment on GitHub. |
-| 3 | Run `review-plan` on the spec when needed. |
-| 4 | Planner writes the implementation plan. |
-| 5 | Human reviews the plan and may comment on GitHub. |
-| 6 | Run `review-plan` on the plan. |
-| 7 | Implement task-by-task (OpenCode `@implement` / `@implement-task`). |
-| 8 | Human reviews code and may comment on GitHub. |
-| 9 | Run `review-code`. |
-| 10 | Implement review fixes and repeat review/fix cycles as needed. |
-| 11 | `finish` writes summary/feature documentation and reconciles durable docs. |
+![Workflow diagram showing the human-in-the-loop cycle: ideation and planning (steps 1–6) followed by an implementation cycle (steps 7–11). Blue icons represent human input; robot icons represent LLM agents; purple steps are think-and-plan; orange steps are reviews; green is implementation; dark is finish.](workflow.PNG)
+
+The diagram above maps the full cycle from brainstorming a feature through to shipping documentation. Each numbered step corresponds to an agent or skill invocation you trigger at the right moment — the human checkpoints (steps 2, 5, 8) are where you pause, review, and optionally leave GitHub comments before the next AI-driven step takes over.
+
+### Ideation & Planning (steps 1–6)
+
+| # | Step | Invocation |
+|---|---|---|
+| 1 | **Brainstorm feature/spec** — generate or refine a spec. Optionally grill it against existing DDD docs. | OpenCode `@brainstorm` or Claude `/brainstorm`. |
+| 2 | **Human reviews the spec** — read, comment, and refine. Pause and iterate as needed. | Human checkpoint (no agent invocation). |
+| 3 | **Review spec** — validate the spec for completeness and alignment. | OpenCode `@review-plan` or Claude `/review-plan`. |
+| 4 | **Planner writes the implementation plan** — break the spec into ordered, verifiable tasks. | OpenCode `@planner` or Claude `/planner`. |
+| 5 | **Human reviews the plan** — confirm scope, ordering, and task granularity. | Human checkpoint (no agent invocation). |
+| 6 | **Review plan** — final plan review before implementation begins. | OpenCode `@review-plan` or Claude `/review-plan`. |
+
+### Implementation Cycle (steps 7–11)
+
+| # | Step | Invocation |
+|---|---|---|
+| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | OpenCode `@implement` (controller) which spawns `@implement-task` workers. |
+| 8 | **Human comments code** — review the diff and leave inline comments or GitHub review notes. | Human checkpoint (no agent invocation). |
+| 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
+| 10 | **Review / Remark plan** — if code review surfaces scope changes, update the plan and loop back to step 7. Repeat until the plan is sound and complete. | OpenCode `@planner` or Claude `/planner` to revise; then re-enter implementation at step 7. |
+| 11 | **Finish** — write summary and feature documentation, reconcile durable docs (ADRs, context maps, etc.). | OpenCode `@finish` or Claude `/finish`. |
 
 ## Extension Guide: Adding Future Stacks
 
