@@ -28,9 +28,9 @@ The toolkit is stack-agnostic in `core/`. Stack overlays add verification comman
 
 | Tool | Install | Notes |
 |---|---|---|
-| `jq` | [Official jq install docs](https://jqlang.github.io/jq/download/) | Required by init and copy scripts |
-| `npx` (Node.js) | [nodejs.org](https://nodejs.org) | Runs the [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add …`) for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
-| `codespell` | `brew install codespell` | Spellchecks markdown templates, agent/skill files, README content, and user-facing script text |
+| `jq` | [Download or install via paket manager](https://jqlang.github.io/jq/download/) | Required by init and copy scripts |
+| `npx` (Node.js) | [Download and install](https://nodejs.org/en/download) | Runs the [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add …`) for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
+| `codespell` | [Install via pip](https://github.com/codespell-project/codespell#installation) or [brew](https://formulae.brew.sh/formula/codespell) | Spellchecks markdown templates, agent/skill files, README content, and user-facing script text |
 
 ## Quick Start: init.sh
 
@@ -75,7 +75,7 @@ During init you choose a model option:
 
 The bundled `opencode.json` assigns models by workflow strength profile:
 
-- **Strong models** for `brainstorm` (`qwen3.7-max`) and the three `review*` agents (`kimi-2.7-code`). These workflows need the most reasoning depth, and the OpenAI option swaps them to `openai/gpt-5.5` for the same reason.
+- **Strong models** for `brainstorm` (`qwen3.7-max`) and the `review*` agents (`kimi-2.7-code`). These workflows need the most reasoning depth, and the OpenAI option swaps them to `openai/gpt-5.5` for the same reason.
 - **Mid-tier models** for `planner`, `finish`, and the `implement` controller (`mimo-v2.5-pro`). These need reliability and structured output but not the strongest reasoning.
 - **Cheap / fast models** for `explore` and `implement-task` (`mimo-v2.5`). These are invoked frequently on tightly scoped work, so speed and cost dominate.
 - **Mimo vs. DeepSeek** is mainly a preference tradeoff. Both are reliable and produce good results; this toolkit defaults to `mimo-v2.5*` because it has been more consistent for these workflows.
