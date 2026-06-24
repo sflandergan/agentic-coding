@@ -152,12 +152,12 @@ The diagram above maps the full cycle from brainstorming a feature through to sh
 
 | # | Step | Invocation |
 |---|---|---|
-| 1 | **Brainstorm feature/spec** — generate or refine a spec. Optionally grill it against existing DDD docs. | OpenCode `@brainstorm` or Claude `/brainstorm`; for doc-grounded critique use Claude `/grill-with-docs`. |
+| 1 | **Brainstorm feature/spec** — generate or refine a spec. Optionally grill it against existing DDD docs. | OpenCode `@brainstorm` or Claude `/brainstorm`. |
 | 2 | **Human reviews the spec** — read, comment, and refine. Pause and iterate as needed. | Human checkpoint (no agent invocation). |
-| 3 | **Review spec** — validate the spec for completeness and alignment. | OpenCode `@review` or Claude `/review-plan`. |
+| 3 | **Review spec** — validate the spec for completeness and alignment. | OpenCode `@review-plan` or Claude `/review-plan`. |
 | 4 | **Planner writes the implementation plan** — break the spec into ordered, verifiable tasks. | OpenCode `@planner` or Claude `/planner`. |
 | 5 | **Human reviews the plan** — confirm scope, ordering, and task granularity. | Human checkpoint (no agent invocation). |
-| 6 | **Review plan** — final plan review before implementation begins. | OpenCode `@review` or Claude `/review-plan`. |
+| 6 | **Review plan** — final plan review before implementation begins. | OpenCode `@review-plan` or Claude `/review-plan`. |
 
 ### Implementation Cycle (steps 7–11)
 
@@ -165,7 +165,7 @@ The diagram above maps the full cycle from brainstorming a feature through to sh
 |---|---|---|
 | 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | OpenCode `@implement` (controller) which spawns `@implement-task` workers. |
 | 8 | **Human comments code** — review the diff and leave inline comments or GitHub review notes. | Human checkpoint (no agent invocation). |
-| 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review` or Claude `/review-code`. |
+| 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
 | 10 | **Review / Remark plan** — if code review surfaces scope changes, update the plan and loop back to step 7. Repeat until the plan is sound and complete. | OpenCode `@planner` or Claude `/planner` to revise; then re-enter implementation at step 7. |
 | 11 | **Finish** — write summary and feature documentation, reconcile durable docs (ADRs, context maps, etc.). | OpenCode `@finish` or Claude `/finish`. |
 
