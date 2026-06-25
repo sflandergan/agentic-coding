@@ -1,68 +1,18 @@
-# Dual-Harness Implementer & Forge-Agnostic Publishing
+# Dual-Harness Implementer & GitLab Platform Skills
 
 > **For implementation agents:** Execute this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Close two structural gaps identified by inspecting an adapted downstream project: (1) Claude Code has no `/implement` controller — implementation is OpenCode-only, and (2) publishing is GitHub-only with no skill wrapper, making it impossible to swap forge platforms or prevent agents from bypassing push safety.
+**Goal:** Close two structural gaps identified by inspecting an adapted downstream project: (1) Claude Code has no `/implement` controller — implementation is OpenCode-only, and (2) publishing/review-comment skills are GitHub-only — no `glab` equivalents exist for GitLab-hosted projects.
 
-**Configuration shape:** The Claude implementer adds two files to the core template layer (`core/claude/`) and updates six existing files for cross-references and documentation. Forge-agnostic publishing replaces the raw `scripts/publish-branch.sh` with a `github-publish` authored skill (same pattern as `github-pr-comments`), then adds a `gitlab` forge overlay under `core/forge/gitlab/` with its own publish and MR-comment skills. The installer scripts get a forge prompt.
+**Configuration shape:** The Claude implementer adds two files to the core template layer and updates six existing files for cross-references. GitLab skills (`gitlab-publish`, `gitlab-mr-comments`) are added alongside the existing GitHub skills in `core/agents/skills/`. Both sets are always installed; the agents detect which platform the project uses from CLI availability and tool output. Permissions for `glab` are added to `opencode.json` and `claude/settings.json` alongside the existing `gh` permissions.
 
 **Configuration surface:**
 - New: `core/claude/skills/implement/SKILL.md`, `core/claude/agents/implement-task.md`
-- New: `core/agents/skills/github-publish/SKILL.md`, `core/agents/skills/github-publish/scripts/push-branch.sh`, `core/agents/skills/github-publish/scripts/open-pr.sh`
-- New: `core/forge/gitlab/` tree (publish skill, MR-comments skill, opencode.json overlay, claude/settings.json overlay, AGENTS.md addition)
-- Modified: `core/claude/README.md`, `core/claude/skills/planner/SKILL.md`, `core/claude/skills/review-code/SKILL.md`, `core/claude/skills/review-plan/SKILL.md`, `core/opencode/agents/implement.md`, `core/opencode/agents/implement-task.md`, `core/claude/settings.json`, `core/AGENTS.md`, `README.md`, `scripts/init.sh`, `scripts/copy.sh`
+- New: `core/agents/skills/github-publish/` (publish skill wrapping the existing `scripts/publish-branch.sh` logic)
+- New: `core/agents/skills/gitlab-publish/` (publish skill using `glab`)
+- New: `core/agents/skills/gitlab-mr-comments/` (MR comment skill using `glab`)
+- Modified: `core/claude/README.md`, `core/claude/skills/planner/SKILL.md`, `core/claude/skills/review-code/SKILL.md`, `core/claude/skills/review-plan/SKILL.md`, `core/claude/skills/brainstorm/SKILL.md`, `core/claude/skills/finish/SKILL.md`, `core/claude/settings.json`, `core/opencode/agents/implement.md`, `core/opencode/agents/finish.md`, `core/opencode/agents/bugfix.md`, `core/opencode/agents/review-code.md`, `core/opencode/agents/review-plan.md`, `core/opencode.json`, `README.md`, `scripts/init.sh`, `scripts/copy.sh`
 - Removed: `scripts/publish-branch.sh` (replaced by `github-publish` skill)
-
-## File Map
-
-### Part A — Claude Dual-Harness Implementer (core)
-
-| File | Action | Responsibility |
-|---|---|---|
-| `core/claude/skills/implement/SKILL.md` | Create | Claude `/implement` controller — dispatches `implement-task` workers |
-| `core/claude/agents/implement-task.md` | Create | Claude `implement-task` subagent definition |
-| `core/claude/README.md` | Modify | Add `/implement` to skill table, add `implement-task` agent, update symlink inventory |
-| `core/claude/skills/planner/SKILL.md` | Modify | Update stop conditions: mention `/implement` as Claude alternative to OpenCode handoff |
-| `core/claude/skills/review-code/SKILL.md` | Modify | Update escalation rules: mention `/implement` for fix-plan execution |
-| `core/claude/skills/review-plan/SKILL.md` | Modify | Update handoff text: mention `/implement` as Claude alternative |
-| `core/docs/agents/implement-task.md` | Verify | Already correct — no changes expected |
-| `README.md` | Modify | Add `implement` to Claude skill list, add `implement-task` agent mention |
-
-### Part B — Forge-Agnostic Publishing (core)
-
-| File | Action | Responsibility |
-|---|---|---|
-| `core/agents/skills/github-publish/SKILL.md` | Create | Safe publishing skill — refuses `main`, refuses force-push |
-| `core/agents/skills/github-publish/scripts/push-branch.sh` | Create | Push guard (from `scripts/publish-branch.sh`, hardened) |
-| `core/agents/skills/github-publish/scripts/open-pr.sh` | Create | PR creation with existence check |
-| `core/opencode/agents/implement.md` | Modify | Replace raw `git push` / `gh pr create` with `github-publish` skill references |
-| `core/opencode/agents/implement-task.md` | Modify | No changes expected (workers don't push) |
-| `core/opencode/agents/finish.md` | Modify | Replace raw `git push` with `github-publish` skill reference |
-| `core/claude/skills/finish/SKILL.md` | Modify | Replace raw `git push` with `github-publish` skill reference |
-| `core/claude/skills/brainstorm/SKILL.md` | Modify | Replace raw `git push` with `github-publish` skill reference |
-| `core/claude/settings.json` | Modify | Add `github-publish` script permissions |
-| `scripts/publish-branch.sh` | Delete | Replaced by `github-publish` skill |
-| `README.md` | Modify | Add `github-publish` to authored skills list |
-
-### Part C — GitLab Forge Overlay
-
-| File | Action | Responsibility |
-|---|---|---|
-| `core/forge/gitlab/AGENTS.md` | Create | GitLab-specific conventions addition |
-| `core/forge/gitlab/.agents/skills/gitlab-publish/SKILL.md` | Create | GitLab safe publishing skill |
-| `core/forge/gitlab/.agents/skills/gitlab-publish/scripts/push-branch.sh` | Create | Push guard (refuses `main`/`master`) |
-| `core/forge/gitlab/.agents/skills/gitlab-publish/scripts/open-mr.sh` | Create | MR creation with `glab` |
-| `core/forge/gitlab/.agents/skills/gitlab-mr-comments/SKILL.md` | Create | GitLab MR comment fetching and reply |
-| `core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh` | Create | MR discussion fetcher |
-| `core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh` | Create | MR discussion reply poster |
-| `core/forge/gitlab/opencode.json` | Create | GitLab-specific bash permission overlays |
-| `core/forge/gitlab/claude/settings.json` | Create | GitLab-specific Claude permission overlays |
-| `core/forge/gitlab/docs/agents/review-plan.md` | Create | GitLab MR comments loading addition |
-| `core/forge/gitlab/docs/agents/review-code.md` | Create | GitLab MR comments loading addition |
-| `core/forge/gitlab/docs/agents/bugfix.md` | Create | GitLab issue creation addition |
-| `scripts/init.sh` | Modify | Add forge prompt (github/gitlab) |
-| `scripts/copy.sh` | Modify | Add forge prompt, merge forge overlay |
-| `README.md` | Modify | Document forge dimension, update symlink table |
 
 ---
 
@@ -120,19 +70,21 @@ Run targeted verification while iterating and the required final verification be
 ## Shell guidance
 
 - Prefer `git mv` for moves/renames of tracked paths and `git rm` for removals of tracked paths. Use plain `mv`/`rm` only for untracked paths.
-- Never work on or push to `main`. Publish through the `github-publish` skill — do not hand-roll `git push`.
+- Never work on or push to `main`. Publish through the appropriate publish skill — do not hand-roll `git push`.
 
 ## Finishing
 
-After final verification, commit all changes and push the branch with the `github-publish` skill:
-`bash .claude/skills/github-publish/scripts/push-branch.sh`.
-Then open a pull request with `bash .claude/skills/github-publish/scripts/open-pr.sh` — it skips creation when a PR already exists for the branch.
+After final verification, commit all changes and push the branch using the publish skill:
+- GitHub: `bash .claude/skills/github-publish/scripts/push-branch.sh` then `bash .claude/skills/github-publish/scripts/open-pr.sh`
+- GitLab: `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` then `bash .claude/skills/gitlab-publish/scripts/open-mr.sh`
+
+The publish scripts refuse `main`/`master` and skip creation when a PR/MR already exists for the branch.
 ```
 
 - [ ] **Step 2: Verify**
 
 Run: `codespell core/claude/skills/implement/SKILL.md`
-Expected: no errors (or only false positives for agent-specific terms)
+Expected: no errors
 
 - [ ] **Step 3: Commit**
 
@@ -226,7 +178,7 @@ user-invocable: false
 
 # GitHub Publish
 
-Safe publishing for this repository. Pushing and opening pull requests go through bundled scripts that **refuse to act on `main`** and refuse force-pushes.
+Safe publishing for GitHub-hosted repositories. Pushing and opening pull requests go through bundled scripts that **refuse to act on `main`** and refuse force-pushes.
 
 ## Why a script, not a raw `git push`
 
@@ -337,356 +289,27 @@ git commit -m "feat: add github-publish authored skill with push guard and PR op
 
 ---
 
-## Task 4: Wire `github-publish` into OpenCode Agents
+## Task 4: Create `gitlab-publish` Authored Skill
 
 **Files:**
-- Modify: `core/opencode/agents/implement.md`
-- Modify: `core/opencode/agents/finish.md`
+- Create: `core/agents/skills/gitlab-publish/SKILL.md`
+- Create: `core/agents/skills/gitlab-publish/scripts/push-branch.sh`
+- Create: `core/agents/skills/gitlab-publish/scripts/open-mr.sh`
 
-- [ ] **Step 1: Update implement.md**
+- [ ] **Step 1: Write the SKILL.md**
 
-In `core/opencode/agents/implement.md`:
-
-Replace the raw push/PR instructions in the body (lines 100-113) with `github-publish` skill references. Specifically:
-
-- Replace line 100 (`Always use 'git push origin $(git rev-parse --abbrev-ref HEAD)'...`) with:
-  `Publish through the 'github-publish' skill — 'bash .agents/skills/github-publish/scripts/push-branch.sh' to push, which refuses 'main'. Never hand-roll 'git push': 'git push origin $(...)' silently pushes 'main' when the current branch is 'main'.`
-
-- Replace line 101 (the `gh pr list --head` check) with:
-  `Open a pull request with 'bash .agents/skills/github-publish/scripts/open-pr.sh' — it skips creation when a PR already exists for the current branch.`
-
-- Replace line 113 (the final push+PR block) with:
-  `After final verification, commit all changes, push the branch with 'bash .agents/skills/github-publish/scripts/push-branch.sh', and open a GitHub pull request with 'bash .agents/skills/github-publish/scripts/open-pr.sh' (it no-ops when a PR already exists). The push script refuses 'main'.`
-
-- Add `github-publish` to the skill permission allowlist:
-  Replace `"workflow-implementation": allow` with:
-  ```
-  "workflow-implementation": allow
-  "github-publish": allow
-  ```
-
-- Add the publish script to bash permissions:
-  After the `"git push origin $(git rev-parse --abbrev-ref HEAD)": allow` line, add:
-  ```
-  "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
-  "bash .agents/skills/github-publish/scripts/open-pr.sh*": ask
-  ```
-
-- Remove the `"git push origin $(git rev-parse --abbrev-ref HEAD)": allow` line (no longer needed since the skill handles it).
-
-- [ ] **Step 2: Update finish.md**
-
-In `core/opencode/agents/finish.md`:
-
-- Replace the push instruction in the body with a `github-publish` skill reference.
-- Add `github-publish` to the skill permission allowlist.
-- Add the publish script permissions to bash.
-- Remove any raw `git push` permission lines that are replaced by the skill.
-
-- [ ] **Step 3: Verify**
-
-Run: `codespell core/opencode/agents/implement.md core/opencode/agents/finish.md`
-Expected: no errors
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add core/opencode/agents/implement.md core/opencode/agents/finish.md
-git commit -m "refactor: wire github-publish skill into OpenCode implement and finish agents"
-```
-
----
-
-## Task 5: Wire `github-publish` into Claude Skills
-
-**Files:**
-- Modify: `core/claude/skills/finish/SKILL.md`
-- Modify: `core/claude/skills/brainstorm/SKILL.md`
-- Modify: `core/claude/settings.json`
-
-- [ ] **Step 1: Update finish/SKILL.md**
-
-In `core/claude/skills/finish/SKILL.md`:
-
-- Replace step 5 (lines 49-51) push instruction:
-  From: `git push origin $(git rev-parse --abbrev-ref HEAD)`
-  To: `bash .claude/skills/github-publish/scripts/push-branch.sh`
-
-- Update the "Push boundaries" section (lines 53-57):
-  Replace the raw `git push` instruction with:
-  `Push only with 'bash .claude/skills/github-publish/scripts/push-branch.sh'. Never use bare 'git push', push to 'main', force-push, delete remote refs, push tags, or push arbitrary refspecs without explicit approval. Do not create PRs, amend commits, delete branches, close comments, or remove worktrees.`
-
-- [ ] **Step 2: Update brainstorm/SKILL.md**
-
-In `core/claude/skills/brainstorm/SKILL.md`:
-
-- Replace the shell guidance (lines 34-35):
-  From: `Always use 'git push origin $(git rev-parse --abbrev-ref HEAD)' — never use bare 'git push' to avoid accidentally pushing to 'main'.`
-  To: `Publish through the 'github-publish' skill — 'bash .claude/skills/github-publish/scripts/push-branch.sh'. Never hand-roll 'git push'.`
-
-- [ ] **Step 3: Update settings.json**
-
-In `core/claude/settings.json`:
-
-Add to the `allow` array:
-```
-"Bash(bash .claude/skills/github-publish/scripts/push-branch.sh:*)"
-```
-
-Add to the `ask` array:
-```
-"Bash(bash .claude/skills/github-publish/scripts/open-pr.sh:*)"
-```
-
-- [ ] **Step 4: Verify**
-
-Run: `codespell core/claude/skills/finish/SKILL.md core/claude/skills/brainstorm/SKILL.md`
-Expected: no errors
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add core/claude/skills/finish/SKILL.md core/claude/skills/brainstorm/SKILL.md core/claude/settings.json
-git commit -m "refactor: wire github-publish skill into Claude finish, brainstorm, and settings"
-```
-
----
-
-## Task 6: Delete Raw `scripts/publish-branch.sh`
-
-**Files:**
-- Delete: `scripts/publish-branch.sh`
-
-- [ ] **Step 1: Remove the file**
-
-```bash
-git rm scripts/publish-branch.sh
-```
-
-- [ ] **Step 2: Update AGENTS.md references**
-
-In `AGENTS.md` (repo-root self-maintenance conventions), the line referencing `scripts/publish-branch.sh` needs updating:
-
-Replace:
-`Use 'scripts/publish-branch.sh' for branch publishing and PR creation so branch-safety checks are centralized.`
-
-With:
-`Use the 'github-publish' skill scripts for branch publishing and PR creation so branch-safety checks are centralized. Never hand-roll 'git push'.`
-
-- [ ] **Step 3: Verify**
-
-Run: `codespell AGENTS.md`
-Expected: no errors
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add AGENTS.md
-git commit -m "refactor: replace publish-branch.sh with github-publish skill references"
-```
-
----
-
-## Task 7: Update Claude README for Dual Harness
-
-**Files:**
-- Modify: `core/claude/README.md`
-
-- [ ] **Step 1: Update the skill table**
-
-In `core/claude/README.md`, update the skill table to add `/implement`:
-
-```markdown
-| Skill (`/name`) | OpenCode counterpart | Role |
-| --- | --- | --- |
-| `/brainstorm`  | `@brainstorm`  | Idea → approved `spec.md` (interactive; offers domain grilling) |
-| `/bugfix`      | `@bugfix`      | Investigate bug → structured GitHub issue; does not fix |
-| `/planner`     | `@planner`     | Spec → task-by-task `plan.md` (offers grilling only when new domain language or non-trivial decisions appear) |
-| `/implement`   | `@implement`   | Execute plan task-by-task via `implement-task` workers, verify, commit |
-| `/review-plan` | `@review-plan` | Review + finalize the hand-off plan |
-| `/review-code` | `@review-code` | Review a diff/PR → fix-plan hand-off doc |
-| `/finish`      | `@finish`      | Durable feature doc, light glossary/ADR reconciliation, cleanup |
-```
-
-- [ ] **Step 2: Update the design principle section**
-
-Replace the opening paragraph:
-From: `Claude Code runs the **conversational** half of the agent pipeline. The **implementation** half stays in OpenCode.`
-To: `Claude Code runs both the **conversational** and **implementation** halves of the agent pipeline. OpenCode provides the same pipeline; pick one harness per branch.`
-
-- [ ] **Step 3: Update the shared authored skills list**
-
-Add `github-publish` to the shared authored skills list:
-`- 'github-publish' — used by '/implement', '/finish' (+ OpenCode)`
-
-Update the symlink inventory to include `github-publish`:
-Add to the symlinked shared skills list:
-`- 'github-publish' — used by '/implement', '/finish' (+ OpenCode)`
-
-- [ ] **Step 4: Update the "Usage" section**
-
-Update the usage line to include `/implement`:
-`Type '/brainstorm', '/bugfix', '/implement', '/planner', '/review-plan', '/review-code', or '/finish'`
-
-- [ ] **Step 5: Update the permissions section**
-
-Update the permissions description to mention the `github-publish` skill scripts instead of `gh pr create`.
-
-- [ ] **Step 6: Verify**
-
-Run: `codespell core/claude/README.md`
-Expected: no errors
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add core/claude/README.md
-git commit -m "docs: update Claude README for /implement controller and github-publish skill"
-```
-
----
-
-## Task 8: Update Existing Claude Skills for `/implement` Cross-References
-
-**Files:**
-- Modify: `core/claude/skills/planner/SKILL.md`
-- Modify: `core/claude/skills/review-code/SKILL.md`
-- Modify: `core/claude/skills/review-plan/SKILL.md`
-
-- [ ] **Step 1: Update planner/SKILL.md stop conditions**
-
-In `core/claude/skills/planner/SKILL.md`, replace the stop conditions (lines 74-77):
-
-From:
-```
-- After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
-- Implementation runs in **OpenCode** (`@implement` / `@implement-task`), not Claude Code.
-  Hand off to OpenCode for execution.
-```
-
-To:
-```
-- After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
-- Implementation can run in either harness: Claude Code (`/implement`) or OpenCode
-  (`@implement`). Pick one per branch. Suggest the user's preferred harness.
-```
-
-- [ ] **Step 2: Update review-code/SKILL.md escalation rules**
-
-In `core/claude/skills/review-code/SKILL.md`, update step 7 (lines 73-76):
-
-From:
-```
-7. If the user approves dispatching `@implement-task` for trivial review-scoped fixes,
-   dispatch focused tasks only after presenting the exact fix instructions. In Claude
-   Code, prefer writing the fix-plan handoff document and handing it to OpenCode
-   (`@implement` / `@implement-task`) for TDD implementation.
-```
-
-To:
-```
-7. If the user approves dispatching `@implement-task` or `/implement` for trivial
-   review-scoped fixes, dispatch focused tasks only after presenting the exact fix
-   instructions. Pick one harness per branch.
-```
-
-- [ ] **Step 3: Update review-plan/SKILL.md finalization**
-
-In `core/claude/skills/review-plan/SKILL.md`, update the handoff section (line 78):
-
-From:
-`4. Report the finalized plan path and confirm it is ready for OpenCode handoff.`
-
-To:
-`4. Report the finalized plan path and confirm it is ready for implementation handoff (Claude '/implement' or OpenCode '@implement').`
-
-- [ ] **Step 4: Verify**
-
-Run: `codespell core/claude/skills/planner/SKILL.md core/claude/skills/review-code/SKILL.md core/claude/skills/review-plan/SKILL.md`
-Expected: no errors
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add core/claude/skills/planner/SKILL.md core/claude/skills/review-code/SKILL.md core/claude/skills/review-plan/SKILL.md
-git commit -m "refactor: update Claude planner, review-code, review-plan for dual-harness /implement"
-```
-
----
-
-## Task 9: Symlink `github-publish` into Claude Skills
-
-**Files:**
-- Modify: `core/claude/` (symlink creation — handled by `init.sh` / `copy.sh`)
-- Modify: `scripts/init.sh`
-- Modify: `scripts/copy.sh`
-
-- [ ] **Step 1: Update init.sh symlink creation**
-
-In `scripts/init.sh`, find the section that creates Claude symlinks (the loop that symlinks authored skills from `.agents/skills/` into `.claude/skills/`). Add `github-publish` to the list of skills to symlink.
-
-The exact location depends on the current script structure. Look for the array or loop that lists: `grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-verification`, `feature-documentation`, `github-pr-comments`.
-
-Add `github-publish` to that list.
-
-- [ ] **Step 2: Update copy.sh symlink creation**
-
-Same change in `scripts/copy.sh` — add `github-publish` to the symlink list.
-
-- [ ] **Step 3: Verify**
-
-Run: `shellcheck scripts/init.sh scripts/copy.sh`
-Run: `bash -n scripts/init.sh scripts/copy.sh`
-Expected: no errors
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add scripts/init.sh scripts/copy.sh
-git commit -m "feat: add github-publish to Claude symlink creation in installer scripts"
-```
-
----
-
-## Task 10: Create GitLab Forge Overlay Structure
-
-**Files:**
-- Create: `core/forge/gitlab/AGENTS.md`
-- Create: `core/forge/gitlab/.agents/skills/gitlab-publish/SKILL.md`
-- Create: `core/forge/gitlab/.agents/skills/gitlab-publish/scripts/push-branch.sh`
-- Create: `core/forge/gitlab/.agents/skills/gitlab-publish/scripts/open-mr.sh`
-- Create: `core/forge/gitlab/.agents/skills/gitlab-mr-comments/SKILL.md`
-- Create: `core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`
-- Create: `core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh`
-
-- [ ] **Step 1: Create AGENTS.md**
-
-Create `core/forge/gitlab/AGENTS.md`:
-
-```markdown
-## GitLab Conventions
-
-This repository uses GitLab as its forge. Merge requests (not pull requests) are the review surface. Use `glab` (GitLab CLI) for all forge operations.
-
-- Publishing goes through `gitlab-publish` skill scripts — never hand-roll `git push`.
-- MR comment workflows go through `gitlab-mr-comments` skill scripts.
-- Issues are created and managed via `glab issue create/view/list/update`.
-```
-
-- [ ] **Step 2: Create gitlab-publish SKILL.md**
-
-Create `core/forge/gitlab/.agents/skills/gitlab-publish/SKILL.md`:
+Create `core/agents/skills/gitlab-publish/SKILL.md`:
 
 ```markdown
 ---
 name: gitlab-publish
-description: Use when pushing a branch or opening a merge request — guards against pushing to the default branch and against force-pushing
+description: Use when pushing a branch or opening a merge request on a GitLab-hosted repository — guards against pushing to the default branch and against force-pushing
 user-invocable: false
 ---
 
 # GitLab Publish
 
-Safe publishing for this repository. Pushing and opening merge requests go through bundled scripts that **refuse to act on `main`/`master`** and refuse force-pushes.
+Safe publishing for GitLab-hosted repositories. Pushing and opening merge requests go through bundled scripts that **refuse to act on `main`/`master`** and refuse force-pushes.
 
 ## Why a script, not a raw `git push`
 
@@ -714,9 +337,9 @@ It refuses on `main`/`master`, skips creation when an MR already exists for the 
 - Force-pushing and pushing to `main`/`master` are out of scope for this skill; they require a deliberate, human-run command.
 ```
 
-- [ ] **Step 3: Create gitlab-publish push-branch.sh**
+- [ ] **Step 2: Write push-branch.sh**
 
-Create `core/forge/gitlab/.agents/skills/gitlab-publish/scripts/push-branch.sh`:
+Create `core/agents/skills/gitlab-publish/scripts/push-branch.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -745,9 +368,9 @@ printf 'Pushing branch "%s" to origin...\n' "$branch"
 git push origin "$branch" "$@"
 ```
 
-- [ ] **Step 4: Create gitlab-publish open-mr.sh**
+- [ ] **Step 3: Write open-mr.sh**
 
-Create `core/forge/gitlab/.agents/skills/gitlab-publish/scripts/open-mr.sh`:
+Create `core/agents/skills/gitlab-publish/scripts/open-mr.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -774,9 +397,39 @@ printf 'Opening merge request for branch "%s"...\n' "$branch"
 glab mr create --source-branch "$branch" "$@"
 ```
 
-- [ ] **Step 5: Create gitlab-mr-comments SKILL.md**
+- [ ] **Step 4: Make scripts executable**
 
-Create `core/forge/gitlab/.agents/skills/gitlab-mr-comments/SKILL.md`:
+```bash
+chmod +x core/agents/skills/gitlab-publish/scripts/push-branch.sh
+chmod +x core/agents/skills/gitlab-publish/scripts/open-mr.sh
+```
+
+- [ ] **Step 5: Verify**
+
+Run: `shellcheck core/agents/skills/gitlab-publish/scripts/*.sh`
+Run: `bash -n core/agents/skills/gitlab-publish/scripts/*.sh`
+Run: `codespell core/agents/skills/gitlab-publish/SKILL.md`
+Expected: no errors
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add core/agents/skills/gitlab-publish/
+git commit -m "feat: add gitlab-publish authored skill with push guard and MR opener"
+```
+
+---
+
+## Task 5: Create `gitlab-mr-comments` Authored Skill
+
+**Files:**
+- Create: `core/agents/skills/gitlab-mr-comments/SKILL.md`
+- Create: `core/agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`
+- Create: `core/agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh`
+
+- [ ] **Step 1: Write the SKILL.md**
+
+Create `core/agents/skills/gitlab-mr-comments/SKILL.md`:
 
 ```markdown
 ---
@@ -787,7 +440,7 @@ user-invocable: false
 
 # GitLab MR Comments
 
-Use this for team merge request review workflows where feedback is stored as GitLab notes and discussions.
+Use this for team merge request review workflows where feedback is stored as GitLab notes and discussions. This is the GitLab equivalent of `github-pr-comments`.
 
 ## Baseline Failure To Avoid
 
@@ -867,9 +520,9 @@ The MR number is optional; when omitted, the script auto-detects it from the cur
 - Posting a reply batch that differs from the exact batch the user approved.
 ```
 
-- [ ] **Step 6: Create gitlab-mr-comments fetch-mr-comments.sh**
+- [ ] **Step 2: Write fetch-mr-comments.sh**
 
-Create `core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`:
+Create `core/agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -945,9 +598,9 @@ printf '\n## Diff\n'
 glab mr diff "$mr"
 ```
 
-- [ ] **Step 7: Create gitlab-mr-comments reply-to-mr-comment.sh**
+- [ ] **Step 3: Write reply-to-mr-comment.sh**
 
-Create `core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh`:
+Create `core/agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh`:
 
 ```bash
 #!/usr/bin/env bash
@@ -985,250 +638,408 @@ done < <(jq -c '.[]' <<<"$replies_json")
 printf 'All %d replies posted.\n' "$count"
 ```
 
-- [ ] **Step 8: Make all scripts executable**
+- [ ] **Step 4: Make scripts executable**
 
 ```bash
-chmod +x core/forge/gitlab/.agents/skills/gitlab-publish/scripts/*.sh
-chmod +x core/forge/gitlab/.agents/skills/gitlab-mr-comments/scripts/*.sh
+chmod +x core/agents/skills/gitlab-mr-comments/scripts/*.sh
 ```
 
-- [ ] **Step 9: Verify**
+- [ ] **Step 5: Verify**
 
-Run: `shellcheck core/forge/gitlab/.agents/skills/*/scripts/*.sh`
-Run: `bash -n core/forge/gitlab/.agents/skills/*/scripts/*.sh`
-Run: `codespell core/forge/gitlab/.agents/skills/*/SKILL.md core/forge/gitlab/AGENTS.md`
+Run: `shellcheck core/agents/skills/gitlab-mr-comments/scripts/*.sh`
+Run: `bash -n core/agents/skills/gitlab-mr-comments/scripts/*.sh`
+Run: `codespell core/agents/skills/gitlab-mr-comments/SKILL.md`
 Expected: no errors
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add core/forge/gitlab/
-git commit -m "feat: add GitLab forge overlay with gitlab-publish and gitlab-mr-comments skills"
+git add core/agents/skills/gitlab-mr-comments/
+git commit -m "feat: add gitlab-mr-comments authored skill with MR discussion fetch and reply"
 ```
 
 ---
 
-## Task 11: Create GitLab Forge Config Overlays
+## Task 6: Wire `github-publish` into OpenCode Agents
 
 **Files:**
-- Create: `core/forge/gitlab/opencode.json`
-- Create: `core/forge/gitlab/claude/settings.json`
-- Create: `core/forge/gitlab/docs/agents/review-plan.md`
-- Create: `core/forge/gitlab/docs/agents/review-code.md`
-- Create: `core/forge/gitlab/docs/agents/bugfix.md`
+- Modify: `core/opencode/agents/implement.md`
+- Modify: `core/opencode/agents/finish.md`
 
-- [ ] **Step 1: Create opencode.json overlay**
+- [ ] **Step 1: Update implement.md**
 
-Create `core/forge/gitlab/opencode.json`:
+In `core/opencode/agents/implement.md`:
 
-```json
-{
-  "agent": {
-    "implement": {
-      "permission": {
-        "bash": {
-          "glab mr create *": "allow",
-          "glab mr list *": "allow",
-          "glab mr view *": "allow",
-          "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": "allow",
-          "bash .agents/skills/gitlab-publish/scripts/open-mr.sh*": "ask",
-          "gh pr create *": "deny",
-          "gh pr list *": "deny",
-          "gh pr view *": "deny"
-        },
-        "skill": {
-          "github-publish": "deny",
-          "gitlab-publish": "allow"
-        }
-      }
-    },
-    "finish": {
-      "permission": {
-        "bash": {
-          "glab mr create *": "allow",
-          "glab mr list *": "allow",
-          "glab mr view *": "allow",
-          "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": "allow",
-          "bash .agents/skills/gitlab-publish/scripts/open-mr.sh*": "ask",
-          "gh pr create *": "deny",
-          "gh pr list *": "deny",
-          "gh pr view *": "deny"
-        },
-        "skill": {
-          "github-publish": "deny",
-          "gitlab-publish": "allow"
-        }
-      }
-    },
-    "bugfix": {
-      "permission": {
-        "bash": {
-          "glab issue create *": "allow",
-          "glab issue view *": "allow",
-          "glab issue list *": "allow",
-          "glab issue update *": "allow",
-          "gh issue create *": "deny",
-          "gh issue view *": "deny",
-          "gh issue list *": "deny"
-        }
-      }
-    },
-    "review-plan": {
-      "permission": {
-        "bash": {
-          "glab mr view *": "allow",
-          "glab mr diff *": "allow",
-          "bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh*": "allow",
-          "bash .agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh*": "ask",
-          "gh pr view *": "deny",
-          "gh pr diff *": "deny"
-        },
-        "skill": {
-          "github-pr-comments": "deny",
-          "gitlab-mr-comments": "allow"
-        }
-      }
-    },
-    "review-code": {
-      "permission": {
-        "bash": {
-          "glab mr view *": "allow",
-          "glab mr diff *": "allow",
-          "bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh*": "allow",
-          "bash .agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh*": "ask",
-          "gh pr view *": "deny",
-          "gh pr diff *": "deny"
-        },
-        "skill": {
-          "github-pr-comments": "deny",
-          "gitlab-mr-comments": "allow"
-        }
-      }
-    }
-  }
-}
-```
+Replace the raw push/PR instructions with `github-publish` skill references:
 
-- [ ] **Step 2: Create claude/settings.json overlay**
+- Replace line 100 (`Always use 'git push origin $(git rev-parse --abbrev-ref HEAD)'...`) with:
+  `Publish through the 'github-publish' skill — 'bash .agents/skills/github-publish/scripts/push-branch.sh' to push, which refuses 'main'. Never hand-roll 'git push': 'git push origin $(...)' silently pushes 'main' when the current branch is 'main'.`
 
-Create `core/forge/gitlab/claude/settings.json`:
+- Replace line 101 (the `gh pr list --head` check) with:
+  `Open a pull request with 'bash .agents/skills/github-publish/scripts/open-pr.sh' — it skips creation when a PR already exists for the current branch.`
 
-```json
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "permissions": {
-    "allow": [
-      "Bash(glab mr view:*)",
-      "Bash(glab mr diff:*)",
-      "Bash(glab mr list:*)",
-      "Bash(glab issue view:*)",
-      "Bash(glab issue list:*)",
-      "Bash(bash .claude/skills/gitlab-publish/scripts/push-branch.sh:*)",
-      "Bash(bash .claude/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh:*)"
-    ],
-    "ask": [
-      "Bash(glab mr create:*)",
-      "Bash(glab mr note create:*)",
-      "Bash(glab issue create:*)",
-      "Bash(glab issue update:*)",
-      "Bash(bash .claude/skills/gitlab-publish/scripts/open-mr.sh:*)",
-      "Bash(bash .claude/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh:*)"
-    ],
-    "deny": [
-      "Bash(gh pr create:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh pr view:*)",
-      "Bash(gh issue create:*)",
-      "Bash(gh issue view:*)"
-    ]
-  }
-}
-```
+- Replace line 113 (the final push+PR block) with:
+  `After final verification, commit all changes, push the branch with 'bash .agents/skills/github-publish/scripts/push-branch.sh', and open a GitHub pull request with 'bash .agents/skills/github-publish/scripts/open-pr.sh' (it no-ops when a PR already exists). The push script refuses 'main'.`
 
-- [ ] **Step 3: Create role doc overlays**
+- Add `github-publish` to the skill permission allowlist after `"workflow-verification": allow`.
 
-Create `core/forge/gitlab/docs/agents/review-plan.md`:
+- Add the publish script bash permissions:
+  ```
+  "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
+  "bash .agents/skills/github-publish/scripts/open-pr.sh*": ask
+  ```
 
-```markdown
-## GitLab
+- Remove the `"git push origin $(git rev-parse --abbrev-ref HEAD)": allow` line.
 
-- Use `gitlab-mr-comments` skill (not `github-pr-comments`) for MR feedback workflows.
-- Fetch MR comments: `bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`
-```
+- [ ] **Step 2: Update finish.md**
 
-Create `core/forge/gitlab/docs/agents/review-code.md`:
-
-```markdown
-## GitLab
-
-- Use `gitlab-mr-comments` skill (not `github-pr-comments`) for MR feedback workflows.
-- Fetch MR comments: `bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`
-```
-
-Create `core/forge/gitlab/docs/agents/bugfix.md`:
-
-```markdown
-## GitLab
-
-- Create issues with `glab issue create` (not `gh issue create`).
-- Update issues with `glab issue update`.
-```
-
-- [ ] **Step 4: Verify**
-
-Run: `jq . core/forge/gitlab/opencode.json`
-Run: `jq . core/forge/gitlab/claude/settings.json`
-Run: `codespell core/forge/gitlab/docs/agents/*.md`
-Expected: no errors
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add core/forge/gitlab/opencode.json core/forge/gitlab/claude/settings.json core/forge/gitlab/docs/
-git commit -m "feat: add GitLab forge config overlays and role doc additions"
-```
-
----
-
-## Task 12: Add Forge Selection to Installer Scripts
-
-**Files:**
-- Modify: `scripts/init.sh`
-- Modify: `scripts/copy.sh`
-
-- [ ] **Step 1: Add forge prompt to init.sh**
-
-In `scripts/init.sh`, add a forge selection prompt after the stack selection. The prompt should offer `github` (default) and `gitlab`.
-
-When `gitlab` is selected:
-1. Apply `core/forge/gitlab/opencode.json` overlay (deep-merge, same as stacks)
-2. Apply `core/forge/gitlab/claude/settings.json` overlay (permission union, same as stacks)
-3. Apply `core/forge/gitlab/AGENTS.md` addition (concatenate, same as stacks)
-4. Copy `core/forge/gitlab/.agents/skills/` into the target `.agents/skills/`
-5. Create symlinks for `gitlab-publish` and `gitlab-mr-comments` into `.claude/skills/`
-6. Do NOT copy `core/agents/skills/github-publish/` or `core/agents/skills/github-pr-comments/`
-7. Concatenate `core/forge/gitlab/docs/agents/*.md` additions to the matching role docs
-
-When `github` is selected:
-1. Copy `core/agents/skills/github-publish/` as normal
-2. Copy `core/agents/skills/github-pr-comments/` as normal
-3. No forge overlay applied
-
-- [ ] **Step 2: Add forge prompt to copy.sh**
-
-Same logic in `scripts/copy.sh`. The forge prompt appears alongside the stack prompt.
+Same pattern in `core/opencode/agents/finish.md` — replace raw push instructions with `github-publish` skill references, add the skill to the allowlist, add script bash permissions.
 
 - [ ] **Step 3: Verify**
 
-Run: `shellcheck scripts/init.sh scripts/copy.sh`
-Run: `bash -n scripts/init.sh scripts/copy.sh`
+Run: `codespell core/opencode/agents/implement.md core/opencode/agents/finish.md`
 Expected: no errors
 
 - [ ] **Step 4: Commit**
 
 ```bash
+git add core/opencode/agents/implement.md core/opencode/agents/finish.md
+git commit -m "refactor: wire github-publish skill into OpenCode implement and finish agents"
+```
+
+---
+
+## Task 7: Wire `gitlab-publish` into OpenCode Agents
+
+**Files:**
+- Modify: `core/opencode/agents/implement.md`
+- Modify: `core/opencode/agents/finish.md`
+- Modify: `core/opencode.json`
+
+- [ ] **Step 1: Add gitlab-publish permissions to implement.md**
+
+In `core/opencode/agents/implement.md`, add alongside the `github-publish` permissions:
+
+```yaml
+    "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/gitlab-publish/scripts/open-mr.sh*": ask
+```
+
+And add to the skill allowlist:
+```yaml
+    "gitlab-publish": allow
+```
+
+- [ ] **Step 2: Add gitlab-publish permissions to finish.md**
+
+Same pattern in `core/opencode/agents/finish.md`.
+
+- [ ] **Step 3: Add glab permissions to opencode.json**
+
+In `core/opencode.json`, add to the global permission bash section:
+
+```json
+"glab mr create *": "ask",
+"glab mr list *": "allow",
+"glab mr view *": "allow",
+"glab mr diff *": "allow",
+"glab issue create *": "ask",
+"glab issue view *": "allow",
+"glab issue list *": "allow",
+"glab issue update *": "ask"
+```
+
+- [ ] **Step 4: Verify**
+
+Run: `jq . core/opencode.json`
+Expected: valid JSON
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add core/opencode/agents/implement.md core/opencode/agents/finish.md core/opencode.json
+git commit -m "feat: add gitlab-publish permissions and glab CLI access to OpenCode agents"
+```
+
+---
+
+## Task 8: Wire Skills into Claude Settings
+
+**Files:**
+- Modify: `core/claude/settings.json`
+- Modify: `core/claude/skills/finish/SKILL.md`
+- Modify: `core/claude/skills/brainstorm/SKILL.md`
+
+- [ ] **Step 1: Update settings.json**
+
+In `core/claude/settings.json`, add to the `allow` array:
+```
+"Bash(bash .claude/skills/github-publish/scripts/push-branch.sh:*)",
+"Bash(bash .claude/skills/gitlab-publish/scripts/push-branch.sh:*)",
+"Bash(bash .claude/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh:*)",
+"Bash(glab mr view:*)",
+"Bash(glab mr diff:*)",
+"Bash(glab mr list:*)",
+"Bash(glab issue view:*)",
+"Bash(glab issue list:*)"
+```
+
+Add to the `ask` array:
+```
+"Bash(bash .claude/skills/github-publish/scripts/open-pr.sh:*)",
+"Bash(bash .claude/skills/gitlab-publish/scripts/open-mr.sh:*)",
+"Bash(bash .claude/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh:*)",
+"Bash(glab mr create:*)",
+"Bash(glab mr note create:*)",
+"Bash(glab issue create:*)",
+"Bash(glab issue update:*)"
+```
+
+- [ ] **Step 2: Update finish/SKILL.md**
+
+Replace the push instructions (step 5 and the "Push boundaries" section) to reference both publish skills:
+
+```markdown
+5. **Commit and push.** Commit the feature doc and cleanup when the user requests it,
+   then push using the appropriate publish skill:
+   - GitHub: `bash .claude/skills/github-publish/scripts/push-branch.sh`
+   - GitLab: `bash .claude/skills/gitlab-publish/scripts/push-branch.sh`
+
+## Push boundaries
+
+Push only with the publish skill scripts. Never use bare `git push`, push to `main`,
+force-push, delete remote refs, push tags, or push arbitrary refspecs without explicit
+approval. Do not create PRs, amend commits, delete branches, close comments, or remove
+worktrees.
+```
+
+- [ ] **Step 3: Update brainstorm/SKILL.md**
+
+Replace the shell guidance (lines 34-35):
+
+```markdown
+- Publish through the appropriate publish skill — `bash .claude/skills/github-publish/scripts/push-branch.sh` (GitHub) or `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` (GitLab). Never hand-roll `git push`.
+```
+
+- [ ] **Step 4: Verify**
+
+Run: `codespell core/claude/skills/finish/SKILL.md core/claude/skills/brainstorm/SKILL.md`
+Run: `jq . core/claude/settings.json`
+Expected: no errors
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add core/claude/settings.json core/claude/skills/finish/SKILL.md core/claude/skills/brainstorm/SKILL.md
+git commit -m "feat: wire publish and gitlab skills into Claude settings, finish, and brainstorm"
+```
+
+---
+
+## Task 9: Wire `gitlab-mr-comments` into Review Agents
+
+**Files:**
+- Modify: `core/opencode/agents/review-code.md` (verify — may not exist as a separate file)
+- Modify: `core/opencode/agents/review-plan.md` (verify)
+- Modify: `core/claude/skills/review-code/SKILL.md`
+- Modify: `core/claude/skills/review-plan/SKILL.md`
+- Modify: `core/docs/agents/review-code.md`
+- Modify: `core/docs/agents/review-plan.md`
+
+- [ ] **Step 1: Update role docs to mention both comment skills**
+
+In `core/docs/agents/review-code.md`, add to the Load section:
+```markdown
+- `github-pr-comments` or `gitlab-mr-comments` skill for PR/MR feedback (detect which CLI is available)
+```
+
+In `core/docs/agents/review-plan.md`, add the same.
+
+- [ ] **Step 2: Update Claude review-code/SKILL.md**
+
+In `core/claude/skills/review-code/SKILL.md`, update the references to `github-pr-comments`:
+
+Replace: `Use the 'github-pr-comments' skill for reading and drafting replies to PR comments.`
+With: `Use the 'github-pr-comments' skill for GitHub PRs or 'gitlab-mr-comments' skill for GitLab MRs. Detect which CLI is available ('gh' or 'glab') or which the user specifies.`
+
+Update step 1 similarly:
+Replace: `Read open PR comments first by using the 'github-pr-comments' skill.`
+With: `Read open PR/MR comments first using the appropriate skill: 'github-pr-comments' for GitHub or 'gitlab-mr-comments' for GitLab.`
+
+- [ ] **Step 3: Update Claude review-plan/SKILL.md**
+
+Same pattern — update references to mention both skills with detection.
+
+- [ ] **Step 4: Add glab permissions to OpenCode review agents**
+
+In `core/opencode/agents/review-plan.md` and `core/opencode/agents/review-code.md`, add bash permissions for the gitlab-mr-comments scripts:
+
+```yaml
+    "bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh*": allow
+    "bash .agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh*": ask
+    "glab mr view *": allow
+    "glab mr diff *": allow
+```
+
+And add `gitlab-mr-comments` to the skill allowlist.
+
+- [ ] **Step 5: Verify**
+
+Run: `codespell core/claude/skills/review-code/SKILL.md core/claude/skills/review-plan/SKILL.md core/docs/agents/review-code.md core/docs/agents/review-plan.md`
+Expected: no errors
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add core/claude/skills/review-code/SKILL.md core/claude/skills/review-plan/SKILL.md core/docs/agents/review-code.md core/docs/agents/review-plan.md core/opencode/agents/review-code.md core/opencode/agents/review-plan.md
+git commit -m "feat: wire gitlab-mr-comments into review agents alongside github-pr-comments"
+```
+
+---
+
+## Task 10: Update Claude README for Dual Harness
+
+**Files:**
+- Modify: `core/claude/README.md`
+
+- [ ] **Step 1: Update the skill table**
+
+Add `/implement` to the skill table:
+
+```markdown
+| Skill (`/name`) | OpenCode counterpart | Role |
+| --- | --- | --- |
+| `/brainstorm`  | `@brainstorm`  | Idea → approved `spec.md` (interactive; offers domain grilling) |
+| `/bugfix`      | `@bugfix`      | Investigate bug → structured issue; does not fix |
+| `/planner`     | `@planner`     | Spec → task-by-task `plan.md` (offers grilling only when new domain language or non-trivial decisions appear) |
+| `/implement`   | `@implement`   | Execute plan task-by-task via `implement-task` workers, verify, commit |
+| `/review-plan` | `@review-plan` | Review + finalize the hand-off plan |
+| `/review-code` | `@review-code` | Review a diff/PR/MR → fix-plan hand-off doc |
+| `/finish`      | `@finish`      | Durable feature doc, light glossary/ADR reconciliation, cleanup |
+```
+
+- [ ] **Step 2: Update the design principle section**
+
+Replace the opening paragraph:
+From: `Claude Code runs the **conversational** half of the agent pipeline. The **implementation** half stays in OpenCode.`
+To: `Claude Code runs both the **conversational** and **implementation** halves of the agent pipeline. OpenCode provides the same pipeline; pick one harness per branch.`
+
+- [ ] **Step 3: Update the shared authored skills list**
+
+Add to the shared authored skills list:
+```
+- `github-publish` — used by `/implement`, `/finish` (+ OpenCode)
+- `gitlab-publish` — used by `/implement`, `/finish` (+ OpenCode; GitLab equivalent)
+- `gitlab-mr-comments` — used by `/review-plan`, `/review-code` (+ OpenCode; GitLab equivalent of `github-pr-comments`)
+```
+
+- [ ] **Step 4: Update the "Usage" section**
+
+Update the usage line to include `/implement`:
+`Type '/brainstorm', '/bugfix', '/implement', '/planner', '/review-plan', '/review-code', or '/finish'`
+
+- [ ] **Step 5: Update the permissions section**
+
+Mention that permissions include both `gh` and `glab` CLI access, and both GitHub and GitLab publish/comment skill scripts.
+
+- [ ] **Step 6: Update the symlink inventory**
+
+The symlink table should now include:
+```
+| `github-publish` | `../../.agents/skills/github-publish` |
+| `gitlab-publish` | `../../.agents/skills/gitlab-publish` |
+| `gitlab-mr-comments` | `../../.agents/skills/gitlab-mr-comments` |
+```
+
+Remove the note about `workflow-implementation` being reserved for OpenCode.
+
+- [ ] **Step 7: Verify**
+
+Run: `codespell core/claude/README.md`
+Expected: no errors
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add core/claude/README.md
+git commit -m "docs: update Claude README for /implement controller and GitLab skills"
+```
+
+---
+
+## Task 11: Update Existing Claude Skills for `/implement` Cross-References
+
+**Files:**
+- Modify: `core/claude/skills/planner/SKILL.md`
+- Modify: `core/claude/skills/review-code/SKILL.md` (if not already updated in Task 9)
+- Modify: `core/claude/skills/review-plan/SKILL.md` (if not already updated in Task 9)
+
+- [ ] **Step 1: Update planner/SKILL.md stop conditions**
+
+Replace the stop conditions (lines 74-77):
+
+From:
+```
+- After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
+- Implementation runs in **OpenCode** (`@implement` / `@implement-task`), not Claude Code.
+  Hand off to OpenCode for execution.
+```
+
+To:
+```
+- After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
+- Implementation can run in either harness: Claude Code (`/implement`) or OpenCode
+  (`@implement`). Pick one per branch. Suggest the user's preferred harness.
+```
+
+- [ ] **Step 2: Verify**
+
+Run: `codespell core/claude/skills/planner/SKILL.md`
+Expected: no errors
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add core/claude/skills/planner/SKILL.md
+git commit -m "refactor: update Claude planner for dual-harness /implement handoff"
+```
+
+---
+
+## Task 12: Delete Raw `scripts/publish-branch.sh` and Update Installer Symlinks
+
+**Files:**
+- Delete: `scripts/publish-branch.sh`
+- Modify: `scripts/init.sh`
+- Modify: `scripts/copy.sh`
+
+- [ ] **Step 1: Remove publish-branch.sh**
+
+```bash
+git rm scripts/publish-branch.sh
+```
+
+- [ ] **Step 2: Add new skills to init.sh symlink list**
+
+In `scripts/init.sh`, find the section that creates Claude symlinks (the loop that symlinks authored skills from `.agents/skills/` into `.claude/skills/`). Add `github-publish`, `gitlab-publish`, and `gitlab-mr-comments` to the list.
+
+Also ensure `gitlab-publish` and `gitlab-mr-comments` are copied into `.agents/skills/` alongside the existing skills.
+
+- [ ] **Step 3: Add new skills to copy.sh symlink list**
+
+Same changes in `scripts/copy.sh`.
+
+- [ ] **Step 4: Verify**
+
+Run: `shellcheck scripts/init.sh scripts/copy.sh`
+Run: `bash -n scripts/init.sh scripts/copy.sh`
+Expected: no errors
+
+- [ ] **Step 5: Commit**
+
+```bash
 git add scripts/init.sh scripts/copy.sh
-git commit -m "feat: add forge selection (github/gitlab) to installer scripts"
+git commit -m "feat: add gitlab skills to installer symlink lists, remove publish-branch.sh"
 ```
 
 ---
@@ -1240,135 +1051,76 @@ git commit -m "feat: add forge selection (github/gitlab) to installer scripts"
 
 - [ ] **Step 1: Update Installed Assets section**
 
-In `README.md`:
-
-Add `implement` to the Claude Workflow Entry Skills list:
+Add `implement` to the Claude Workflow Entry Skills:
 ```
 `brainstorm`, `bugfix`, `implement`, `finish`, `planner`, `review-code`, `review-plan`
 ```
 
-Add `github-publish` to the Authored Reusable Skills list:
+Add GitLab skills to the Authored Reusable Skills:
 ```
-`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `github-publish`, `github-pr-comments`
+`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `github-publish`, `github-pr-comments`, `gitlab-publish`, `gitlab-mr-comments`
 ```
 
 - [ ] **Step 2: Update Claude Symlink Model section**
 
-Add `github-publish` to the symlink table:
-
+Add to the symlink table:
 ```markdown
 | `github-publish` | `../../.agents/skills/github-publish` |
+| `gitlab-publish` | `../../.agents/skills/gitlab-publish` |
+| `gitlab-mr-comments` | `../../.agents/skills/gitlab-mr-comments` |
 ```
 
-Remove the note about `workflow-implementation` being reserved for OpenCode — with the dual-harness design, Claude now also has `/implement`.
+Remove the note about `workflow-implementation` being reserved for OpenCode.
 
-- [ ] **Step 3: Add Forge dimension documentation**
-
-After the "Initial Stacks" section, add:
-
-```markdown
-## Forge Dimension
-
-The toolkit supports two forge platforms, orthogonal to the stack choice:
-
-| Forge | Publish Skill | PR/MR Comments Skill | CLI |
-|---|---|---|---|
-| **github** (default) | `github-publish` | `github-pr-comments` | `gh` |
-| **gitlab** | `gitlab-publish` | `gitlab-mr-comments` | `glab` |
-
-During `init.sh` or `copy.sh`, you choose a forge alongside the stack. The GitLab forge overlay replaces GitHub skills with GitLab equivalents and swaps `gh` permissions for `glab` permissions in both OpenCode and Claude configs.
-```
-
-- [ ] **Step 4: Update the Extension Guide**
-
-In the Extension Guide section, add a note about forge overlays:
-
-```markdown
-## Adding Future Forges
-
-To add a new forge (e.g. Bitbucket, Gitea):
-
-1. Create `core/forge/<name>/` with:
-   - `AGENTS.md` (forge-specific conventions)
-   - `.agents/skills/<forge>-publish/` (publish skill with scripts)
-   - `.agents/skills/<forge>-pr-comments/` or `<forge>-mr-comments/` (review feedback skill)
-   - `opencode.json` (forge-specific permission overlays)
-   - `claude/settings.json` (forge-specific permission overlays)
-   - `docs/agents/<role>.md` additions for review/bugfix roles
-
-2. The forge assets are merged identically to stacks: config deep-merged, permissions unioned, role docs concatenated, skills copied and symlinked.
-```
-
-- [ ] **Step 5: Update the workflow table**
+- [ ] **Step 3: Update workflow table**
 
 In the Implementation Cycle table, update step 7:
 From: `OpenCode '@implement' (controller) which spawns '@implement-task' workers.`
 To: `Claude '/implement' or OpenCode '@implement' (controller) which spawns implement-task workers. Pick one harness per branch.`
 
-- [ ] **Step 6: Verify**
+- [ ] **Step 4: Verify**
 
 Run: `codespell README.md`
 Expected: no errors
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add README.md
-git commit -m "docs: update README for dual-harness /implement, github-publish skill, and forge dimension"
+git commit -m "docs: update README for dual-harness /implement and GitLab skills"
 ```
 
 ---
 
 ## Task 14: Consistency Verification
 
-- [ ] **Step 1: Verify all symlinks are accounted for**
+- [ ] **Step 1: Verify symlink table completeness**
 
-Check that the symlink table in both `core/claude/README.md` and `README.md` lists exactly these skills:
-- `grill-with-docs`
-- `workflow-bug-analysis`
-- `workflow-brainstorming`
-- `workflow-planning`
-- `workflow-verification`
-- `feature-documentation`
-- `github-publish`
-- `github-pr-comments`
+The Claude symlink table should list exactly these skills:
+- `grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-verification`, `feature-documentation`
+- `github-publish`, `github-pr-comments`
+- `gitlab-publish`, `gitlab-mr-comments`
 
-(8 total for GitHub forge; GitLab forge replaces `github-publish` and `github-pr-comments` with `gitlab-publish` and `gitlab-mr-comments`)
+(10 total)
 
-- [ ] **Step 2: Verify no stale `gh` references remain in core**
+- [ ] **Step 2: Verify no stale raw push references**
 
-Run: `grep -r "gh pr\|gh issue" core/ --include="*.md" --include="*.json" --include="*.sh" | grep -v "github-" | grep -v "forge/gitlab"`
-Expected: no matches (all `gh` references should be inside `github-*` skills or denied in the GitLab overlay)
+Run: `grep -rn 'git push origin' core/ --include="*.md" | grep -v "github-publish" | grep -v "gitlab-publish" | grep -v "git push" | grep -v "refuse"`
+Expected: no matches
 
-- [ ] **Step 3: Verify no stale `git push origin $(git rev-parse"` references remain**
+- [ ] **Step 3: Verify all skills exist on disk**
 
-Run: `grep -r 'git push origin' core/ --include="*.md" | grep -v "github-publish" | grep -v "gitlab-publish"`
-Expected: no matches (all push instructions should reference the publish skills)
+Run: `ls core/agents/skills/github-publish/SKILL.md core/agents/skills/gitlab-publish/SKILL.md core/agents/skills/gitlab-mr-comments/SKILL.md`
+Expected: all three files exist
 
-- [ ] **Step 4: Verify all agent files reference the correct skills**
+- [ ] **Step 4: Verify lockfiles**
 
-Check that:
-- `core/opencode/agents/implement.md` references `github-publish` skill (not raw push)
-- `core/opencode/agents/finish.md` references `github-publish` skill (not raw push)
-- `core/claude/skills/implement/SKILL.md` references `github-publish` skill
-- `core/claude/skills/finish/SKILL.md` references `github-publish` skill
-- `core/claude/skills/brainstorm/SKILL.md` references `github-publish` skill
+No changes to `skills-lock.json` or `core/skills-lock.json` — no new remote skills are being installed. All new skills are authored.
 
-- [ ] **Step 5: Verify lockfiles**
+- [ ] **Step 5: Final codespell pass**
 
-No changes to `skills-lock.json` or `core/skills-lock.json` — no new remote skills are being installed.
-
-- [ ] **Step 6: Final codespell pass**
-
-Run: `codespell core/ AGENTS.md README.md`
-Expected: no errors (or only known false positives)
-
-- [ ] **Step 7: Commit (if any fixes needed)**
-
-```bash
-git add -A
-git commit -m "chore: consistency fixes from verification pass"
-```
+Run: `codespell core/ README.md`
+Expected: no errors
 
 ---
 
@@ -1378,10 +1130,10 @@ git commit -m "chore: consistency fixes from verification pass"
 - `core/claude/README.md` — current Claude skill inventory and symlink model
 - `core/AGENTS.md` (template) — dual pipeline description, permissions
 - `README.md` — installed assets, workflow table, extension guide
-- `scripts/init.sh` — current installer flow
-- `scripts/copy.sh` — current copy flow
+- `scripts/init.sh` — current installer flow and symlink creation
+- `scripts/copy.sh` — current copy flow and symlink creation
 - All `core/opencode/agents/*.md` — current agent definitions and permissions
 - All `core/claude/skills/*/SKILL.md` — current Claude skill definitions
 - `core/claude/settings.json` — current Claude permissions
-- `core/agents/skills/github-pr-comments/` — pattern reference for forge skills
+- `core/agents/skills/github-pr-comments/` — pattern reference for platform skills
 - `scripts/publish-branch.sh` — current publishing script (to be replaced)
