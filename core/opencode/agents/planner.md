@@ -26,18 +26,8 @@ permission:
     "git commit *": allow
     "git worktree remove *": deny
 
-    "git push origin *": allow
-    "git push --force *": deny
-    "git push -f *": deny
-    "git push --force-with-lease *": ask
-    "git push origin --force *": deny
-    "git push origin -f *": deny
-    "git push origin --force-with-lease *": ask
-    "git push * --force *": deny
-    "git push * -f *": deny
-    "git push * --force-with-lease *": ask
-    "git push origin main*": deny
-    "git push origin +main*": deny
+    "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
 
     "grep *": allow
     "ls *": allow
@@ -88,7 +78,7 @@ Shell guidance:
 
 - Prefer relative workspace paths in shell commands and examples (e.g., `mkdir -p plans/2026-05-25-feature-name`).
 - Avoid absolute workspace paths in shell commands unless a tool explicitly requires them.
-- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never use bare `git push` to avoid accidentally pushing to `main`.
+- Publish through the appropriate publish skill — 'bash .agents/skills/github-publish/scripts/push-branch.sh' (GitHub) or 'bash .agents/skills/gitlab-publish/scripts/push-branch.sh' (GitLab). Never hand-roll 'git push'.
 
 Do not invoke brainstorming automatically. If requirements are unclear enough that planning would be speculative, ask the user whether to switch to `@brainstorm`.
 

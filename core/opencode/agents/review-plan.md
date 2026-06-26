@@ -21,8 +21,8 @@ permission:
 
     "git add plans/*": allow
     "git commit *": allow
-    "git push *": allow
-    "git push origin main*": deny
+    "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
     "git worktree remove *": deny
 
     "bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh *": allow
@@ -70,4 +70,4 @@ Use this standard review-plan workflow unless the user explicitly requests a dif
 
 When reviewing external or GitHub comments, use `github-pr-comments`. Always check open PR comments by default unless the user explicitly says not to. Verify each technical claim before recommending changes. Suggest changes only. Before posting any GitHub issue comment, PR conversation comment, or inline review reply, present the exact draft reply and wait for explicit user approval. Approval to edit `plans/**` does not authorize posting GitHub comments.
 
-When pushing approved spec/plan edits, always use `git push origin $(git rev-parse --abbrev-ref HEAD)`. Never push to `main`.
+Publish through the appropriate publish skill — 'bash .agents/skills/github-publish/scripts/push-branch.sh' (GitHub) or 'bash .agents/skills/gitlab-publish/scripts/push-branch.sh' (GitLab). Never hand-roll 'git push'.

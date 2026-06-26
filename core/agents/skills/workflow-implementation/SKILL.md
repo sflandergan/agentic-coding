@@ -97,7 +97,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 ## Boundaries
 
 - The controller agent owns dispatch, model choice, human handoff, push, PR, and finish decisions.
-- After final verification, the controller commits all changes, pushes the branch with `git push origin $(git rev-parse --abbrev-ref HEAD)`, and creates a GitHub pull request if one does not already exist. Never push to `main`.
+- After final verification, the controller commits all changes, pushes the branch with 'bash .agents/skills/github-publish/scripts/push-branch.sh', and opens a GitHub pull request with 'bash .agents/skills/github-publish/scripts/open-pr.sh' if one does not already exist. Never push to 'main'.
 - This skill only defines execution discipline and review gates.
 - Workers follow TDD instructions embedded in the approved plan for behavior changes.
 - Inline execution is acceptable only when the user explicitly requests it or subagent delegation is genuinely unavailable, but keep the same task/review gates.
