@@ -57,6 +57,9 @@ permission:
     "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
     "bash .agents/skills/github-publish/scripts/open-pr.sh*": ask
 
+    "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/gitlab-publish/scripts/open-mr.sh*": ask
+
     "cat *": allow
     "diff *": allow
     "find *": allow
@@ -89,6 +92,7 @@ permission:
     "workflow-implementation": allow
     "workflow-verification": allow
     "github-publish": allow
+    "gitlab-publish": allow
 ---
 
 You are the implementation controller.
