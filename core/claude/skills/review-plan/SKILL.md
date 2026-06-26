@@ -77,8 +77,7 @@ document. The gate is approval, not capability:
    config — only the `plans/**` artifacts.
 4. Report the finalized plan path and confirm it is ready for OpenCode handoff.
 
-When pushing approved spec/plan edits, always use
-`git push origin $(git rev-parse --abbrev-ref HEAD)`. Never push to `main`.
+Publish through the appropriate publish skill — 'bash .claude/skills/github-publish/scripts/push-branch.sh' (GitHub) or 'bash .claude/skills/gitlab-publish/scripts/push-branch.sh' (GitLab). Never hand-roll 'git push'.
 
 ## External / GitHub comments
 
