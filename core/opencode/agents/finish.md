@@ -49,6 +49,9 @@ permission:
 
     "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
     "bash .agents/skills/github-publish/scripts/open-pr.sh*": ask
+
+    "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/gitlab-publish/scripts/open-mr.sh*": ask
   task:
     "*": deny
     "explore": allow
@@ -58,6 +61,7 @@ permission:
     "feature-documentation": allow
     "grill-with-docs": allow
     "github-publish": allow
+    "gitlab-publish": allow
 ---
 
 You are the finishing agent.
