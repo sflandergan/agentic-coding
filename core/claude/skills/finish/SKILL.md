@@ -47,12 +47,13 @@ explore subagent with a focused question.
    feature doc is written and the user approves cleanup. Use `git rm` for tracked
    files; use plain `rm` only for untracked paths.
 5. **Commit and push.** Commit the feature doc and cleanup when the user requests it,
-   then push the current scoped branch with
-   `git push origin $(git rev-parse --abbrev-ref HEAD)`.
+   then push using the appropriate publish skill:
+   - GitHub: `bash .claude/skills/github-publish/scripts/push-branch.sh`
+   - GitLab: `bash .claude/skills/gitlab-publish/scripts/push-branch.sh`
 
 ## Push boundaries
 
-Push only with `git push origin $(git rev-parse --abbrev-ref HEAD)`. Never use bare
-`git push`, push to `main`, force-push, delete remote refs, push tags, or push
-arbitrary refspecs without explicit approval. Do not create PRs, amend commits, delete
-branches, close comments, or remove worktrees.
+Push only with the publish skill scripts. Never use bare `git push`, push to `main`,
+force-push, delete remote refs, push tags, or push arbitrary refspecs without explicit
+approval. Do not create PRs, amend commits, delete branches, close comments, or remove
+worktrees.
