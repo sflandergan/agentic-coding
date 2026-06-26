@@ -74,5 +74,5 @@ inlining them here.
 - Write the plan to `plans/YYYY-MM-DD-feature-name/plan.md`, next to the spec. Commit the
   spec/plan markdown only when the user asks for committed workflow artifacts.
 - After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
-- Implementation runs in **OpenCode** (`@implement` / `@implement-task`), not Claude Code.
-  Hand off to OpenCode for execution.
+- Implementation can run in either harness: Claude Code (`/implement`) or OpenCode
+  (`@implement`). Pick one per branch. Suggest the user's preferred harness.
