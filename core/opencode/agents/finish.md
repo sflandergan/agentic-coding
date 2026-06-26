@@ -46,7 +46,9 @@ permission:
     "git push origin *:*": ask
     "git push origin --tags*": ask
     "git push origin tag *": ask
-    "git push origin $(git rev-parse --abbrev-ref HEAD)": allow
+
+    "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/github-publish/scripts/open-pr.sh*": ask
   task:
     "*": deny
     "explore": allow
@@ -55,6 +57,7 @@ permission:
     "workflow-verification": allow
     "feature-documentation": allow
     "grill-with-docs": allow
+    "github-publish": allow
 ---
 
 You are the finishing agent.
@@ -74,6 +77,6 @@ Finish workflow:
 3. Treat the feature doc as durable reference documentation, not a project-status report.
 4. Reconcile the domain docs: if implementation or review changed the domain language, or introduced or invalidated a decision, update the relevant `docs/contexts/<context>/CONTEXT.md` glossary and add or supersede ADRs under `docs/adr/` before finalizing. This is offered reconciliation, not a full grilling session — use `grill-with-docs` only when a divergence genuinely needs interrogating. Keep `CONTEXT.md` a glossary only.
 5. Remove both `plans/YYYY-MM-DD-feature-name/spec.md` and `plans/YYYY-MM-DD-feature-name/plan.md` after the feature doc is written. Use `git rm` for tracked plan files. Use plain `rm` only for untracked paths.
-6. Commit the feature doc and cleanup, then push the current scoped branch with `git push origin $(git rev-parse --abbrev-ref HEAD)`.
+6. Commit the feature doc and cleanup, then push the current scoped branch with `bash .agents/skills/github-publish/scripts/push-branch.sh`. Open a PR with `bash .agents/skills/github-publish/scripts/open-pr.sh` if needed.
 
-Push automatically only with `git push origin $(git rev-parse --abbrev-ref HEAD)`. Never use bare `git push`, push to `main`, force-push, delete remote refs, push tags, or push arbitrary refspecs without explicit approval. Do not create PRs, amend commits, delete branches, close comments, or remove worktrees.
+Push automatically only through the `github-publish` skill. Never hand-roll `git push`, push to `main`, force-push, delete remote refs, push tags, or push arbitrary refspecs without explicit approval. Do not create PRs manually, amend commits, delete branches, close comments, or remove worktrees.
