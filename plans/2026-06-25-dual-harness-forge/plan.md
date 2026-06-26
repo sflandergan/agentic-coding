@@ -4,15 +4,14 @@
 
 **Goal:** Close two structural gaps identified by inspecting an adapted downstream project: (1) Claude Code has no `/implement` controller — implementation is OpenCode-only, and (2) publishing/review-comment skills are GitHub-only — no `glab` equivalents exist for GitLab-hosted projects.
 
-**Configuration shape:** The Claude implementer adds two files to the core template layer and updates six existing files for cross-references. GitLab skills (`gitlab-publish`, `gitlab-mr-comments`) are added alongside the existing GitHub skills in `core/agents/skills/`. Both sets are always installed; the agents detect which platform the project uses from CLI availability and tool output. Permissions for `glab` are added to `opencode.json` and `claude/settings.json` alongside the existing `gh` permissions.
+**Configuration shape:** The Claude implementer adds two files to the core template layer and updates existing skills, agents, docs, and settings for cross-references. GitLab skills (`gitlab-publish`, `gitlab-mr-comments`) are added alongside the existing GitHub skills in `core/agents/skills/`. Both sets are always installed; the agents detect which platform the project uses from CLI availability and tool output. Permissions for `glab` are added to `opencode.json` and `claude/settings.json` alongside the existing `gh` permissions. The root `scripts/publish-branch.sh` is preserved as a compatibility wrapper that delegates to the new `github-publish` skill.
 
 **Configuration surface:**
 - New: `core/claude/skills/implement/SKILL.md`, `core/claude/agents/implement-task.md`
 - New: `core/agents/skills/github-publish/` (publish skill wrapping the existing `scripts/publish-branch.sh` logic)
 - New: `core/agents/skills/gitlab-publish/` (publish skill using `glab`)
 - New: `core/agents/skills/gitlab-mr-comments/` (MR comment skill using `glab`)
-- Modified: `core/claude/README.md`, `core/claude/skills/planner/SKILL.md`, `core/claude/skills/review-code/SKILL.md`, `core/claude/skills/review-plan/SKILL.md`, `core/claude/skills/brainstorm/SKILL.md`, `core/claude/skills/finish/SKILL.md`, `core/claude/settings.json`, `core/opencode/agents/implement.md`, `core/opencode/agents/finish.md`, `core/opencode/agents/bugfix.md`, `core/opencode/agents/review-code.md`, `core/opencode/agents/review-plan.md`, `core/opencode.json`, `README.md`, `scripts/init.sh`, `scripts/copy.sh`
-- Removed: `scripts/publish-branch.sh` (replaced by `github-publish` skill)
+- Modified: `core/claude/README.md`, `core/claude/skills/planner/SKILL.md`, `core/claude/skills/review-code/SKILL.md`, `core/claude/skills/review-plan/SKILL.md`, `core/claude/skills/brainstorm/SKILL.md`, `core/claude/skills/finish/SKILL.md`, `core/claude/settings.json`, `core/opencode/agents/implement.md`, `core/opencode/agents/finish.md`, `core/opencode/agents/review-code.md`, `core/opencode/agents/review-plan.md`, `core/opencode/agents/brainstorm.md`, `core/opencode/agents/planner.md`, `core/agents/skills/workflow-implementation/SKILL.md`, `core/opencode.json`, `README.md`, `scripts/init.sh`, `scripts/copy.sh`, `scripts/publish-branch.sh`
 
 ---
 
@@ -1006,17 +1005,33 @@ git commit -m "refactor: update Claude planner for dual-harness /implement hando
 
 ---
 
-## Task 12: Delete Raw `scripts/publish-branch.sh` and Update Installer Symlinks
+## Task 12: Convert `scripts/publish-branch.sh` to Compatibility Wrapper and Update Installers
 
 **Files:**
-- Delete: `scripts/publish-branch.sh`
+- Modify: `scripts/publish-branch.sh`
 - Modify: `scripts/init.sh`
 - Modify: `scripts/copy.sh`
 
-- [ ] **Step 1: Remove publish-branch.sh**
+- [ ] **Step 1: Convert publish-branch.sh into a wrapper around the github-publish skill**
+
+The repo's self-maintenance agents (`@implement`, `@planning`, `@review`) and `AGENTS.md` still reference `scripts/publish-branch.sh`. Keep that path working by replacing its contents with a wrapper that delegates to the new `github-publish` skill scripts.
+
+Write `scripts/publish-branch.sh`:
 
 ```bash
-git rm scripts/publish-branch.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Compatibility wrapper: this repo's self-maintenance agents still invoke
+# scripts/publish-branch.sh. It delegates to the github-publish authored skill.
+bash core/agents/skills/github-publish/scripts/push-branch.sh --set-upstream
+bash core/agents/skills/github-publish/scripts/open-pr.sh --fill
+```
+
+Make it executable:
+
+```bash
+chmod +x scripts/publish-branch.sh
 ```
 
 - [ ] **Step 2: Add new skills to init.sh symlink list**
@@ -1029,22 +1044,94 @@ Also ensure `gitlab-publish` and `gitlab-mr-comments` are copied into `.agents/s
 
 Same changes in `scripts/copy.sh`.
 
+- [ ] **Step 4: Add `.claude/agents/` handling to the installers**
+
+The new Claude `implement-task` subagent lives in `core/claude/agents/implement-task.md`. Add copy logic to both `scripts/init.sh` and `scripts/copy.sh` so `.claude/agents/*.md` is installed into target projects, analogous to how `.opencode/agents/*.md` is handled.
+
+- [ ] **Step 5: Verify**
+
+Run: `shellcheck scripts/init.sh scripts/copy.sh scripts/publish-branch.sh`
+Run: `bash -n scripts/init.sh scripts/copy.sh scripts/publish-branch.sh`
+Run: `codespell scripts/publish-branch.sh`
+Expected: no errors
+
+- [ ] **Step 6: Smoke-run the installers**
+
+Run a smoke test against `.temp/`:
+
+```bash
+rm -rf .temp/smoke-init
+./scripts/init.sh
+# When prompted, choose a test target under .temp/smoke-init and any stack.
+# After the run, verify that .temp/smoke-init/.claude/agents/implement-task.md exists
+# and that .temp/smoke-init/.claude/skills/github-publish is a symlink resolving
+# to ../../.agents/skills/github-publish.
+
+rm -rf .temp/smoke-copy
+mkdir -p .temp/smoke-copy && cd .temp/smoke-copy && git init && git commit --allow-empty -m "init" && cd ../..
+./scripts/copy.sh .temp/smoke-copy
+# Verify the same .claude/agents and .claude/skills symlink outcomes.
+```
+
+Clean up `.temp/smoke-init` and `.temp/smoke-copy` after verification.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add scripts/publish-branch.sh scripts/init.sh scripts/copy.sh
+git commit -m "feat: add gitlab skills and claude agents to installers, wrap publish-branch.sh"
+```
+
+---
+
+## Task 13: Replace Remaining Raw Push References
+
+**Files:**
+- Modify: `core/agents/skills/workflow-implementation/SKILL.md`
+- Modify: `core/claude/skills/planner/SKILL.md`
+- Modify: `core/claude/skills/review-plan/SKILL.md`
+- Modify: `core/opencode/agents/brainstorm.md`
+- Modify: `core/opencode/agents/planner.md`
+- Modify: `core/opencode/agents/review-plan.md`
+
+- [ ] **Step 1: Update shared implementation skill**
+
+In `core/agents/skills/workflow-implementation/SKILL.md`, replace the raw push/PR instruction at line 100 with:
+
+`After final verification, the controller commits all changes, pushes the branch with 'bash .agents/skills/github-publish/scripts/push-branch.sh', and opens a GitHub pull request with 'bash .agents/skills/github-publish/scripts/open-pr.sh' if one does not already exist. Never push to 'main'.`
+
+- [ ] **Step 2: Update Claude planner and review-plan skills**
+
+In `core/claude/skills/planner/SKILL.md` line 69 and `core/claude/skills/review-plan/SKILL.md` line 81, replace the raw `git push origin $(git rev-parse --abbrev-ref HEAD)` instruction with:
+
+`- Publish through the appropriate publish skill — 'bash .claude/skills/github-publish/scripts/push-branch.sh' (GitHub) or 'bash .claude/skills/gitlab-publish/scripts/push-branch.sh' (GitLab). Never hand-roll 'git push'.`
+
+- [ ] **Step 3: Update OpenCode brainstorm, planner, and review-plan agents**
+
+In `core/opencode/agents/brainstorm.md` line 97, `core/opencode/agents/planner.md` line 91, and `core/opencode/agents/review-plan.md` line 73, replace the raw push instruction with publish-skill references and add the publish script bash permissions:
+
+```yaml
+"bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
+"bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
+```
+
+Remove the `"git push origin $(git rev-parse --abbrev-ref HEAD)": allow` permission from each of these agents (where present).
+
 - [ ] **Step 4: Verify**
 
-Run: `shellcheck scripts/init.sh scripts/copy.sh`
-Run: `bash -n scripts/init.sh scripts/copy.sh`
+Run: `codespell core/agents/skills/workflow-implementation/SKILL.md core/claude/skills/planner/SKILL.md core/claude/skills/review-plan/SKILL.md core/opencode/agents/brainstorm.md core/opencode/agents/planner.md core/opencode/agents/review-plan.md`
 Expected: no errors
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/init.sh scripts/copy.sh
-git commit -m "feat: add gitlab skills to installer symlink lists, remove publish-branch.sh"
+git add core/agents/skills/workflow-implementation/SKILL.md core/claude/skills/planner/SKILL.md core/claude/skills/review-plan/SKILL.md core/opencode/agents/brainstorm.md core/opencode/agents/planner.md core/opencode/agents/review-plan.md
+git commit -m "refactor: replace remaining raw push references with publish skills"
 ```
 
 ---
 
-## Task 13: Update Top-Level README
+## Task 14: Update Top-Level README
 
 **Files:**
 - Modify: `README.md`
@@ -1092,7 +1179,7 @@ git commit -m "docs: update README for dual-harness /implement and GitLab skills
 
 ---
 
-## Task 14: Consistency Verification
+## Task 15: Consistency Verification
 
 - [ ] **Step 1: Verify symlink table completeness**
 
@@ -1105,7 +1192,7 @@ The Claude symlink table should list exactly these skills:
 
 - [ ] **Step 2: Verify no stale raw push references**
 
-Run: `grep -rn 'git push origin' core/ --include="*.md" | grep -v "github-publish" | grep -v "gitlab-publish" | grep -v "git push" | grep -v "refuse"`
+Run: `grep -R 'git push origin \$(git rev-parse' core/ --include="*.md"`
 Expected: no matches
 
 - [ ] **Step 3: Verify all skills exist on disk**
@@ -1119,7 +1206,7 @@ No changes to `skills-lock.json` or `core/skills-lock.json` — no new remote sk
 
 - [ ] **Step 5: Final codespell pass**
 
-Run: `codespell core/ README.md`
+Run: `codespell core/ README.md scripts/`
 Expected: no errors
 
 ---
@@ -1136,4 +1223,4 @@ Expected: no errors
 - All `core/claude/skills/*/SKILL.md` — current Claude skill definitions
 - `core/claude/settings.json` — current Claude permissions
 - `core/agents/skills/github-pr-comments/` — pattern reference for platform skills
-- `scripts/publish-branch.sh` — current publishing script (to be replaced)
+- `scripts/publish-branch.sh` — current publishing script (to be converted to a github-publish compatibility wrapper)
