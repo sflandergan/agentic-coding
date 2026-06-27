@@ -432,10 +432,10 @@ for agent_file in "$STAGE/.claude/agents/"*.md; do
 done
 
 # ---------------------------------------------------------------------------
-# 11. .claude/skills/{brainstorm,bugfix,finish,planner,review-code,review-plan}/
+# 11. .claude/skills/{brainstorm,bugfix,finish,implement,planner,review-code,review-plan}/
 # ---------------------------------------------------------------------------
 echo ""
-CLAUDE_SKILLS=(brainstorm bugfix finish planner review-code review-plan)
+CLAUDE_SKILLS=(brainstorm bugfix finish implement planner review-code review-plan)
 for skill_name in "${CLAUDE_SKILLS[@]}"; do
   src="$STAGE/.claude/skills/$skill_name"
   dst="$TARGET/.claude/skills/$skill_name"
