@@ -16,7 +16,7 @@ Spec or plan to review (if provided): $ARGUMENTS
 Read `docs/agents/review-plan.md` before every review and follow its document list
 exactly.
 
-Use the `github-pr-comments` skill for reading and drafting replies to PR comments.
+Use `github-pr-comments` for GitHub remotes and `gitlab-mr-comments` for non-GitHub (commonly self-hosted GitLab) remotes when reading and drafting replies to PR/MR comments.
 
 ## Review goals
 
@@ -77,8 +77,10 @@ document. The gate is approval, not capability:
    config — only the `plans/**` artifacts.
 4. Report the finalized plan path and confirm it is ready for OpenCode handoff.
 
-When pushing approved spec/plan edits, always use
-`git push origin $(git rev-parse --abbrev-ref HEAD)`. Never push to `main`.
+Publish through the host-appropriate publish skill. Detect host from `git remote get-url origin`:
+- GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .claude/skills/github-publish/scripts/push-branch.sh`
+- Otherwise → `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` — GitLab is commonly self-hosted
+Never hand-roll `git push`.
 
 ## External / GitHub comments
 

@@ -46,7 +46,16 @@
       "Bash(bash .claude/skills/workflow-bug-analysis/scripts/create-bug-issue.sh:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
-      "Bash(gh search issues:*)"
+      "Bash(gh search issues:*)",
+
+      "Bash(bash .claude/skills/github-publish/scripts/push-branch.sh:*)",
+      "Bash(bash .claude/skills/gitlab-publish/scripts/push-branch.sh:*)",
+      "Bash(bash .claude/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh:*)",
+      "Bash(glab mr view:*)",
+      "Bash(glab mr diff:*)",
+      "Bash(glab mr list:*)",
+      "Bash(glab issue view:*)",
+      "Bash(glab issue list:*)"
     ],
     "ask": [
       "Bash(git push:*)",
@@ -56,7 +65,14 @@
       "Bash(rm:*)",
       "Bash(rm -rf:*)",
       "Bash(bash .claude/skills/github-pr-comments/scripts/reply-to-pr-comment.sh:*)",
-      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/update-bug-issue.sh:*)"
+      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/update-bug-issue.sh:*)",
+      "Bash(bash .claude/skills/github-publish/scripts/open-pr.sh:*)",
+      "Bash(bash .claude/skills/gitlab-publish/scripts/open-mr.sh:*)",
+      "Bash(bash .claude/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh:*)",
+      "Bash(glab mr create:*)",
+      "Bash(glab mr note create:*)",
+      "Bash(glab issue create:*)",
+      "Bash(glab issue update:*)"
     ],
     "deny": [
       "Bash(git branch -d:*)",

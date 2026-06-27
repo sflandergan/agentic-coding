@@ -95,13 +95,13 @@ Under `.opencode/agents/`:
 
 Under `.claude/skills/` (all marked `disable-model-invocation: true`):
 
-`brainstorm`, `bugfix`, `finish`, `planner`, `review-code`, `review-plan`
+`brainstorm`, `bugfix`, `implement`, `finish`, `planner`, `review-code`, `review-plan`
 
 ### Authored Reusable Skills
 
 Under `.agents/skills/`:
 
-`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `github-pr-comments`
+`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `github-publish`, `github-pr-comments`, `gitlab-publish`, `gitlab-mr-comments`
 
 ### DDD Docs
 
@@ -126,7 +126,7 @@ Under `docs/agents/` — per-agent loading contracts. See the individual files f
 
 ## Claude Symlink Model
 
-The 6 workflow entry skills are real directories. The 7 authored skills are symlinked into `.claude/skills/` from `.agents/skills/`:
+The workflow entry skills are real directories. The authored skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 
 | Skill | Symlink Target |
 |---|---|
@@ -137,10 +137,11 @@ The 6 workflow entry skills are real directories. The 7 authored skills are syml
 | `workflow-verification` | `../../.agents/skills/workflow-verification` |
 | `feature-documentation` | `../../.agents/skills/feature-documentation` |
 | `github-pr-comments` | `../../.agents/skills/github-pr-comments` |
+| `github-publish` | `../../.agents/skills/github-publish` |
+| `gitlab-publish` | `../../.agents/skills/gitlab-publish` |
+| `gitlab-mr-comments` | `../../.agents/skills/gitlab-mr-comments` |
 
 Each symlinked skill has `user-invocable: false` in its `SKILL.md` frontmatter so it stays hidden from Claude Code's user-facing skill list.
-
-> **Note:** `workflow-implementation` is **not** symlinked into Claude — it is reserved for OpenCode's `@implement` / `@implement-task` flow.
 
 ## Recommended Human-in-the-Loop Workflow
 
@@ -163,7 +164,7 @@ The diagram above maps the full cycle from brainstorming a feature through to sh
 
 | # | Step | Invocation |
 |---|---|---|
-| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | OpenCode `@implement` (controller) which spawns `@implement-task` workers. |
+| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | Claude `/implement` or OpenCode `@implement` (controller) which spawns implement-task workers. Pick one harness per branch. |
 | 8 | **Human comments code** — review the diff and leave inline comments or GitHub review notes. | Human checkpoint (no agent invocation). |
 | 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
 | 10 | **Review / Remark plan** — if code review surfaces scope changes, update the plan and loop back to step 7. Repeat until the plan is sound and complete. | OpenCode `@planner` or Claude `/planner` to revise; then re-enter implementation at step 7. |
