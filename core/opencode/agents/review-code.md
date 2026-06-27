@@ -30,6 +30,9 @@ permission:
     'bash ".agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh" *': allow
     "bash .agents/skills/github-pr-comments/scripts/reply-to-pr-comment.sh *": ask
     'bash ".agents/skills/github-pr-comments/scripts/reply-to-pr-comment.sh" *': ask
+
+    "bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh*": allow
+    "bash .agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh*": ask
   task:
     "*": deny
     "explore": allow
@@ -37,6 +40,7 @@ permission:
   skill:
     "*": deny
     "github-pr-comments": allow
+    "gitlab-mr-comments": allow
 ---
 
 You are the code review agent.
