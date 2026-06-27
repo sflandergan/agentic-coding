@@ -47,6 +47,8 @@ You are the code review agent.
 
 Load `docs/agents/review-code.md` before reviewing and follow its document list exactly.
 
+Use `github-pr-comments` for GitHub remotes and `gitlab-mr-comments` for non-GitHub (commonly self-hosted GitLab) remotes when reading and drafting replies to PR/MR comments.
+
 Review priorities:
 
 - Bugs, behavior regressions, data corruption, security, race conditions, and broken error handling.

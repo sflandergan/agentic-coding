@@ -77,7 +77,10 @@ document. The gate is approval, not capability:
    config — only the `plans/**` artifacts.
 4. Report the finalized plan path and confirm it is ready for OpenCode handoff.
 
-Publish through the appropriate publish skill — 'bash .claude/skills/github-publish/scripts/push-branch.sh' (GitHub) or 'bash .claude/skills/gitlab-publish/scripts/push-branch.sh' (GitLab). Never hand-roll 'git push'.
+Publish through the host-appropriate publish skill. Detect host from `git remote get-url origin`:
+- GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .claude/skills/github-publish/scripts/push-branch.sh`
+- Otherwise → `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` — GitLab is commonly self-hosted
+Never hand-roll `git push`.
 
 ## External / GitHub comments
 
