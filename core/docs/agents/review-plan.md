@@ -8,6 +8,8 @@
 - `docs/TESTING.md`
 - `CONTEXT-MAP.md` and relevant `docs/contexts/<context>/CONTEXT.md` glossaries to check domain language; `docs/adr/` for documented decisions
 - Area docs listed below when the reviewed work touches that area
+- `github-pr-comments` skill for reading and drafting replies to GitHub PR feedback
+- `gitlab-mr-comments` skill for reading and drafting replies to GitLab MR feedback
 
 ## Area Docs
 

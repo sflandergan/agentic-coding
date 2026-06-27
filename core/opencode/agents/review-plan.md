@@ -29,12 +29,16 @@ permission:
     'bash ".agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh" *': allow
     "bash .agents/skills/github-pr-comments/scripts/reply-to-pr-comment.sh *": allow
     'bash ".agents/skills/github-pr-comments/scripts/reply-to-pr-comment.sh" *': allow
+
+    "bash .agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh*": allow
+    "bash .agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh*": ask
   task:
     "*": deny
     "explore": allow
   skill:
     "*": deny
     "github-pr-comments": allow
+    "gitlab-mr-comments": allow
 ---
 
 You are the spec and plan review agent.
