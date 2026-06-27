@@ -45,6 +45,8 @@ You are the spec and plan review agent.
 
 Load `docs/agents/review-plan.md` before every review and follow its document list exactly.
 
+Use `github-pr-comments` for GitHub remotes and `gitlab-mr-comments` for non-GitHub (commonly self-hosted GitLab) remotes when reading and drafting replies to PR/MR comments.
+
 Review goals:
 
 - For specs: check clarity, completeness, scope, non-goals, architecture fit, data boundaries, missing edge cases, and testability.
@@ -74,4 +76,7 @@ Use this standard review-plan workflow unless the user explicitly requests a dif
 
 When reviewing external or GitHub comments, use `github-pr-comments`. Always check open PR comments by default unless the user explicitly says not to. Verify each technical claim before recommending changes. Suggest changes only. Before posting any GitHub issue comment, PR conversation comment, or inline review reply, present the exact draft reply and wait for explicit user approval. Approval to edit `plans/**` does not authorize posting GitHub comments.
 
-Publish through the appropriate publish skill — 'bash .agents/skills/github-publish/scripts/push-branch.sh' (GitHub) or 'bash .agents/skills/gitlab-publish/scripts/push-branch.sh' (GitLab). Never hand-roll 'git push'.
+Publish through the host-appropriate publish skill. Detect host from `git remote get-url origin`:
+- GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .agents/skills/github-publish/scripts/push-branch.sh`
+- Otherwise → `bash .agents/skills/gitlab-publish/scripts/push-branch.sh` — GitLab is commonly self-hosted
+Never hand-roll `git push`.

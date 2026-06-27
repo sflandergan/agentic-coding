@@ -46,8 +46,9 @@ Run targeted verification while iterating and the required final verification be
 
 ## Finishing
 
-After final verification, commit all changes and push the branch using the publish skill:
-- GitHub: `bash .claude/skills/github-publish/scripts/push-branch.sh` then `bash .claude/skills/github-publish/scripts/open-pr.sh`
-- GitLab: `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` then `bash .claude/skills/gitlab-publish/scripts/open-mr.sh`
+After final verification, commit all changes and push the branch using the host-appropriate publish skill.
+Detect host from `git remote get-url origin`:
+- GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .claude/skills/github-publish/scripts/push-branch.sh` then `bash .claude/skills/github-publish/scripts/open-pr.sh`
+- Otherwise → `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` then `bash .claude/skills/gitlab-publish/scripts/open-mr.sh` — GitLab is commonly self-hosted
 
 The publish scripts refuse `main`/`master` and skip creation when a PR/MR already exists for the branch.

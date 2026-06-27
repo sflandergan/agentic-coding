@@ -47,9 +47,10 @@ explore subagent with a focused question.
    feature doc is written and the user approves cleanup. Use `git rm` for tracked
    files; use plain `rm` only for untracked paths.
 5. **Commit and push.** Commit the feature doc and cleanup when the user requests it,
-   then push using the appropriate publish skill:
-   - GitHub: `bash .claude/skills/github-publish/scripts/push-branch.sh`
-   - GitLab: `bash .claude/skills/gitlab-publish/scripts/push-branch.sh`
+   then push using the host-appropriate publish skill. Detect host from
+   `git remote get-url origin`:
+   - GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .claude/skills/github-publish/scripts/push-branch.sh`
+   - Otherwise → `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` — GitLab is commonly self-hosted
 
 ## Push boundaries
 
