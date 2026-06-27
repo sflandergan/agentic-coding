@@ -3,7 +3,7 @@
 Claude Code runs both the **conversational** and **implementation** halves of the
 agent pipeline. OpenCode provides the same pipeline; pick one harness per branch.
 
-## The seven skills
+## The skills
 
 Each is a real `SKILL.md` under `.claude/skills/<name>/`, marked
 `disable-model-invocation: true` — they never auto-trigger and stay out of the always-loaded
@@ -21,7 +21,7 @@ skill index. You start them with `/name`.
 
 ## Design principle: delegate to shared authored skills
 
-The seven entry-point skills carry per-agent glue (workflow steps, stop/hand-off gates,
+The entry-point skills carry per-agent glue (workflow steps, stop/hand-off gates,
 escalation rules) but delegate the heavy-lift methodology to authored skills under
 `.agents/skills/`. This avoids inlining duplicate copies of shared workflows.
 

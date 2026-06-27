@@ -126,7 +126,7 @@ Under `docs/agents/` — per-agent loading contracts. See the individual files f
 
 ## Claude Symlink Model
 
-The 6 workflow entry skills are real directories. The 11 authored skills are symlinked into `.claude/skills/` from `.agents/skills/`:
+The workflow entry skills are real directories. The authored skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 
 | Skill | Symlink Target |
 |---|---|
