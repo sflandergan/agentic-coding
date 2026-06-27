@@ -104,8 +104,11 @@ Execution rules:
 - Never implement on `main`; create or ask for a scoped branch if needed.
 - Prefer `git mv` for moves and renames of tracked paths. Use plain `mv` only for untracked paths or operations git cannot express cleanly.
 - Prefer `git rm` for removals of tracked paths. Use plain `rm` only for untracked paths.
-- Publish through the `github-publish` skill — `bash .agents/skills/github-publish/scripts/push-branch.sh` to push, which refuses `main`. Never hand-roll `git push`: `git push origin $(...)` silently pushes `main` when the current branch is `main`.
-- Open a pull request with `bash .agents/skills/github-publish/scripts/open-pr.sh` — it skips creation when a PR already exists for the current branch.
+- Publish through the host-appropriate skill. Detect host from `git remote get-url origin`:
+  - GitHub (contains `github.com` or starts with `git@github.com:`) → use `github-publish`
+  - Otherwise → use `gitlab-publish`
+  Run `push-branch.sh` to push, which refuses `main`. Never hand-roll `git push`: `git push origin $(...)` silently pushes `main` when the current branch is `main`.
+- Open a pull/merge request with `open-pr.sh` (GitHub) or `open-mr.sh` (GitLab) — both skip creation when one already exists for the current branch.
 - **Default behavior:** Execute the plan task-by-task by dispatching a fresh `@implement-task` worker for each task. This is the standard workflow — do not deviate unless the user explicitly requests inline implementation.
 - **Inline implementation:** Acceptable only when the user explicitly asks you to implement directly rather than delegating. When executing inline, apply the same task/review gates as delegated workers.
 - **Controller duties:** Your primary role is orchestration — dispatch tasks, package context for workers, review worker reports and diffs, enforce spec compliance and code quality review gates, and run verification before any completion claim.
@@ -117,6 +120,9 @@ Execution rules:
 - Stop and ask for feedback only when the same task fails more than 3 times, the plan conflicts with code reality, or an architectural decision is required.
 - If a task is too complex or requires an architectural decision, report the blocker and recommend human escalation.
 - Run targeted verification while iterating and the required final verification before claiming completion.
-- After final verification, commit all changes, push the branch with `bash .agents/skills/github-publish/scripts/push-branch.sh`, and open a GitHub pull request with `bash .agents/skills/github-publish/scripts/open-pr.sh` (it no-ops when a PR already exists). The push script refuses `main`.
+- After final verification, commit all changes and publish. Detect host from `git remote get-url origin`:
+  - GitHub (contains `github.com` or starts with `git@github.com:`) → push with `bash .agents/skills/github-publish/scripts/push-branch.sh`, open a PR with `bash .agents/skills/github-publish/scripts/open-pr.sh` (no-ops when a PR already exists)
+  - Otherwise → push with `bash .agents/skills/gitlab-publish/scripts/push-branch.sh`, open an MR with `bash .agents/skills/gitlab-publish/scripts/open-mr.sh` (no-ops when an MR already exists)
+  The push script refuses `main`.
 
 Use `workflow-verification` before any completion claim. Do not say work is complete, fixed, or passing unless the relevant commands have just run successfully.
