@@ -30,7 +30,4 @@ bash .agents/skills/issue-tracker/scripts/update-issue.sh --issue NUMBER --body-
 bash .agents/skills/issue-tracker/scripts/find-duplicate-issues.sh --title TITLE [--labels LABELS]
 ```
 
-- **Host detection**: reads `git remote get-url origin` to determine the host.
-  - GitHub → `gh issue list --search ... --label ... --json number,title,url`
-  - GitLab → `glab issue list --search ... --label ... --output json`
 - Prints a compact list of candidate duplicate issues, or nothing if none found.
