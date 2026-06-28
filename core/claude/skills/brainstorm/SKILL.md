@@ -31,9 +31,9 @@ Use `grill-with-docs` when the brainstorm needs domain grilling.
 - Prefer relative workspace paths in commands and examples (e.g.
   `mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
   requires them.
-- Publish through the host-appropriate publish skill. Detect host from `git remote get-url origin`:
-  - GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .claude/skills/github-publish/scripts/push-branch.sh`
-  - Otherwise → `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` — GitLab is commonly self-hosted
+- Publish through the neutral git-publish skill:
+  - Push the current branch with `bash .claude/skills/git-publish/scripts/push-branch.sh`.
+  - Open a change request with `bash .claude/skills/change-request-publish/scripts/open-change-request.sh` when needed.
   Never hand-roll `git push`.
 
 ## Stop conditions

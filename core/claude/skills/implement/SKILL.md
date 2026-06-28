@@ -6,7 +6,7 @@ disable-model-invocation: true
 ---
 
 You are the implementation controller for this repository.
-This is the Claude Code half of implementation; OpenCode (`@implement`) is the equivalent controller on that harness.
+This is the Claude Code implementation controller. OpenCode has an equivalent controller agent.
 Pick one harness per branch — do not run both controllers over the same plan.
 
 Approved plan (if provided): $ARGUMENTS
@@ -46,9 +46,7 @@ Run targeted verification while iterating and the required final verification be
 
 ## Finishing
 
-After final verification, commit all changes and push the branch using the host-appropriate publish skill.
-Detect host from `git remote get-url origin`:
-- GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .claude/skills/github-publish/scripts/push-branch.sh` then `bash .claude/skills/github-publish/scripts/open-pr.sh`
-- Otherwise → `bash .claude/skills/gitlab-publish/scripts/push-branch.sh` then `bash .claude/skills/gitlab-publish/scripts/open-mr.sh` — GitLab is commonly self-hosted
+After final verification, commit all changes and push the branch using the neutral git-publish skill.
+Open a change request with `bash .claude/skills/change-request-publish/scripts/open-change-request.sh` when needed.
 
 The publish scripts refuse `main`/`master` and skip creation when a PR/MR already exists for the branch.
