@@ -8,10 +8,6 @@ user-invocable: false
 
 Safe publishing for any Git-hosted repository. Pushing goes through a bundled script that **refuses to act on `main`/`master`** and refuses force-pushes.
 
-## Why a script, not a raw `git push`
-
-`git push origin $(git rev-parse --abbrev-ref HEAD)` does **not** protect `main`: while you are on `main` it expands to `git push origin main`, and permission globs cannot see through the command substitution to block it. The guard has to inspect the current branch at run time, which is what this script does.
-
 ## Push the current branch
 
 ```bash

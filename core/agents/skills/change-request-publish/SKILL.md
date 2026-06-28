@@ -8,10 +8,6 @@ user-invocable: false
 
 Safe publishing for any Git-hosted repository. Opening a change request (pull request or merge request) goes through a bundled script that **detects the host** from the remote URL and delegates to the appropriate CLI.
 
-## Why a script, not a raw `gh pr create` or `glab mr create`
-
-The script inspects the current branch, checks whether a change request already exists, and then delegates to the correct provider CLI. This means workflow-facing files never need to know whether the repository is hosted on GitHub or GitLab.
-
 ## Open a change request
 
 ```bash
