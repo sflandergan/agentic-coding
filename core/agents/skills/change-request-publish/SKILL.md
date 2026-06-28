@@ -6,7 +6,7 @@ user-invocable: false
 
 # Change Request Publish
 
-Safe publishing for any Git-hosted repository. Opening a change request (pull request or merge request) goes through a bundled script that **detects the host** from the remote URL and delegates to the appropriate CLI.
+Create change request on GitHub (pull request) or GitLab (merge request). The creation goes through a bundled script that **detects the host** from the remote URL and delegates to the appropriate CLI.
 
 ## Open a change request
 
