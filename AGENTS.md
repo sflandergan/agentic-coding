@@ -82,7 +82,7 @@ All smoke runs and throwaway work goes in `.temp/`, never `/tmp`. Clean up after
 - Branches use `feature/`, `fix/`, or `chore/` prefixes with short kebab-case descriptions.
 - Commits are concise, imperative, and focused on why.
 - Prefer `git mv` for moves/renames of tracked paths. Use `git rm` for removals of tracked paths.
-- Use `scripts/publish-branch.sh` for branch publishing and PR creation so branch-safety checks are centralized.
+- Use `git-publish` for branch pushes and `change-request-publish` for PR/MR creation so branch-safety checks are centralized.
 - Keep branch deletion, worktree removal, and force-push operations under explicit human control.
 - Write commits without `Co-Authored-By` trailers.
 
