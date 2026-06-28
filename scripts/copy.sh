@@ -468,9 +468,11 @@ AUTHORED_SKILLS=(
   workflow-planning
   workflow-verification
   feature-documentation
+  git-publish
+  change-request-publish
+  change-request-comments
+  issue-tracker
   github-pr-comments
-  github-publish
-  gitlab-publish
   gitlab-mr-comments
 )
 for skill_name in "${AUTHORED_SKILLS[@]}"; do
