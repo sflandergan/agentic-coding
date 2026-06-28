@@ -24,7 +24,7 @@
       "mode": "subagent"
     },
     "review": {
-      "model": "opencode-go/kimi-k2.7-code"
+      "model": "openai/gpt-5.5"
     }
   },
   "permission": {
