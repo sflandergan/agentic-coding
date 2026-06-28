@@ -11,6 +11,7 @@ This plan consolidates the current PR comments and local review findings for fix
 3. **`change-request-comments` delegates to provider skill folders.** Its scripts still call `.agents/skills/github-pr-comments/...` and `.agents/skills/gitlab-mr-comments/...`, so removing those folders would break comment workflows unless the implementations move into the neutral skill.
 4. **Permission/skill allowlists are inconsistent.** Several agents have script permissions without corresponding skill permissions, and review-code is missing publish capability for review-fix implementation plans.
 5. **`AGENTS.md` does not yet encode the “no skill internals in workflow instructions” rule.** This is the root cause called out by the top-level PR comment.
+6. **Neutral skill docs mix runtime instructions with design rationale.** Some `SKILL.md` files explain why the wrapper exists or expose implementation detail. Keep `SKILL.md` focused on invocation contract and move rationale into sibling `README.md` files.
 
 ### Advisory issues
 
@@ -30,7 +31,7 @@ This plan consolidates the current PR comments and local review findings for fix
 
 1. Add a section such as `## Skill Boundary Rule` after the symlink model.
 2. State that workflow-facing files must instruct agents to use skills by name, for example `git-publish`, `change-request-publish`, `change-request-comments`, and `issue-tracker`.
-3. State that workflow-facing files must not expose internal script paths like `.agents/skills/<skill>/scripts/*.sh` or `.claude/skills/<skill>/scripts/*.sh` except inside the skill's own `SKILL.md` or scripts.
+3. State that workflow-facing files must not expose internal script paths like `.agents/skills/<skill>/scripts/*.sh` or `.claude/skills/<skill>/scripts/*.sh`. Boundary-skill implementation details may live in that skill's own scripts or sibling `README.md`; keep `SKILL.md` focused on the invocation contract.
 4. Clarify that agent frontmatter and Claude settings may grant script permissions, but body instructions should stay skill-level.
 5. Add provider-boundary language: provider-specific CLI details (`gh`, `glab`, provider comment scripts) belong only in provider/boundary skills, not generic workflow files.
 
@@ -55,22 +56,31 @@ Document skill boundary rules for workflow instructions
 - `core/agents/skills/change-request-comments/scripts/reply-to-comment.sh`
 - `core/agents/skills/github-pr-comments/` (delete from downstream template)
 - `core/agents/skills/gitlab-mr-comments/` (delete from downstream template)
+- `.agents/skills/github-pr-comments/` (convert from symlink to self-maintenance copy if this repo still needs PR comment review)
+- `.claude/skills/github-pr-comments` (keep symlink to `.agents/skills/github-pr-comments`)
 
 **Changes**
 
-1. Inline or move the current GitHub PR comment fetch/reply logic into `change-request-comments/scripts/`.
-2. Inline or move the current GitLab MR comment fetch/reply logic into `change-request-comments/scripts/`.
-3. Keep host detection inside `change-request-comments`; it may call `gh`/`glab` because this skill is the boundary layer.
-4. Remove references from `change-request-comments/SKILL.md` that say it delegates to `github-pr-comments` or `gitlab-mr-comments` skill folders.
-5. Delete `core/agents/skills/github-pr-comments/` and `core/agents/skills/gitlab-mr-comments/` with `git rm -r` after their logic is represented inside `change-request-comments`.
-6. Keep this repo's self-maintenance `.agents/skills/github-pr-comments` only if still needed for this PR review workflow; do not confuse self-maintenance skills with `core/` templates.
+1. Before deleting `core/agents/skills/github-pr-comments/`, preserve this repo's self-maintenance review workflow by converting `.agents/skills/github-pr-comments` from a symlink into a real self-maintenance skill directory copied from the current GitHub implementation. Keep `.claude/skills/github-pr-comments` symlinked to `.agents/skills/github-pr-comments`.
+2. Replace the GitHub branch of `change-request-comments/scripts/fetch-comments.sh` with the implementation currently in `core/agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh`; keep the public wrapper name `fetch-comments.sh`.
+3. Replace the GitHub branch of `change-request-comments/scripts/reply-to-comment.sh` with the implementation currently in `core/agents/skills/github-pr-comments/scripts/reply-to-pr-comment.sh`; keep the public wrapper name `reply-to-comment.sh`.
+4. Replace the GitLab branch of `fetch-comments.sh` with the implementation currently in `core/agents/skills/gitlab-mr-comments/scripts/fetch-mr-comments.sh`.
+5. Replace the GitLab branch of `reply-to-comment.sh` with the implementation currently in `core/agents/skills/gitlab-mr-comments/scripts/reply-to-mr-comment.sh`.
+6. Keep host detection inside `change-request-comments`; it may call `gh`/`glab` because this skill is the provider boundary layer.
+7. Preserve behavior and flags from both provider implementations, including `--comments-only`, `--diff-only`, `--json`, comment reply payload handling, and exit-code behavior.
+8. Remove references from `change-request-comments/SKILL.md` and scripts that say it delegates to `github-pr-comments` or `gitlab-mr-comments` skill folders.
+9. Delete `core/agents/skills/github-pr-comments/` and `core/agents/skills/gitlab-mr-comments/` with `git rm -r` after their logic is represented inside `change-request-comments` and the self-maintenance GitHub skill no longer points at `core/`.
 
 **Verification**
 
 ```bash
 bash -n core/agents/skills/change-request-comments/scripts/*.sh
 shellcheck core/agents/skills/change-request-comments/scripts/*.sh
-rg -n "github-pr-comments|gitlab-mr-comments" core/agents/skills/change-request-comments
+! rg -n "github-pr-comments|gitlab-mr-comments" core/agents/skills/change-request-comments
+test ! -e core/agents/skills/github-pr-comments
+test ! -e core/agents/skills/gitlab-mr-comments
+test -d .agents/skills/github-pr-comments
+test "$(readlink .claude/skills/github-pr-comments)" = "../../.agents/skills/github-pr-comments"
 ```
 
 Expected result: no delegation to provider skill folders remains in `change-request-comments`.
@@ -79,6 +89,54 @@ Expected result: no delegation to provider skill folders remains in `change-requ
 
 ```text
 Move comment provider logic into change-request-comments
+```
+
+### Task 2A — Split neutral skill rationale into sibling READMEs
+
+**Files**
+
+- `core/agents/skills/git-publish/SKILL.md`
+- `core/agents/skills/git-publish/README.md` (add)
+- `core/agents/skills/change-request-publish/SKILL.md`
+- `core/agents/skills/change-request-publish/README.md` (add)
+- `core/agents/skills/change-request-comments/SKILL.md`
+- `core/agents/skills/change-request-comments/README.md` (add)
+- `core/agents/skills/issue-tracker/SKILL.md`
+- `core/agents/skills/issue-tracker/README.md` (add)
+
+**Changes**
+
+1. Keep each `SKILL.md` focused on the agent-facing contract: when to use the skill, what high-level capability it provides, required inputs/outputs, and safety rules.
+2. Remove design-rationale sections such as `Why a script, not a raw ...` from `SKILL.md` files.
+3. Move the rationale into the sibling `README.md`, including why the wrapper exists, host-detection philosophy, branch/default-branch guards, provider differences, and why workflow-facing files should not call provider CLIs directly.
+4. Do not expose provider-specific skill names or deleted provider folders in the downstream `SKILL.md` files. Provider CLI details may appear in these boundary-skill `README.md` files because they document the implementation rationale.
+5. Keep script paths out of generic workflow docs. In boundary-skill docs, script paths may appear only where they describe the skill's own implementation or operator/debugging interface.
+
+**Verification**
+
+```bash
+test -f core/agents/skills/git-publish/README.md
+test -f core/agents/skills/change-request-publish/README.md
+test -f core/agents/skills/change-request-comments/README.md
+test -f core/agents/skills/issue-tracker/README.md
+! rg -n '^## Why|Why a script|raw `git push`|raw `gh pr create`|raw `glab mr create`' \
+  core/agents/skills/git-publish/SKILL.md \
+  core/agents/skills/change-request-publish/SKILL.md \
+  core/agents/skills/change-request-comments/SKILL.md \
+  core/agents/skills/issue-tracker/SKILL.md
+codespell \
+  core/agents/skills/git-publish \
+  core/agents/skills/change-request-publish \
+  core/agents/skills/change-request-comments \
+  core/agents/skills/issue-tracker
+```
+
+Expected result: the `rg` command finds no rationale text in the listed `SKILL.md` files; rationale lives in the new sibling `README.md` files.
+
+**Commit boundary**
+
+```text
+Move neutral skill rationale into READMEs
 ```
 
 ### Task 3 — Remove skill-internal script instructions from workflow-facing files
@@ -175,6 +233,7 @@ Align OpenCode permissions for neutral repository skills
 - `scripts/init.sh`
 - `scripts/copy.sh`
 - `README.md`
+- `core/claude/README.md`
 - `core/docs/agents/review-plan.md`
 - `core/docs/agents/review-code.md`
 - `core/docs/agents/agent-workflow-extension.md`
@@ -184,18 +243,21 @@ Align OpenCode permissions for neutral repository skills
 1. Remove `github-pr-comments` and `gitlab-mr-comments` from the `AUTHORED_SKILLS` arrays if Task 2 moved their implementation into `change-request-comments`.
 2. Keep the neutral authored skills in both installer arrays: `git-publish`, `change-request-publish`, `change-request-comments`, and `issue-tracker`.
 3. Update `README.md` authored skill list and symlink table to match the actual installed authored skills.
-4. Remove README invocation guidance that points users at `/github-pr-comments`; use `/change-request-comments` or workflow-neutral language instead.
-5. Update role docs and the workflow extension guide to name `change-request-comments` as the comment boundary.
-6. Re-check `stacks/pnpm` and `stacks/maven` for overlays that need equivalent wording changes.
+4. Update `core/claude/README.md` so it lists the neutral authored skills and removes stale `github-pr-comments`, `gitlab-mr-comments`, `github-publish`, and `gitlab-publish` references from downstream Claude documentation.
+5. Remove README invocation guidance that points users at `/github-pr-comments`; use `/change-request-comments` or workflow-neutral language instead.
+6. Update role docs and the workflow extension guide to name `change-request-comments` as the comment boundary.
+7. Re-check `stacks/pnpm` and `stacks/maven` for overlays that need equivalent wording changes. Current expected result: no `agents/skills/` overlays exist in either stack; only stack docs/config overlays may need wording changes.
+8. Lockfile check: confirm no lockfile edit is needed because `github-pr-comments` and `gitlab-mr-comments` are authored skills, not remote skills tracked by `core/skills-lock.json`. If a remote-skill entry is discovered, update only the affected lockfile scope.
 
 **Verification**
 
 ```bash
 bash -n scripts/init.sh scripts/copy.sh
 shellcheck scripts/init.sh scripts/copy.sh
-codespell README.md core/docs/agents scripts/init.sh scripts/copy.sh
-rg -n "github-pr-comments|gitlab-mr-comments" README.md core/docs/agents scripts/init.sh scripts/copy.sh
-rg -n "github-pr-comments|gitlab-mr-comments|github|gitlab|PR|MR|gh |glab" stacks/pnpm stacks/maven
+codespell README.md core/claude/README.md core/docs/agents scripts/init.sh scripts/copy.sh
+! rg -n "github-pr-comments|gitlab-mr-comments|github-publish|gitlab-publish" \
+  README.md core/claude/README.md core/docs/agents scripts/init.sh scripts/copy.sh
+! rg -n "github-pr-comments|gitlab-mr-comments|github|gitlab|PR|MR|gh |glab" stacks/pnpm stacks/maven
 ```
 
 Expected result: provider comment skill names do not appear in downstream installer or generic docs except in explicitly justified boundary documentation.
@@ -226,7 +288,7 @@ Sync installers and docs with neutral comment skill
 ```bash
 jq . core/claude/settings.json > /dev/null
 jq . core/opencode.json > /dev/null
-rg -n "github-publish|gitlab-publish|github-pr-comments|gitlab-mr-comments|create-bug-issue|update-bug-issue" \
+! rg -n "github-publish|gitlab-publish|github-pr-comments|gitlab-mr-comments|create-bug-issue|update-bug-issue" \
   core/claude/settings.json core/opencode.json
 jq '.permission.bash | keys' core/opencode.json
 ```
@@ -262,6 +324,8 @@ test ! -e scripts/publish-branch.sh
 ls -la .agents/skills/git-publish .agents/skills/change-request-publish
 test "$(readlink .agents/skills/git-publish)" = "../../core/agents/skills/git-publish"
 test "$(readlink .agents/skills/change-request-publish)" = "../../core/agents/skills/change-request-publish"
+test "$(readlink .claude/skills/git-publish)" = "../../.agents/skills/git-publish"
+test "$(readlink .claude/skills/change-request-publish)" = "../../.agents/skills/change-request-publish"
 codespell AGENTS.md
 ```
 
@@ -281,9 +345,10 @@ Use neutral publish skills for repo maintenance
 
 1. Keep the existing provider-specific pattern checks.
 2. Add checks for direct internal script references in workflow-facing body text, including `.agents/skills/.*/scripts/`, `.claude/skills/.*/scripts/`, and `<skill>/scripts/*.sh` forms.
-3. Exclude boundary skill directories where script usage is the documented interface for that skill itself.
-4. Filter frontmatter permission blocks so valid OpenCode permission entries do not fail the body-instruction leakage check.
-5. Run the check after Tasks 2–6 so the expected result is a clean pass.
+3. Exclude boundary skill directories where script usage is the documented interface for that skill itself: `git-publish`, `change-request-publish`, `change-request-comments`, and `issue-tracker`.
+4. Filter frontmatter permission blocks so valid OpenCode permission entries do not fail the body-instruction leakage check. Implement this explicitly by scanning only the markdown body after the opening YAML frontmatter (`--- ... ---`) for agent files; do not rely on a plain `rg` that cannot distinguish permissions from prose.
+5. Keep permission-map script paths legal, but fail on the same paths in body prose, bullets, or examples in generic workflow files.
+6. Run the check after Tasks 2–6 so the expected result is a clean pass. During earlier tasks, use the task-local `rg` commands because this regression check is not authoritative until this task updates it.
 
 **Verification**
 
@@ -308,7 +373,7 @@ bash -n scripts/init.sh scripts/copy.sh scripts/check-workflow-boundaries.sh
 shellcheck scripts/init.sh scripts/copy.sh scripts/check-workflow-boundaries.sh
 jq . core/claude/settings.json > /dev/null
 jq . core/opencode.json > /dev/null
-codespell AGENTS.md README.md core/agents/skills core/claude/skills core/opencode/agents core/docs/agents scripts
+codespell AGENTS.md README.md core/claude/README.md core/agents/skills core/claude/skills core/opencode/agents core/docs/agents scripts
 bash scripts/check-workflow-boundaries.sh
 ```
 
@@ -318,6 +383,8 @@ Smoke install under `.temp/`:
 mkdir -p .temp/smoke-init
 printf "1\n1\n.temp/smoke-init/target\n" | bash scripts/init.sh
 ls -la .temp/smoke-init/target/.claude/skills
+test ! -e .temp/smoke-init/target/.agents/skills/github-pr-comments
+test ! -e .temp/smoke-init/target/.agents/skills/gitlab-mr-comments
 
 mkdir -p .temp/smoke-copy/target
 git -C .temp/smoke-copy/target init
@@ -328,6 +395,8 @@ git -C .temp/smoke-copy/target add README.md
 git -C .temp/smoke-copy/target commit -m "init"
 printf "1\n1\n" | bash scripts/copy.sh .temp/smoke-copy/target
 ls -la .temp/smoke-copy/target/.claude/skills
+test ! -e .temp/smoke-copy/target/.agents/skills/github-pr-comments
+test ! -e .temp/smoke-copy/target/.agents/skills/gitlab-mr-comments
 
 rm -rf .temp/smoke-init .temp/smoke-copy
 ```
@@ -337,6 +406,7 @@ rm -rf .temp/smoke-init .temp/smoke-copy
 - `AGENTS.md` explicitly prevents workflow-facing instructions from exposing skill internals.
 - Generic workflow files name skills, not internal script paths.
 - `change-request-comments` is the only downstream comment skill surface.
+- Neutral skill `SKILL.md` files focus on invocation contracts; rationale lives in sibling `README.md` files.
 - Installer arrays, README inventories, and symlink table match actual installed authored skills.
 - OpenCode and Claude permissions allow neutral wrapper usage without documenting internal scripts in workflow bodies.
 - Provider-specific CLI details live only inside boundary skills or provider-specific implementation code.
