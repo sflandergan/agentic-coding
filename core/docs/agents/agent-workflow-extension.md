@@ -9,9 +9,10 @@ Use this guide when changing coding assistant workflows, agents, or reusable ski
 - `.claude/skills/*/SKILL.md` files define Claude skill behavior for the matching workflow.
 - `.agents/skills/*` files provide reusable mechanics shared by workflows. They may describe how to use bundled scripts or helpers, but they should not own role-level orchestration for review-plan, review-code, planner, implement, or finish workflows.
 
-## GitHub PR comment workflow boundary
+## Change-request comment workflow boundary
 
-- The `github-pr-comments` skill owns reading PR comments, classifying comment target types, obtaining exact IDs, and posting approved replies through project scripts.
+- The `change-request-comments` skill owns reading change-request comments, classifying comment target types, obtaining exact IDs, and posting approved replies through project scripts.
+- Provider-specific mechanics (`github-pr-comments`, `gitlab-mr-comments`, `gh`, `glab`) belong only in provider skills or neutral integration skills, never in generic workflow skills or agent instructions.
 - Review agents own deciding what the comments mean, validating technical claims, combining them with independent review findings, suggesting fixes, and requesting approval before edits or replies.
 
 ## Default placement rules

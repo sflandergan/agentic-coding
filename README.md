@@ -101,7 +101,7 @@ Under `.claude/skills/` (all marked `disable-model-invocation: true`):
 
 Under `.agents/skills/`:
 
-`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `github-publish`, `github-pr-comments`, `gitlab-publish`, `gitlab-mr-comments`
+`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `git-publish`, `change-request-publish`, `change-request-comments`, `issue-tracker`, `github-pr-comments`, `gitlab-mr-comments`
 
 ### DDD Docs
 
@@ -136,9 +136,11 @@ The workflow entry skills are real directories. The authored skills are symlinke
 | `workflow-planning` | `../../.agents/skills/workflow-planning` |
 | `workflow-verification` | `../../.agents/skills/workflow-verification` |
 | `feature-documentation` | `../../.agents/skills/feature-documentation` |
+| `git-publish` | `../../.agents/skills/git-publish` |
+| `change-request-publish` | `../../.agents/skills/change-request-publish` |
+| `change-request-comments` | `../../.agents/skills/change-request-comments` |
+| `issue-tracker` | `../../.agents/skills/issue-tracker` |
 | `github-pr-comments` | `../../.agents/skills/github-pr-comments` |
-| `github-publish` | `../../.agents/skills/github-publish` |
-| `gitlab-publish` | `../../.agents/skills/gitlab-publish` |
 | `gitlab-mr-comments` | `../../.agents/skills/gitlab-mr-comments` |
 
 Each symlinked skill has `user-invocable: false` in its `SKILL.md` frontmatter so it stays hidden from Claude Code's user-facing skill list.
@@ -165,7 +167,7 @@ The diagram above maps the full cycle from brainstorming a feature through to sh
 | # | Step | Invocation |
 |---|---|---|
 | 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | Claude `/implement` or OpenCode `@implement` (controller) which spawns implement-task workers. Pick one harness per branch. |
-| 8 | **Human comments code** — review the diff and leave inline comments or GitHub review notes. | Human checkpoint (no agent invocation). |
+| 8 | **Human comments code** — review the diff and leave inline comments or change-request review notes. | Human checkpoint (no agent invocation). |
 | 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
 | 10 | **Review / Remark plan** — if code review surfaces scope changes, update the plan and loop back to step 7. Repeat until the plan is sound and complete. | OpenCode `@planner` or Claude `/planner` to revise; then re-enter implementation at step 7. |
 | 11 | **Finish** — write summary and feature documentation, reconcile durable docs (ADRs, context maps, etc.). | OpenCode `@finish` or Claude `/finish`. |
