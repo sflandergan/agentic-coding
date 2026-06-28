@@ -42,7 +42,7 @@ OpenCode task tool:
     |-------|----------------------------------|--------|
     | Each spec requirement | Exact task/step or "missing" | Covered/Missing |
     | Each user note | Exact task/step or "missing" | Covered/Missing |
-    | Each external/GitHub remark included in the prompt | Exact task/step or "missing" | Covered/Missing |
+    | Each external remark included in the prompt | Exact task/step or "missing" | Covered/Missing |
 
     Use the matrix to catch silent drops. Do not include the full matrix in the response unless there is a gap; report gaps as blocking issues.
 

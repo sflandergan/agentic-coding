@@ -3,19 +3,19 @@ set -euo pipefail
 
 usage() {
   cat <<EOF
-Usage: create-bug-issue.sh --title TITLE --body-file PATH [--labels LABELS]
+Usage: create-issue.sh --title TITLE --body-file PATH [--labels LABELS]
 
 Options:
   --title      Issue title (required)
   --body-file  Path to markdown file with the issue body (required)
-  --labels     Comma-separated labels (default: bug)
+  --labels     Comma-separated labels (optional)
 EOF
   exit 1
 }
 
 TITLE=""
 BODY_FILE=""
-LABELS="bug"
+LABELS=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -38,7 +38,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# Validate required arguments
+# Validate required arguments.
 if [ -z "$TITLE" ]; then
   echo "Error: --title is required" >&2
   usage
@@ -59,12 +59,22 @@ if [ ! -s "$BODY_FILE" ]; then
   exit 1
 fi
 
-# Check gh is available
-if ! command -v gh >/dev/null 2>&1; then
-  echo "Error: GitHub CLI (gh) is not installed. Install it from https://cli.github.com/" >&2
-  exit 1
-fi
+# Detect host from the remote URL.
+remote_url="$(git remote get-url origin)"
 
-# Create the issue
-URL=$(gh issue create --title "$TITLE" --body-file "$BODY_FILE" --label "$LABELS")
-echo "$URL"
+case "$remote_url" in
+  *github.com*)
+    if [ -n "$LABELS" ]; then
+      gh issue create --title "$TITLE" --body-file "$BODY_FILE" --label "$LABELS"
+    else
+      gh issue create --title "$TITLE" --body-file "$BODY_FILE"
+    fi
+    ;;
+  *)
+    if [ -n "$LABELS" ]; then
+      glab issue create --title "$TITLE" --description-file "$BODY_FILE" --label "$LABELS"
+    else
+      glab issue create --title "$TITLE" --description-file "$BODY_FILE"
+    fi
+    ;;
+esac

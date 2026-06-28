@@ -31,8 +31,10 @@ Use `grill-with-docs` when the brainstorm needs domain grilling.
 - Prefer relative workspace paths in commands and examples (e.g.
   `mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
   requires them.
-- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never use bare
-  `git push` to avoid accidentally pushing to `main`.
+- Publish through /git-publish:
+  - Push the current branch with /git-publish.
+  - Open a change request with /change-request-publish when needed.
+  Never hand-roll `git push`.
 
 ## Stop conditions
 

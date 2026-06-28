@@ -95,13 +95,13 @@ Under `.opencode/agents/`:
 
 Under `.claude/skills/` (all marked `disable-model-invocation: true`):
 
-`brainstorm`, `bugfix`, `finish`, `planner`, `review-code`, `review-plan`
+`brainstorm`, `bugfix`, `implement`, `finish`, `planner`, `review-code`, `review-plan`
 
 ### Authored Reusable Skills
 
 Under `.agents/skills/`:
 
-`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `github-pr-comments`
+`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `git-publish`, `change-request-publish`, `change-request-comments`, `issue-tracker`
 
 ### DDD Docs
 
@@ -126,7 +126,7 @@ Under `docs/agents/` — per-agent loading contracts. See the individual files f
 
 ## Claude Symlink Model
 
-The 6 workflow entry skills are real directories. The 7 authored skills are symlinked into `.claude/skills/` from `.agents/skills/`:
+The workflow entry skills are real directories. The authored skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 
 | Skill | Symlink Target |
 |---|---|
@@ -136,11 +136,13 @@ The 6 workflow entry skills are real directories. The 7 authored skills are syml
 | `workflow-planning` | `../../.agents/skills/workflow-planning` |
 | `workflow-verification` | `../../.agents/skills/workflow-verification` |
 | `feature-documentation` | `../../.agents/skills/feature-documentation` |
-| `github-pr-comments` | `../../.agents/skills/github-pr-comments` |
+| `git-publish` | `../../.agents/skills/git-publish` |
+| `change-request-publish` | `../../.agents/skills/change-request-publish` |
+| `change-request-comments` | `../../.agents/skills/change-request-comments` |
+| `issue-tracker` | `../../.agents/skills/issue-tracker` |
+| `workflow-implementation` | `../../.agents/skills/workflow-implementation` |
 
 Each symlinked skill has `user-invocable: false` in its `SKILL.md` frontmatter so it stays hidden from Claude Code's user-facing skill list.
-
-> **Note:** `workflow-implementation` is **not** symlinked into Claude — it is reserved for OpenCode's `@implement` / `@implement-task` flow.
 
 ## Recommended Human-in-the-Loop Workflow
 
@@ -163,8 +165,8 @@ The diagram above maps the full cycle from brainstorming a feature through to sh
 
 | # | Step | Invocation |
 |---|---|---|
-| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | OpenCode `@implement` (controller) which spawns `@implement-task` workers. |
-| 8 | **Human comments code** — review the diff and leave inline comments or GitHub review notes. | Human checkpoint (no agent invocation). |
+| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | Claude `/implement` or OpenCode `@implement` (controller) which spawns implement-task workers. Pick one per task. |
+| 8 | **Human comments code** — review the diff and leave inline comments or change-request review notes. | Human checkpoint (no agent invocation). |
 | 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
 | 10 | **Review / Remark plan** — if code review surfaces scope changes, update the plan and loop back to step 7. Repeat until the plan is sound and complete. | OpenCode `@planner` or Claude `/planner` to revise; then re-enter implementation at step 7. |
 | 11 | **Finish** — write summary and feature documentation, reconcile durable docs (ADRs, context maps, etc.). | OpenCode `@finish` or Claude `/finish`. |
@@ -218,10 +220,12 @@ Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compat
 | `agent-implementation` | Controller orchestration, worker status handling, completion |
 | `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
 | `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
-| `github-pr-comments` | PR comment fetching, classification, and reply workflow |
+| `change-request-comments` | Comment fetching, classification, and reply workflow |
+| `git-publish` | Branch push with safety guards (refuses main/master, force-push) |
+| `change-request-publish` | PR/MR creation with idempotency (skips when one exists) |
 | `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
 
-Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/github-pr-comments`. The `writing-skills` skill is also exposed as `/writing-skills`.
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, `/change-request-comments`, `/git-publish`, or `/change-request-publish`. The `writing-skills` skill is also exposed as `/writing-skills`.
 
 ### Lockfiles
 

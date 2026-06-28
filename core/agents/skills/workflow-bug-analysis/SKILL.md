@@ -1,12 +1,12 @@
 ---
 name: workflow-bug-analysis
-description: Systematic bug investigation methodology — classify input, reproduce, trace code paths, inspect logs, form hypotheses, and produce a structured GitHub issue.
+description: Systematic bug investigation methodology — classify input, reproduce, trace code paths, inspect logs, form hypotheses, and produce a structured tracker issue.
 user-invocable: false
 ---
 
 # Bugfix Analysis
 
-Systematic investigation methodology for bug reports. The calling agent uses this skill to trace a bug from symptom to root cause and produce a structured GitHub issue.
+Systematic investigation methodology for bug reports. The calling agent uses this skill to trace a bug from symptom to root cause and produce a structured tracker issue.
 
 ## Investigation Steps
 
@@ -86,24 +86,14 @@ Structure findings into the issue template and save to `.temp/<slug>-issue-body.
 
 ### 7. Create the issue
 
-```bash
-bash .agents/skills/workflow-bug-analysis/scripts/create-bug-issue.sh \
-  --title "Concise bug summary" \
-  --body-file .temp/<slug>-issue-body.md \
-  --labels "bug"
-```
+First, use /issue-tracker to check for duplicate issues. If duplicates exist, link to them in the issue body. Then use /issue-tracker to create the issue with the title, body file, and labels.
 
-The script prints the created issue URL. Report this URL to the user.
+The skill prints the created issue URL. Report this URL to the user.
 
 ## Follow-up Evidence
 
 If the user provides additional evidence after the issue is created:
 
 1. Update the issue body file in `.temp/`
-2. Use `update-bug-issue.sh` to push the update:
-   ```bash
-   bash .agents/skills/workflow-bug-analysis/scripts/update-bug-issue.sh \
-     --issue <number> \
-     --body-file .temp/<slug>-issue-body-updated.md
-   ```
+2. Use /issue-tracker to update the issue with the updated body file
 3. Report the updated issue URL

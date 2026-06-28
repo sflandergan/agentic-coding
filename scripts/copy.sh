@@ -407,10 +407,35 @@ for agent_file in "$STAGE/.opencode/agents/"*.md; do
 done
 
 # ---------------------------------------------------------------------------
-# 11. .claude/skills/{brainstorm,bugfix,finish,planner,review-code,review-plan}/
+# 10b. Install .claude/agents/*.md
 # ---------------------------------------------------------------------------
 echo ""
-CLAUDE_SKILLS=(brainstorm bugfix finish planner review-code review-plan)
+for agent_file in "$STAGE/.claude/agents/"*.md; do
+  [[ -f "$agent_file" ]] || continue
+  fname="$(basename "$agent_file")"
+  dst="$TARGET/.claude/agents/$fname"
+  if [[ -e "$dst" ]]; then
+    if [[ "$SKILLS_MODE" == "override" ]]; then
+      mkdir -p "$TARGET/.claude/agents"
+      cp "$agent_file" "$dst"
+      COPIED+=(".claude/agents/$fname (overwritten)")
+    else
+      SKIPPED+=(".claude/agents/$fname (existing, skipped)")
+    fi
+  elif [[ "$SKILLS_MODE" == "skip" ]]; then
+    SKIPPED+=(".claude/agents/$fname (new, skipped: don't modify)")
+  else
+    mkdir -p "$TARGET/.claude/agents"
+    cp "$agent_file" "$dst"
+    COPIED+=(".claude/agents/$fname (new)")
+  fi
+done
+
+# ---------------------------------------------------------------------------
+# 11. .claude/skills/{brainstorm,bugfix,finish,implement,planner,review-code,review-plan}/
+# ---------------------------------------------------------------------------
+echo ""
+CLAUDE_SKILLS=(brainstorm bugfix finish implement planner review-code review-plan)
 for skill_name in "${CLAUDE_SKILLS[@]}"; do
   src="$STAGE/.claude/skills/$skill_name"
   dst="$TARGET/.claude/skills/$skill_name"
@@ -443,7 +468,10 @@ AUTHORED_SKILLS=(
   workflow-planning
   workflow-verification
   feature-documentation
-  github-pr-comments
+  git-publish
+  change-request-publish
+  change-request-comments
+  issue-tracker
 )
 for skill_name in "${AUTHORED_SKILLS[@]}"; do
   src="$STAGE/.agents/skills/$skill_name"

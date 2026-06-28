@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Turns an approved spec or clear requirements into a reviewable, task-by-task plan.md with TDD steps, ready for OpenCode handoff.
+description: Turns an approved spec or clear requirements into a reviewable, task-by-task plan.md with TDD steps, ready for implementation handoff.
 argument-hint: [path to spec or requirements]
 disable-model-invocation: true
 ---
@@ -19,7 +19,7 @@ list exactly.
 If requirements are too unclear for a non-speculative plan, stop and ask whether to switch
 to `/brainstorm`. Do not invoke brainstorming automatically.
 
-Use the `workflow-planning` and `grill-with-docs` skills for the planning methodology
+Use the /workflow-planning and /grill-with-docs skills for the planning methodology
 and domain grilling. Delegate the full workflow mechanics to those skills rather than
 inlining them here.
 
@@ -66,13 +66,14 @@ inlining them here.
 - Prefer relative workspace paths in commands and examples (e.g.
   `mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
   requires them.
-- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never use bare
-  `git push` to avoid accidentally pushing to `main`.
+- Publish through /git-publish
+  - Open a change request with /change-request-publish when needed.
+  Never hand-roll `git push`.
 
 ## Stop conditions
 
 - Write the plan to `plans/YYYY-MM-DD-feature-name/plan.md`, next to the spec. Commit the
   spec/plan markdown only when the user asks for committed workflow artifacts.
 - After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
-- Implementation runs in **OpenCode** (`@implement` / `@implement-task`), not Claude Code.
-  Hand off to OpenCode for execution.
+- Tell the user to review the plan and continue with /review-plan if they have remarks or /implement to start implementing the plan
+  (the implement agent). Pick one per task. Suggest the user's preferred harness.

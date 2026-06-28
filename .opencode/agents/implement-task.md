@@ -59,7 +59,7 @@ permission:
     "rm -rf .temp/*": allow
     "rm -rf .temp": allow
     # Protective rules are last because opencode uses last-match-wins permissions
-    "git push *": deny
+    "git push*": deny
     "git branch -d *": deny
     "git branch -D *": deny
     "git worktree remove *": deny

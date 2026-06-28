@@ -237,7 +237,10 @@ AUTHORED_SKILLS=(
   "workflow-planning"
   "workflow-verification"
   "feature-documentation"
-  "github-pr-comments"
+  "git-publish"
+  "change-request-publish"
+  "change-request-comments"
+  "issue-tracker"
 )
 
 mkdir -p "$TARGET/.claude/skills"
@@ -255,6 +258,23 @@ for skill_name in "${AUTHORED_SKILLS[@]}"; do
     fi
   else
     echo "WARNING: $skill_md not found; symlink verification skipped."
+  fi
+done
+
+# ---------------------------------------------------------------------------
+# 7b. Install .claude/agents/*.md
+# ---------------------------------------------------------------------------
+echo ""
+for agent_file in "$STAGE/.claude/agents/"*.md; do
+  [[ -f "$agent_file" ]] || continue
+  fname="$(basename "$agent_file")"
+  dst="$TARGET/.claude/agents/$fname"
+  if [[ -e "$dst" ]]; then
+    echo "  Skipping .claude/agents/$fname (already exists)"
+  else
+    mkdir -p "$TARGET/.claude/agents"
+    cp "$agent_file" "$dst"
+    echo "  Installed .claude/agents/$fname"
   fi
 done
 

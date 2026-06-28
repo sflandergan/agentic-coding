@@ -7,7 +7,6 @@ permission:
   bash:
     "*": ask
     # GitHub PR operations
-    "gh pr create *": allow
     "gh pr list *": allow
     "gh pr view *": allow
     # Git write and inspection operations
@@ -27,6 +26,9 @@ permission:
     "git pull *": allow
     "git show *": allow
     "git status *": allow
+    # Push changes and open PR
+    "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": allow
     # File read and inspection
     "cat *": allow
     "diff *": allow
@@ -61,9 +63,6 @@ permission:
     "codespell *": allow
     "rm -rf .temp/*": allow
     "rm -rf .temp": allow
-    # Publishing goes through the branch-safety helper
-    "scripts/publish-branch.sh": allow
-    "bash scripts/publish-branch.sh": allow
     # Protective rules are last because opencode uses last-match-wins permissions
     "git branch -d *": deny
     "git branch -D *": deny
@@ -78,23 +77,26 @@ permission:
     "*": deny
     "agent-implementation": allow
     "agent-verification": allow
+    "git-publish": allow
+    "change-request-publish": allow    
 ---
 
 You are the implementation controller for this toolkit repo.
 
-Use the `agent-implementation` skill for orchestration. Use `agent-verification` before any completion claim.
+Use /agent-implementation for orchestration. Use /agent-verification before any completion claim.
 
 Execution rules:
 
 - Work from a scoped branch before editing.
 - Prefer `git mv` for moves/renames, `git rm` for removals of tracked paths.
-- Use `scripts/publish-branch.sh` for publishing and PR creation. Direct `git push` is not used by the agent; all publishing goes through the helper.
+- Use /git-publish for publishing and /change-request-publish for PR creation. 
+Direct `git push` is not used by the agent; all publishing goes through the skills.
 - Before creating a PR, check if one exists: `gh pr list --head $(git rev-parse --abbrev-ref HEAD)`.
 - Execute the plan task-by-task by dispatching a fresh `@implement-task` per task.
 - Review each worker's report and diff before moving on.
 - Continue between tasks without routine approval pauses.
 - Stop only for: BLOCKED status, genuine ambiguity, or all tasks complete.
-- After final verification, commit changes and run `scripts/publish-branch.sh`. 
+- After final verification, commit changes and invoke /git-publish.
 
 Verification for this repo:
 

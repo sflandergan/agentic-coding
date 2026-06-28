@@ -5,7 +5,6 @@
       "Grep(./**)",
       "Glob(./**)",
       "Read(./**)",
-
       "Edit(./**)",
       "Write(./**)",
 
@@ -19,6 +18,7 @@
       "Bash(git ls-files:*)",
       "Bash(git branch:*)",
       "Bash(git checkout:*)",
+
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git rm:*)",
@@ -42,21 +42,29 @@
       "Bash(which:*)",
       "Bash(mkdir:*)",
 
-      "Bash(bash .claude/skills/github-pr-comments/scripts/fetch-pr-comments.sh:*)",
-      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/create-bug-issue.sh:*)",
+      "Bash(bash .claude/skills/git-publish/scripts/push-branch.sh:*)",
+      "Bash(bash .claude/skills/change-request-comments/scripts/fetch-comments.sh:*)",
+      "Bash(bash .claude/skills/issue-tracker/scripts/create-issue.sh:*)",
+      "Bash(bash .claude/skills/issue-tracker/scripts/find-duplicate-issues.sh:*)",
+
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
-      "Bash(gh search issues:*)"
+      "Bash(gh search issues:*)",
+
+      "Bash(glab issue list:*)",
+      "Bash(glab issue view:*)"
     ],
     "ask": [
       "Bash(git push:*)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
-      "Bash(gh pr create:*)",
+
       "Bash(rm:*)",
       "Bash(rm -rf:*)",
-      "Bash(bash .claude/skills/github-pr-comments/scripts/reply-to-pr-comment.sh:*)",
-      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/update-bug-issue.sh:*)"
+
+      "Bash(bash .claude/skills/change-request-publish/scripts/open-change-request.sh:*)",
+      "Bash(bash .claude/skills/change-request-comments/scripts/reply-to-comment.sh:*)",
+      "Bash(bash .claude/skills/issue-tracker/scripts/update-issue.sh:*)"
     ],
     "deny": [
       "Bash(git branch -d:*)",

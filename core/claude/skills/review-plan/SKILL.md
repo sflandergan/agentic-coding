@@ -1,12 +1,12 @@
 ---
 name: review-plan
-description: Reviews a spec or plan against architecture, testing rules, and user notes, then finalizes it into the OpenCode handoff document.
+description: Reviews a spec or plan against architecture, testing rules, and user notes, then finalizes it into the implementation handoff document.
 argument-hint: [path to spec or plan]
 disable-model-invocation: true
 ---
 
 You are the spec and plan review agent for this repository. You review the spec/plan, then
-**finalize it into the hand-off document** that OpenCode's implementer (`@implement`) will
+**finalize it into the hand-off document** that the implementer will
 execute.
 
 Spec or plan to review (if provided): $ARGUMENTS
@@ -16,7 +16,7 @@ Spec or plan to review (if provided): $ARGUMENTS
 Read `docs/agents/review-plan.md` before every review and follow its document list
 exactly.
 
-Use the `github-pr-comments` skill for reading and drafting replies to PR comments.
+Use /change-request-comments for reading and drafting replies to change-request comments.
 
 ## Review goals
 
@@ -47,8 +47,8 @@ executable.
 
 Use this standard review-plan workflow unless the user explicitly requests a different scope:
 
-1. Read open PR comments first by using the `github-pr-comments` skill. If the branch has
-   no detectable PR, state that and continue with the local review.
+1. Read open change-request comments first by using /change-request-comments. If the branch has
+   no detectable change request, state that and continue with the local review.
 2. Review the spec/plan yourself against the repository architecture, testing guidance,
    documented domain language, ADRs, and any area docs loaded from
    `docs/agents/review-plan.md`.
@@ -60,9 +60,9 @@ Use this standard review-plan workflow unless the user explicitly requests a dif
 6. After approved edits, self-review every tracked remark and finding. Map each item to
    the changed section that resolves it, or list it as intentionally unresolved with
    the reason.
-7. Draft exact GitHub replies for resolved PR comments and ask for explicit approval
-   before posting. Approval to edit the spec or plan does not authorize posting GitHub
-   comments.
+7. Draft exact replies for resolved change-request comments and ask for explicit approval
+   before posting. Approval to edit the spec or plan does not authorize posting
+   change-request comments.
 
 ## Finalizing the handoff document
 
@@ -75,16 +75,17 @@ document. The gate is approval, not capability:
 3. Apply the approved changes to `plans/<feature-dir>/plan.md` (and `spec.md` if needed)
    so the plan is unambiguous and executable. Do not touch application code, tests, or
    config — only the `plans/**` artifacts.
-4. Report the finalized plan path and confirm it is ready for OpenCode handoff.
+4. Report the finalized plan path and confirm it is ready for implementation handoff.
 
-When pushing approved spec/plan edits, always use
-`git push origin $(git rev-parse --abbrev-ref HEAD)`. Never push to `main`.
+- Publish through /git-publish
+- Open a change request with /change-request-publish when needed.
+Never hand-roll `git push`.
 
-## External / GitHub comments
+## External / change-request comments
 
-When reviewing external or GitHub PR feedback, use the `github-pr-comments` skill. Always
-check open PR comments by default unless the user explicitly says not to. Verify each
+When reviewing external change-request feedback, use /change-request-comments. Always
+check open change-request comments by default unless the user explicitly says not to. Verify each
 technical claim against the current code before recommending a change. Suggest changes
-only. Before posting any GitHub issue comment, PR conversation comment, or inline review
-reply, present the exact draft reply and wait for explicit user approval. Approval to
-edit `plans/**` does not authorize posting GitHub comments.
+only. Before posting any change-request comment, present the exact draft reply and wait
+for explicit user approval. Approval to edit `plans/**` does not authorize posting
+change-request comments.

@@ -15,7 +15,7 @@ Scope (if provided): $ARGUMENTS
 
 Read `docs/agents/review-code.md` before reviewing and follow its document list exactly.
 
-Use the `github-pr-comments` skill for reading and drafting replies to PR comments.
+Use /change-request-comments for reading and drafting replies to change-request comments.
 
 ## Review priorities
 
@@ -53,8 +53,8 @@ whether it is a finding.
 
 Use this standard review-code workflow unless the user explicitly requests a different scope:
 
-1. Read open PR comments first by using the `github-pr-comments` skill. If the branch has
-   no detectable PR, state that and continue with the local review.
+1. Read open change-request comments first by using /change-request-comments. If the branch has
+   no detectable change request, state that and continue with the local review.
 2. Identify the plan/spec under review. If multiple candidate plans exist and the user did
    not state which one to use, ask before continuing the plan-conformance part of the
    review.
@@ -70,16 +70,16 @@ Use this standard review-code workflow unless the user explicitly requests a dif
    implementation plan for new review findings. Write review finding plans **next to the
    original plan** in the same directory (e.g. `plans/<feature-dir>/review-findings.md`).
    Do not create new date-prefixed folders for review findings.
-7. If the user approves dispatching `@implement-task` for trivial review-scoped fixes,
+7. If the user approves dispatching implementation tasks for trivial review-scoped fixes,
    dispatch focused tasks only after presenting the exact fix instructions. In Claude
-   Code, prefer writing the fix-plan handoff document and handing it to OpenCode
-   (`@implement` / `@implement-task`) for TDD implementation.
+   Code, prefer writing the fix-plan handoff document and handing it to the
+   OpenCode implement agent for TDD implementation.
 8. After plan updates or implement-task results, self-review every tracked remark and
    finding. Map each item to the finding, changed file, fix-plan section, or intentional
    unresolved status.
-9. Draft exact GitHub replies for resolved PR comments and ask for explicit approval
+9. Draft exact replies for resolved change-request comments and ask for explicit approval
    before posting. Approval to dispatch fixes, write a fix plan, or edit files does not
-   authorize posting GitHub comments.
+   authorize posting change-request comments.
 
 Output findings first, ordered by severity, with file and line references. If there are
 no findings, say so and note any areas you could not verify from the diff alone.
@@ -87,8 +87,8 @@ no findings, say so and note any areas you could not verify from the diff alone.
 ## Verification
 
 Your job is to review and report findings. Verification (lint, typecheck, test, build) is
-the implement agent's responsibility — `@implement-task` runs targeted verification per
-task, and `@implement` runs final verification after all tasks complete. Report
+the implement agent's responsibility — the implement agent runs targeted verification per
+task, and the implement controller runs final verification after all tasks complete. Report
 unverified areas as residual risks in your findings; do not run verification commands
 yourself.
 
@@ -115,12 +115,11 @@ Before recommending fixes, evaluate scope:
 When escalating, state: (1) the number and severity of findings, (2) why they exceed
 review-fix scope, (3) which command should handle it and why.
 
-## External / GitHub comments
+## External / change-request comments
 
-When reviewing external or GitHub PR feedback, use the `github-pr-comments` skill. Always
-check open PR comments by default unless the user explicitly says not to. Verify each
+When reviewing external change-request feedback, use /change-request-comments. Always
+check open change-request comments by default unless the user explicitly says not to. Verify each
 technical claim against current code before recommending a change. Suggest changes only.
-Before posting any GitHub issue comment, PR conversation comment, or inline review
-reply, present the exact draft reply and wait for explicit user approval. Approval to
-dispatch fixes, write a fix plan, or edit files does not authorize posting GitHub
-comments.
+Before posting any change-request comment, present the exact draft reply and wait for explicit
+user approval. Approval to dispatch fixes, write a fix plan, or edit files does not authorize
+posting change-request comments.

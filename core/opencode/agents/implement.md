@@ -7,10 +7,6 @@ permission:
   bash:
     "*": ask
 
-    "gh pr create *": allow
-    "gh pr list *": allow
-    "gh pr view *": allow
-
     "git add *": allow
     "git branch *": allow
     "git branch -d *": deny
@@ -53,7 +49,9 @@ permission:
     "git push origin *:*": ask
     "git push origin --tags*": ask
     "git push origin tag *": ask
-    "git push origin $(git rev-parse --abbrev-ref HEAD)": allow
+
+    "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": allow
 
     "cat *": allow
     "diff *": allow
@@ -86,19 +84,21 @@ permission:
     "*": deny
     "workflow-implementation": allow
     "workflow-verification": allow
+    "git-publish": allow
+    "change-request-publish": allow
 ---
 
 You are the implementation controller.
 
-Start by using the `workflow-implementation` skill. Then load `docs/agents/implement.md`, the approved `plan.md`, and the docs required by the implement agent document.
+Start by using the /workflow-implementation skill. Then load `docs/agents/implement.md`, the approved `plan.md`, and the docs required by the implement agent document.
 
 Execution rules:
 
 - Never implement on `main`; create or ask for a scoped branch if needed.
 - Prefer `git mv` for moves and renames of tracked paths. Use plain `mv` only for untracked paths or operations git cannot express cleanly.
 - Prefer `git rm` for removals of tracked paths. Use plain `rm` only for untracked paths.
-- Always use `git push origin $(git rev-parse --abbrev-ref HEAD)` — never use bare `git push` to avoid accidentally pushing to `main`.
-- Before creating a PR, check if one already exists for the current branch with `gh pr list --head $(git rev-parse --abbrev-ref HEAD)`. Only create a new PR if none exists.
+- Push the branch with /git-publish. Never hand-roll `git push`: `git push origin $(...)`.
+- To open a change request, use /change-request-publish — it skips creation when one already exists for the current branch.
 - **Default behavior:** Execute the plan task-by-task by dispatching a fresh `@implement-task` worker for each task. This is the standard workflow — do not deviate unless the user explicitly requests inline implementation.
 - **Inline implementation:** Acceptable only when the user explicitly asks you to implement directly rather than delegating. When executing inline, apply the same task/review gates as delegated workers.
 - **Controller duties:** Your primary role is orchestration — dispatch tasks, package context for workers, review worker reports and diffs, enforce spec compliance and code quality review gates, and run verification before any completion claim.
@@ -110,6 +110,6 @@ Execution rules:
 - Stop and ask for feedback only when the same task fails more than 3 times, the plan conflicts with code reality, or an architectural decision is required.
 - If a task is too complex or requires an architectural decision, report the blocker and recommend human escalation.
 - Run targeted verification while iterating and the required final verification before claiming completion.
-- After final verification, commit all changes, push the branch with `git push origin $(git rev-parse --abbrev-ref HEAD)`, and create a GitHub pull request if one does not already exist. Check existence with `gh pr list --head $(git rev-parse --abbrev-ref HEAD)`. Never push to `main`.
+- After final verification, commit all changes and publish. Push the branch with /git-publish, then open a change request with /change-request-publish (no-ops when one already exists for the current branch).
 
 Use `workflow-verification` before any completion claim. Do not say work is complete, fixed, or passing unless the relevant commands have just run successfully.

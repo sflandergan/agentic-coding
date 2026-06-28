@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<EOF
-Usage: update-bug-issue.sh --issue NUMBER --body-file PATH
+Usage: update-issue.sh --issue NUMBER --body-file PATH
 
 Options:
   --issue      Issue number to update (required)
@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# Validate required arguments
+# Validate required arguments.
 if [ -z "$ISSUE" ]; then
   echo "Error: --issue is required" >&2
   usage
@@ -58,13 +58,16 @@ if [ ! -s "$BODY_FILE" ]; then
   exit 1
 fi
 
-# Check gh is available
-if ! command -v gh >/dev/null 2>&1; then
-  echo "Error: GitHub CLI (gh) is not installed. Install it from https://cli.github.com/" >&2
-  exit 1
-fi
+# Detect host from the remote URL.
+remote_url="$(git remote get-url origin)"
 
-# Update the issue
-gh issue edit "$ISSUE" --body-file "$BODY_FILE"
-URL=$(gh issue view "$ISSUE" --json url -q .url)
-echo "$URL"
+case "$remote_url" in
+  *github.com*)
+    gh issue edit "$ISSUE" --body-file "$BODY_FILE"
+    gh issue view "$ISSUE" --json url -q .url
+    ;;
+  *)
+    glab issue update "$ISSUE" --description-file "$BODY_FILE"
+    glab issue view "$ISSUE" -F json | jq -r '.web_url'
+    ;;
+esac
