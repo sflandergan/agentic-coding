@@ -22,9 +22,6 @@ bash .agents/skills/issue-tracker/scripts/create-issue.sh --title TITLE --body-f
 bash .agents/skills/issue-tracker/scripts/update-issue.sh --issue NUMBER --body-file PATH
 ```
 
-- **Host detection**: reads `git remote get-url origin` to determine the host.
-  - GitHub → `gh issue edit <number> --body-file ...`
-  - GitLab → `glab issue update <number> --description ...`
 - Prints the issue URL.
 
 ## Find duplicate issues
