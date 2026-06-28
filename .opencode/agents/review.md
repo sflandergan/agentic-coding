@@ -34,9 +34,11 @@ permission:
     'bash ".agents/skills/git-publish/scripts/push-branch.sh*"': allow
     # GH pr inspection
     "gh pr view *": allow
-    # PR comment fetching (read-only helper)
-    "bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh*": allow
-    'bash ".agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh"*': allow
+    # PR comment fetching and replying (read-only + ask for mutations)
+    "bash .agents/skills/change-request-comments/scripts/fetch-comments.sh *": allow
+    'bash ".agents/skills/change-request-comments/scripts/fetch-comments.sh" *': allow
+    "bash .agents/skills/change-request-comments/scripts/reply-to-comment.sh *": ask
+    'bash ".agents/skills/change-request-comments/scripts/reply-to-comment.sh" *': ask
     # Verification commands
     "shellcheck *": allow
     "bash -n *": allow

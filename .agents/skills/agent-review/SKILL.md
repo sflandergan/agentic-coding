@@ -42,10 +42,10 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 
 ## PR Comment Review
 
-Use the `github-pr-comments` skill and run:
+Use the `/change-request-comments` skill and run:
 
 ```bash
-bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh [<pr>]
+bash .agents/skills/change-request-comments/scripts/fetch-comments.sh [<pr>] [--comments-only|--diff-only|--json]
 ```
 
 Inline comments must be checked against the current diff before accepting or dismissing them. Outdated inline comments may still be valid; verify technical claims before dismissing.
@@ -54,7 +54,7 @@ Inline comments must be checked against the current diff before accepting or dis
 
 Use this standard self-maintenance review workflow unless the user explicitly requests a different scope:
 
-1. Read open PR comments first by using the `github-pr-comments` skill. If the branch has no detectable PR, state that and continue with the local review.
+1. Read open PR comments first by using `/change-request-comments`. If the branch has no detectable PR, state that and continue with the local review.
 2. Identify whether the review target is a spec/plan or a diff. If multiple candidate plans exist and the user did not state which one to use, ask before continuing the plan-conformance part of the review.
 3. Review the target yourself against `AGENTS.md`, repository conventions, sync invariants, and any approved spec or plan.
 4. Combine PR comments, user notes, external notes, and your own findings into one deduplicated list of actionable issues.
