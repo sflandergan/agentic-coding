@@ -77,13 +77,13 @@ document. The gate is approval, not capability:
    config — only the `plans/**` artifacts.
 4. Report the finalized plan path and confirm it is ready for implementation handoff.
 
-Publish through /git-publish
+- Publish through /git-publish
 - Open a change request with /change-request-publish when needed.
 Never hand-roll `git push`.
 
 ## External / change-request comments
 
-When reviewing external change-request feedback, use the `change-request-comments` skill. Always
+When reviewing external change-request feedback, use /change-request-comments. Always
 check open change-request comments by default unless the user explicitly says not to. Verify each
 technical claim against the current code before recommending a change. Suggest changes
 only. Before posting any change-request comment, present the exact draft reply and wait

@@ -37,7 +37,7 @@ These shared skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 - `feature-documentation` — used by `/finish`
 - `change-request-comments` — used by `/review-plan`, `/review-code`
 - `git-publish` — used by `/implement`, `/finish`
-- `change-request-publish` — used by `/implement`, `/finish` (+ OpenCode)
+- `change-request-publish` — used by `/implement`, `/finish` 
 
 Remote skills (e.g. `context7-cli`, `next-best-practices`, `shadcn`, `zoom-out`,
 `write-a-skill`) are declared in `skills-lock.json` and installed via the
