@@ -97,10 +97,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 ## Boundaries
 
 - The controller agent owns dispatch, model choice, human handoff, push, PR, and finish decisions.
-- After final verification, the controller commits all changes, then pushes and opens a PR/MR using the host-appropriate publish skill. Detect host from `git remote get-url origin`:
-  - GitHub (contains `github.com` or starts with `git@github.com:`) → push with `bash .agents/skills/github-publish/scripts/push-branch.sh`, open a PR with `bash .agents/skills/github-publish/scripts/open-pr.sh` if one does not already exist
-  - Otherwise → push with `bash .agents/skills/gitlab-publish/scripts/push-branch.sh`, open an MR with `bash .agents/skills/gitlab-publish/scripts/open-mr.sh` if one does not already exist
-  Never push to 'main'.
+- After final verification, the controller commits all changes, then pushes the branch with `git-publish` and opens a change request with `change-request-publish`. Never push to the default branch.
 - This skill only defines execution discipline and review gates.
 - Workers follow TDD instructions embedded in the approved plan for behavior changes.
 - Inline execution is acceptable only when the user explicitly requests it or subagent delegation is genuinely unavailable, but keep the same task/review gates.
