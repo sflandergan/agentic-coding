@@ -29,8 +29,7 @@ permission:
     "git branch -D *": deny
     "git worktree remove *": deny
 
-    "bash .agents/skills/github-publish/scripts/push-branch.sh*": allow
-    "bash .agents/skills/gitlab-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
 
     "ls *": allow
     "mkdir plans/*": allow
@@ -84,9 +83,6 @@ Shell guidance:
 
 - Prefer relative workspace paths in shell commands and examples (e.g., `mkdir -p plans/2026-05-25-feature-name`).
 - Avoid absolute workspace paths in shell commands unless a tool explicitly requires them.
-- Publish through the host-appropriate publish skill. Detect host from `git remote get-url origin`:
-  - GitHub (contains `github.com` or starts with `git@github.com:`) → `bash .agents/skills/github-publish/scripts/push-branch.sh`
-  - Otherwise → `bash .agents/skills/gitlab-publish/scripts/push-branch.sh` — GitLab is commonly self-hosted
-  Never hand-roll `git push`.
+- Push the branch with `bash .agents/skills/git-publish/scripts/push-branch.sh`. Never hand-roll `git push`.
 
 When writing specs, include goal, non-goals, architecture, data flow, testing expectations, rollout or migration notes, and open questions if any remain.

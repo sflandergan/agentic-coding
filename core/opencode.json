@@ -37,15 +37,7 @@
       "*": "ask",
       "git branch -d *": "deny",
       "git branch -D *": "deny",
-      "git worktree remove *": "deny",
-      "glab mr create *": "ask",
-      "glab mr list *": "allow",
-      "glab mr view *": "allow",
-      "glab mr diff *": "allow",
-      "glab issue create *": "ask",
-      "glab issue view *": "allow",
-      "glab issue list *": "allow",
-      "glab issue update *": "ask"
+      "git worktree remove *": "deny"
     },
     "edit": {
       "*": "allow"
