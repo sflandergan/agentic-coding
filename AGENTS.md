@@ -62,6 +62,16 @@ user-invocable: false     # for skills only loaded by agents, not users
 
 OpenCode is configured to read skills from `.agents/skills/<name>/SKILL.md`. Each skill is symlinked into `.claude/skills/<name>` (`ln -s ../../.agents/skills/<name>`) so Claude Code also sees it. This matches the model `copy.sh` uses for authored skills.
 
+## Skill Boundary Rule
+
+Workflow-facing files (SKILL.md bodies, agent instructions, README workflow sections) must instruct agents to **use skills by name** — for example `git-publish`, `change-request-publish`, `change-request-comments`, or `issue-tracker` — rather than exposing internal implementation paths.
+
+**Do not** reference internal script paths like `.agents/skills/<skill>/scripts/*.sh` or `.claude/skills/<skill>/scripts/*.sh` in workflow-facing content. Boundary-skill implementation details may live in that skill's own scripts or sibling `README.md`; keep the `SKILL.md` focused on the invocation contract.
+
+Agent frontmatter and Claude settings may grant script permissions, but body instructions should stay at the skill level, not the script level.
+
+**Provider-boundary language:** Provider-specific CLI details (`gh`, `glab`, provider comment scripts) belong only in provider or boundary skills, not in generic workflow files. Generic workflow files should remain provider-agnostic.
+
 ## .temp/ Scratch Rule
 
 All smoke runs and throwaway work goes in `.temp/`, never `/tmp`. Clean up after use. `.temp/` is gitignored.
