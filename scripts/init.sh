@@ -262,7 +262,7 @@ for skill_name in "${AUTHORED_SKILLS[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-# 7b. .claude/agents/*.md handling
+# 7b. Install .claude/agents/*.md
 # ---------------------------------------------------------------------------
 echo ""
 for agent_file in "$STAGE/.claude/agents/"*.md; do

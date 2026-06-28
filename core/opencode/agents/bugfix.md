@@ -11,7 +11,9 @@ permission:
     "*": ask
 
     # Skill scripts — primary tools
-    "bash .agents/skills/issue-tracker/scripts/*.sh": allow
+    "bash .agents/skills/issue-tracker/scripts/create-issue.sh *": allow
+    "bash .agents/skills/issue-tracker/scripts/find-duplicate-issues.sh *": allow
+    "bash .agents/skills/issue-tracker/scripts/update-issue.sh *": allow
 
     # Read-only git commands
     "git branch --show-current": allow

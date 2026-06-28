@@ -407,7 +407,7 @@ for agent_file in "$STAGE/.opencode/agents/"*.md; do
 done
 
 # ---------------------------------------------------------------------------
-# 10b. .claude/agents/*.md handling
+# 10b. Install .claude/agents/*.md
 # ---------------------------------------------------------------------------
 echo ""
 for agent_file in "$STAGE/.claude/agents/"*.md; do
