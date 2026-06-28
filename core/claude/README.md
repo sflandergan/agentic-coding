@@ -35,10 +35,9 @@ These shared skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 - `workflow-planning` — used by `/planner`
 - `workflow-verification` — used by `/finish`
 - `feature-documentation` — used by `/finish`
-- `github-pr-comments` — used by `/review-plan`, `/review-code` (+ OpenCode)
-- `github-publish` — used by `/implement`, `/finish` (+ OpenCode)
-- `gitlab-publish` — used by `/implement`, `/finish` (+ OpenCode; GitLab equivalent)
-- `gitlab-mr-comments` — used by `/review-plan`, `/review-code` (+ OpenCode; GitLab equivalent of `github-pr-comments`)
+- `change-request-comments` — used by `/review-plan`, `/review-code` (+ OpenCode)
+- `git-publish` — used by `/implement`, `/finish` (+ OpenCode)
+- `change-request-publish` — used by `/implement`, `/finish` (+ OpenCode)
 
 Remote skills (e.g. `context7-cli`, `next-best-practices`, `shadcn`, `zoom-out`,
 `write-a-skill`) are declared in `skills-lock.json` and installed via the
@@ -71,8 +70,8 @@ All three skills load the shared `grill-with-docs` skill on demand.
   `review-plan`, `review-code`, `finish`.
 - **Symlinked shared skills (auto-invocable):** `grill-with-docs`,
   `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`,
-  `workflow-verification`, `feature-documentation`, `github-pr-comments`,
-  `github-publish`, `gitlab-publish`, `gitlab-mr-comments`.
+  `workflow-verification`, `feature-documentation`, `change-request-comments`,
+  `git-publish`, `change-request-publish`.
 
 To add a newly-installed shared skill:
 `ln -s ../../.agents/skills/<name> .claude/skills/<name>`. `.claude/skills/` is hand-managed.
@@ -81,9 +80,9 @@ To add a newly-installed shared skill:
 
 `settings.json` encodes the project-wide permission union the skills need: edit
 allowed; read-only git and common Unix commands allowed; `git push` / `gh pr create` /
-`glab mr create` / `rm` ask first; branch-delete, worktree-remove denied. Both GitHub
-and GitLab publish/comment skill scripts (`github-publish`, `gitlab-publish`,
-`github-pr-comments`, `gitlab-mr-comments`) are available.
+`glab mr create` / `rm` ask first; branch-delete, worktree-remove denied. The
+`git-publish`, `change-request-publish`, and `change-request-comments` skill scripts
+are available.
 
 ## Usage
 

@@ -101,7 +101,7 @@ Under `.claude/skills/` (all marked `disable-model-invocation: true`):
 
 Under `.agents/skills/`:
 
-`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `git-publish`, `change-request-publish`, `change-request-comments`, `issue-tracker`, `github-pr-comments`, `gitlab-mr-comments`
+`grill-with-docs`, `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`, `workflow-implementation`, `workflow-verification`, `feature-documentation`, `git-publish`, `change-request-publish`, `change-request-comments`, `issue-tracker`
 
 ### DDD Docs
 
@@ -140,8 +140,7 @@ The workflow entry skills are real directories. The authored skills are symlinke
 | `change-request-publish` | `../../.agents/skills/change-request-publish` |
 | `change-request-comments` | `../../.agents/skills/change-request-comments` |
 | `issue-tracker` | `../../.agents/skills/issue-tracker` |
-| `github-pr-comments` | `../../.agents/skills/github-pr-comments` |
-| `gitlab-mr-comments` | `../../.agents/skills/gitlab-mr-comments` |
+| `workflow-implementation` | `../../.agents/skills/workflow-implementation` |
 
 Each symlinked skill has `user-invocable: false` in its `SKILL.md` frontmatter so it stays hidden from Claude Code's user-facing skill list.
 
@@ -221,10 +220,10 @@ Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compat
 | `agent-implementation` | Controller orchestration, worker status handling, completion |
 | `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
 | `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
-| `github-pr-comments` | PR comment fetching, classification, and reply workflow |
+| `change-request-comments` | Comment fetching, classification, and reply workflow |
 | `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
 
-Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/github-pr-comments`. The `writing-skills` skill is also exposed as `/writing-skills`.
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/change-request-comments`. The `writing-skills` skill is also exposed as `/writing-skills`.
 
 ### Lockfiles
 

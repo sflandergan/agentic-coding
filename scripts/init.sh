@@ -241,8 +241,6 @@ AUTHORED_SKILLS=(
   "change-request-publish"
   "change-request-comments"
   "issue-tracker"
-  "github-pr-comments"
-  "gitlab-mr-comments"
 )
 
 mkdir -p "$TARGET/.claude/skills"

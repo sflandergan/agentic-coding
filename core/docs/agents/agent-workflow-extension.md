@@ -12,7 +12,7 @@ Use this guide when changing coding assistant workflows, agents, or reusable ski
 ## Change-request comment workflow boundary
 
 - The `change-request-comments` skill owns reading change-request comments, classifying comment target types, obtaining exact IDs, and posting approved replies through project scripts.
-- Provider-specific mechanics (`github-pr-comments`, `gitlab-mr-comments`, `gh`, `glab`) belong only in provider skills or neutral integration skills, never in generic workflow skills or agent instructions.
+- Provider-specific mechanics (`gh`, `glab`, provider comment scripts) belong only in provider or boundary skills such as `change-request-comments`, never in generic workflow skills or agent instructions.
 - Review agents own deciding what the comments mean, validating technical claims, combining them with independent review findings, suggesting fixes, and requesting approval before edits or replies.
 
 ## Default placement rules
