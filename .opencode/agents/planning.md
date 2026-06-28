@@ -14,6 +14,8 @@ permission:
     "wc *": allow
     "date *": allow
     "which *": allow
+    # Verification
+    "codespell *": allow
     # Directory creation for plans
     "mkdir plans/*": allow
     "mkdir -p plans/*": allow
@@ -27,34 +29,32 @@ permission:
     "git branch *": allow
     "git checkout *": allow
     "git commit *": allow
-    # Publish helper
-    "codespell *": allow
-    "scripts/publish-branch.sh": allow
-    "bash scripts/publish-branch.sh": allow
+    # Push changes and open PR
+    "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
+    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": allow
     # Protective denials are last because opencode uses last-match-wins permissions
     "git branch -d *": deny
     "git branch -D *": deny
     "git worktree remove *": deny
-    "git push --force *": deny
-    "git push -f *": deny
-    "git push origin --force *": deny
-    "git push origin -f *": deny
-    "git push origin main*": deny
-    "git push origin +main*": deny
+    # Push is done via git-publish
+    "git push*": deny
   task:
     "*": deny
     "explore": allow
   skill:
     "*": deny
     "agent-planning": allow
+    "change-request-publish": allow
+    "git-publish": allow
     "writing-skills": allow
 ---
 
 You are the planning agent for this toolkit repo.
 
-Load the approved spec first. Use the `agent-planning` skill to write the plan.
+Load the approved spec first. 
+Use the /agent-planning skill to write the plan.
 
-Your task is to write implementation plans to `plans/YYYY-MM-DD-feature-name/plan.md` next to the spec.
+Your task is to write implementation plans to `plans/YYYY-MM-DD-feature-name/plan.md`.
 
 Plan requirements:
 
@@ -67,4 +67,5 @@ Plan requirements:
 
 Use `@explore` when you need to investigate before planning. Continue after the context is strong enough to support the plan.
 
-After writing the plan, commit the plan file, run `scripts/publish-branch.sh` to push the branch and create or report the PR, and report the plan path, PR URL, and any open questions.
+After writing the plan, commit the plan file, invoke /git-publish to push the branch and /change-request-publish to create a PR. 
+Report the plan path, PR URL, and any open questions.
