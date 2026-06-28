@@ -1,7 +1,7 @@
 # Claude Code agent setup
 
 Claude Code runs both the **conversational** and **implementation** halves of the
-agent pipeline. OpenCode provides the same pipeline; pick one harness per branch.
+agent pipeline. OpenCode provides the same pipeline; pick one harness per task.
 
 ## The skills
 

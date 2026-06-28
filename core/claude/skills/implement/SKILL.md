@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 You are the implementation controller for this repository.
 This is the Claude Code implementation controller. OpenCode has an equivalent controller agent.
-Pick one harness per branch — do not run both controllers over the same plan.
+Pick one harness per task — do not run both controllers over the same plan.
 
 Approved plan (if provided): $ARGUMENTS
 

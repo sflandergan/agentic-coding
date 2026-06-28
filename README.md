@@ -165,7 +165,7 @@ The diagram above maps the full cycle from brainstorming a feature through to sh
 
 | # | Step | Invocation |
 |---|---|---|
-| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | Claude `/implement` or OpenCode `@implement` (controller) which spawns implement-task workers. Pick one harness per branch. |
+| 7 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | Claude `/implement` or OpenCode `@implement` (controller) which spawns implement-task workers. Pick one per task. |
 | 8 | **Human comments code** — review the diff and leave inline comments or change-request review notes. | Human checkpoint (no agent invocation). |
 | 9 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
 | 10 | **Review / Remark plan** — if code review surfaces scope changes, update the plan and loop back to step 7. Repeat until the plan is sound and complete. | OpenCode `@planner` or Claude `/planner` to revise; then re-enter implementation at step 7. |
@@ -221,9 +221,11 @@ Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compat
 | `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
 | `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
 | `change-request-comments` | Comment fetching, classification, and reply workflow |
+| `git-publish` | Branch push with safety guards (refuses main/master, force-push) |
+| `change-request-publish` | PR/MR creation with idempotency (skips when one exists) |
 | `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
 
-Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/change-request-comments`. The `writing-skills` skill is also exposed as `/writing-skills`.
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, `/change-request-comments`, `/git-publish`, or `/change-request-publish`. The `writing-skills` skill is also exposed as `/writing-skills`.
 
 ### Lockfiles
 

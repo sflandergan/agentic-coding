@@ -76,4 +76,4 @@ inlining them here.
   spec/plan markdown only when the user asks for committed workflow artifacts.
 - After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
 - Tell the user to review the plan and continue with /review-plan if they have remarks or /implement to start implementing the plan
-  (the implement agent). Pick one per branch. Suggest the user's preferred harness.
+  (the implement agent). Pick one per task. Suggest the user's preferred harness.
