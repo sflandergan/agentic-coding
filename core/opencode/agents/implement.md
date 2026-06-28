@@ -7,10 +7,6 @@ permission:
   bash:
     "*": ask
 
-    "gh pr create *": allow
-    "gh pr list *": allow
-    "gh pr view *": allow
-
     "git add *": allow
     "git branch *": allow
     "git branch -d *": deny
