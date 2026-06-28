@@ -55,4 +55,66 @@ if [[ "$FAILED" -ne 0 ]]; then
   exit 1
 fi
 
+# --- Skill-internal script path check ---
+# Per the Skill Boundary Rule, body text should use skill names, not internal
+# script paths like .agents/skills/<skill>/scripts/*.sh. Only check body text
+# (after YAML frontmatter) for OpenCode agent files.
+
+SCRIPT_PATH_PATTERNS=(
+  '\.agents/skills/.*/scripts/'
+  '\.claude/skills/.*/scripts/'
+)
+
+# Boundary skill directories where script usage is the documented interface
+BOUNDARY_SKILLS=(
+  core/agents/skills/git-publish
+  core/agents/skills/change-request-publish
+  core/agents/skills/change-request-comments
+  core/agents/skills/issue-tracker
+)
+
+# Expand target globs to actual files
+TARGET_FILES=()
+for target in "${TARGETS[@]}"; do
+  while IFS= read -r file; do
+    [[ -f "$file" ]] && TARGET_FILES+=("$file")
+  done < <(find "$target" -name '*.md' -type f 2>/dev/null)
+done
+
+if [[ ${#TARGET_FILES[@]} -eq 0 ]]; then
+  echo "OK: no workflow files found to check." >&2
+  exit 0
+fi
+
+for file in "${TARGET_FILES[@]}"; do
+  # Skip boundary skill docs
+  skip=false
+  for boundary in "${BOUNDARY_SKILLS[@]}"; do
+    if [[ "$file" == "$boundary"/* ]]; then
+      skip=true
+      break
+    fi
+  done
+  [[ "$skip" == true ]] && continue
+
+  # For OpenCode agent files, only check body text (after second ---)
+  if [[ "$file" == core/opencode/agents/*.md ]]; then
+    body=$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' "$file")
+  else
+    body=$(cat "$file")
+  fi
+
+  for pattern in "${SCRIPT_PATH_PATTERNS[@]}"; do
+    if echo "$body" | rg -n "$pattern" 2>/dev/null; then
+      echo "  ^ in $file" >&2
+      FAILED=1
+    fi
+  done
+done
+
+if [[ "$FAILED" -ne 0 ]]; then
+  echo "ERROR: skill-internal script references found in workflow body text." >&2
+  exit 1
+fi
+
 echo "OK: no provider-internal leakage in generic workflow files."
