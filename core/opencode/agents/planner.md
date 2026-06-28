@@ -48,6 +48,7 @@ permission:
     "*": deny
     "workflow-planning": allow
     "grill-with-docs": allow
+    "git-publish": allow
 ---
 
 You are the planning agent.

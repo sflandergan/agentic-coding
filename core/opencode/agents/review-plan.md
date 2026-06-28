@@ -34,6 +34,7 @@ permission:
   skill:
     "*": deny
     "change-request-comments": allow
+    "git-publish": allow
 ---
 
 You are the spec and plan review agent.

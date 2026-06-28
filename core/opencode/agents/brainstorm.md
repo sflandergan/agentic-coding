@@ -48,6 +48,8 @@ permission:
     "*": deny
     "workflow-brainstorming": allow
     "grill-with-docs": allow
+    "git-publish": allow
+    "change-request-publish": allow
 ---
 
 You are the explicit brainstorming agent.

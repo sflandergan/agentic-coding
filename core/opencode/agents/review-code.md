@@ -26,6 +26,10 @@ permission:
 
     "git push *": ask
 
+    "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
+
+    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": ask
+
     "bash .agents/skills/change-request-comments/scripts/fetch-comments.sh *": allow
     'bash ".agents/skills/change-request-comments/scripts/fetch-comments.sh" *': allow
     "bash .agents/skills/change-request-comments/scripts/reply-to-comment.sh *": ask
@@ -37,6 +41,8 @@ permission:
   skill:
     "*": deny
     "change-request-comments": allow
+    "git-publish": allow
+    "change-request-publish": allow
 ---
 
 You are the code review agent.

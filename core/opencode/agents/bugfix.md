@@ -52,6 +52,7 @@ permission:
   skill:
     "*": deny
     "workflow-bug-analysis": allow
+    "issue-tracker": allow
 ---
 
 You are the bugfix analysis agent.
