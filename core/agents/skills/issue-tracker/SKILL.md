@@ -14,9 +14,6 @@ Host-agnostic interface for issue management. Scripts detect whether the reposit
 bash .agents/skills/issue-tracker/scripts/create-issue.sh --title TITLE --body-file PATH [--labels LABELS]
 ```
 
-- **Host detection**: reads `git remote get-url origin` to determine the host.
-  - GitHub → `gh issue create --title ... --body-file ... --label ...`
-  - GitLab → `glab issue create --title ... --description ... --label ...`
 - Prints the created issue URL.
 
 ## Update an issue
