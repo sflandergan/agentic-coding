@@ -117,4 +117,52 @@ if [[ "$FAILED" -ne 0 ]]; then
   exit 1
 fi
 
+# --- Bare boundary-skill reference check ---
+# Workflow-facing body text must use slash references (e.g. /git-publish) for
+# boundary skills, not bare backticked names (e.g. `git-publish`).
+
+BOUNDARY_SKILL_NAMES=(
+  'git-publish'
+  'change-request-publish'
+  'change-request-comments'
+  'issue-tracker'
+)
+
+for file in "${TARGET_FILES[@]}"; do
+  # Skip boundary skill docs
+  skip=false
+  for boundary in "${BOUNDARY_SKILLS[@]}"; do
+    if [[ "$file" == "$boundary"/* ]]; then
+      skip=true
+      break
+    fi
+  done
+  [[ "$skip" == true ]] && continue
+
+  # For OpenCode agent files, only check body text (after second ---)
+  if [[ "$file" == core/opencode/agents/*.md ]]; then
+    body=$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' "$file")
+  else
+    body=$(cat "$file")
+  fi
+
+  for skill_name in "${BOUNDARY_SKILL_NAMES[@]}"; do
+    # Match backtick-wrapped name without leading slash
+    if echo "$body" | rg -n "[^/]\`$skill_name\`" 2>/dev/null; then
+      echo "  ^ bare reference in $file" >&2
+      FAILED=1
+    fi
+    # Also match start-of-line backtick-wrapped name without leading slash
+    if echo "$body" | rg -n "^\`$skill_name\`" 2>/dev/null; then
+      echo "  ^ bare reference in $file" >&2
+      FAILED=1
+    fi
+  done
+done
+
+if [[ "$FAILED" -ne 0 ]]; then
+  echo "ERROR: bare boundary-skill references found; use slash form (e.g. /git-publish)." >&2
+  exit 1
+fi
+
 echo "OK: no provider-internal leakage in generic workflow files."
