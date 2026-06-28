@@ -77,7 +77,7 @@ Shell guidance:
 
 - Prefer relative workspace paths in shell commands and examples (e.g., `mkdir -p plans/2026-05-25-feature-name`).
 - Avoid absolute workspace paths in shell commands unless a tool explicitly requires them.
-- Push the branch with `bash .agents/skills/git-publish/scripts/push-branch.sh`. Never hand-roll `git push`.
+- Push the branch with `git-publish`. Never hand-roll `git push`.
 
 Do not invoke brainstorming automatically. If requirements are unclear enough that planning would be speculative, ask the user whether to switch to `@brainstorm`.
 

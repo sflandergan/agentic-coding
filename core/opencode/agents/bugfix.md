@@ -65,7 +65,7 @@ Your job is to investigate bugs and produce a well-structured tracker issue. You
 1. **Intake** — Read the user's input (error log, stack trace, or behavior description). Classify the input type and extract key signals.
 2. **Investigate** — Use the `workflow-bug-analysis` skill methodology. Launch `@explore` subagents when you need focused repository investigation.
 3. **Hypothesize** — Form a root-cause hypothesis based on gathered evidence.
-4. **Create the issue** — Use `issue-tracker/scripts/find-duplicate-issues.sh` for duplicate checks and `issue-tracker/scripts/create-issue.sh` to file the tracker issue.
+4. **Create the issue** — Use `issue-tracker` to check for duplicates and create the tracker issue.
 5. **Report and stop** — Report the issue URL.
 
 ## Subagent usage

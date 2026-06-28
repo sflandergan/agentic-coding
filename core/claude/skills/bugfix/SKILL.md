@@ -32,7 +32,7 @@ when their questions are independent.
 
 3. **Hypothesize** — Form a root-cause hypothesis based on gathered evidence.
 
-4. **Create the issue** — Use `issue-tracker/scripts/find-duplicate-issues.sh` for duplicate checks and `issue-tracker/scripts/create-issue.sh` to file the tracker issue using the
+4. **Create the issue** — Use `issue-tracker` to check for duplicates and create the tracker issue using the
    `workflow-bug-analysis` skill for content.
 
 5. **Report and stop** — Report the issue URL. The job is done.
@@ -47,7 +47,7 @@ using the `workflow-bug-analysis` skill and report the updated issue URL.
 - Never commit, push, or create PRs. Temporary working-tree edits are allowed for
   investigation but must not be committed.
 - Never call `gh` or `glab` directly — use the `issue-tracker` scripts for issue mutations.
-- Use `issue-tracker/scripts/find-duplicate-issues.sh` for duplicate checking.
+- Use `issue-tracker` for duplicate checking.
 - Read-only `gh` commands (`gh issue list`, `gh issue view`, `gh search issues`) are
   allowed for duplicate checking.
 - If the bug cannot be investigated with the available evidence, say so and list what

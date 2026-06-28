@@ -78,6 +78,6 @@ Finish workflow:
 3. Treat the feature doc as durable reference documentation, not a project-status report.
 4. Reconcile the domain docs: if implementation or review changed the domain language, or introduced or invalidated a decision, update the relevant `docs/contexts/<context>/CONTEXT.md` glossary and add or supersede ADRs under `docs/adr/` before finalizing. This is offered reconciliation, not a full grilling session — use `grill-with-docs` only when a divergence genuinely needs interrogating. Keep `CONTEXT.md` a glossary only.
 5. Remove both `plans/YYYY-MM-DD-feature-name/spec.md` and `plans/YYYY-MM-DD-feature-name/plan.md` after the feature doc is written. Use `git rm` for tracked plan files. Use plain `rm` only for untracked paths.
-6. Commit the feature doc and cleanup, then publish. Push the branch with `bash .agents/skills/git-publish/scripts/push-branch.sh`. To open a change request, use `bash .agents/skills/change-request-publish/scripts/open-change-request.sh` if needed.
+6. Commit the feature doc and cleanup, then publish. Push the branch with `git-publish`. To open a change request, use `change-request-publish` if needed.
 
 Push automatically only through the publish skill. Never hand-roll `git push`, push to `main`, force-push, delete remote refs, push tags, or push arbitrary refspecs without explicit approval. Do not create change requests manually, amend commits, delete branches, close comments, or remove worktrees.

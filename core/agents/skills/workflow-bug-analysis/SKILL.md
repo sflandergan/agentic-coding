@@ -86,33 +86,14 @@ Structure findings into the issue template and save to `.temp/<slug>-issue-body.
 
 ### 7. Create the issue
 
-First, check for duplicate issues:
+First, use `issue-tracker` to check for duplicate issues. If duplicates exist, link to them in the issue body. Then use `issue-tracker` to create the issue with the title, body file, and labels.
 
-```bash
-bash .agents/skills/issue-tracker/scripts/find-duplicate-issues.sh \
-  --title "Concise bug summary"
-```
-
-If duplicates exist, link to them in the issue body. Then create the issue:
-
-```bash
-bash .agents/skills/issue-tracker/scripts/create-issue.sh \
-  --title "Concise bug summary" \
-  --body-file .temp/<slug>-issue-body.md \
-  --labels "bug"
-```
-
-The script prints the created issue URL. Report this URL to the user.
+The skill prints the created issue URL. Report this URL to the user.
 
 ## Follow-up Evidence
 
 If the user provides additional evidence after the issue is created:
 
 1. Update the issue body file in `.temp/`
-2. Use `issue-tracker/scripts/update-issue.sh` to push the update:
-   ```bash
-   bash .agents/skills/issue-tracker/scripts/update-issue.sh \
-     --issue <number> \
-     --body-file .temp/<slug>-issue-body-updated.md
-   ```
+2. Use `issue-tracker` to update the issue with the updated body file
 3. Report the updated issue URL

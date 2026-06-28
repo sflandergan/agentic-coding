@@ -67,8 +67,8 @@ inlining them here.
   `mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
   requires them.
 - Publish through the neutral git-publish skill:
-  - Push the current branch with `bash .claude/skills/git-publish/scripts/push-branch.sh`.
-  - Open a change request with `bash .claude/skills/change-request-publish/scripts/open-change-request.sh` when needed.
+  - Push the current branch with `git-publish`.
+  - Open a change request with `change-request-publish` when needed.
   Never hand-roll `git push`.
 
 ## Stop conditions

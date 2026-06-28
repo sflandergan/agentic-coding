@@ -48,7 +48,7 @@ explore subagent with a focused question.
    files; use plain `rm` only for untracked paths.
 5. **Commit and push.** Commit the feature doc and cleanup when the user requests it,
     then push using the neutral git-publish skill:
-    - Push the current branch with `bash .claude/skills/git-publish/scripts/push-branch.sh`.
+    - Push the current branch with `git-publish`.
 
 ## Push boundaries
 

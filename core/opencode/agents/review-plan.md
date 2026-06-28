@@ -71,4 +71,4 @@ Use this standard review-plan workflow unless the user explicitly requests a dif
 
 When reviewing external comments, use `change-request-comments`. Always check open change request comments by default unless the user explicitly says not to. Verify each technical claim before recommending changes. Suggest changes only. Before posting any comment reply, present the exact draft reply and wait for explicit user approval. Approval to edit `plans/**` does not authorize posting comments.
 
-Push the branch with `bash .agents/skills/git-publish/scripts/push-branch.sh`. Never hand-roll `git push`.
+Push the branch with `git-publish`. Never hand-roll `git push`.
