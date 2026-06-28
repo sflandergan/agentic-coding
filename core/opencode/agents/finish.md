@@ -48,7 +48,7 @@ permission:
     "git push origin tag *": ask
 
     "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
-    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": ask
+    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": allow
   task:
     "*": deny
     "explore": allow

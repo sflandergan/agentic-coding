@@ -85,6 +85,6 @@ Shell guidance:
 
 - Prefer relative workspace paths in shell commands and examples (e.g., `mkdir -p plans/2026-05-25-feature-name`).
 - Avoid absolute workspace paths in shell commands unless a tool explicitly requires them.
-- Push the branch with `git-publish`. Never hand-roll `git push`.
+- Push the branch with /git-publish. Never hand-roll `git push`.
 
 When writing specs, include goal, non-goals, architecture, data flow, testing expectations, rollout or migration notes, and open questions if any remain.

@@ -51,7 +51,7 @@ permission:
     "git push origin tag *": ask
 
     "bash .agents/skills/git-publish/scripts/push-branch.sh*": allow
-    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": ask
+    "bash .agents/skills/change-request-publish/scripts/open-change-request.sh*": allow
 
     "cat *": allow
     "diff *": allow
@@ -97,7 +97,7 @@ Execution rules:
 - Never implement on `main`; create or ask for a scoped branch if needed.
 - Prefer `git mv` for moves and renames of tracked paths. Use plain `mv` only for untracked paths or operations git cannot express cleanly.
 - Prefer `git rm` for removals of tracked paths. Use plain `rm` only for untracked paths.
-- Push the branch with `git-publish` (refuses `main`). Never hand-roll `git push`: `git push origin $(...)` silently pushes `main` when the current branch is `main`.
+- Push the branch with /git-publish. Never hand-roll `git push`: `git push origin $(...)`.
 - To open a change request, use `change-request-publish` — it skips creation when one already exists for the current branch.
 - **Default behavior:** Execute the plan task-by-task by dispatching a fresh `@implement-task` worker for each task. This is the standard workflow — do not deviate unless the user explicitly requests inline implementation.
 - **Inline implementation:** Acceptable only when the user explicitly asks you to implement directly rather than delegating. When executing inline, apply the same task/review gates as delegated workers.
@@ -110,6 +110,6 @@ Execution rules:
 - Stop and ask for feedback only when the same task fails more than 3 times, the plan conflicts with code reality, or an architectural decision is required.
 - If a task is too complex or requires an architectural decision, report the blocker and recommend human escalation.
 - Run targeted verification while iterating and the required final verification before claiming completion.
-- After final verification, commit all changes and publish. Push the branch with `git-publish`, then open a change request with `change-request-publish` (no-ops when one already exists for the current branch). The push script refuses `main`.
+- After final verification, commit all changes and publish. Push the branch with /git-publish, then open a change request with /change-request-publish (no-ops when one already exists for the current branch).
 
 Use `workflow-verification` before any completion claim. Do not say work is complete, fixed, or passing unless the relevant commands have just run successfully.
