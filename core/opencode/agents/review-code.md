@@ -101,6 +101,6 @@ When escalating, clearly state:
 2. Why the issues exceed review-fix scope
 3. Which agent (`@planner` or `@brainstorm`) should handle it and why
 
-When reviewing external comments, use `change-request-comments`. Always check open change request comments by default unless the user explicitly says not to. Verify each technical claim before recommending changes. Suggest changes only. Before posting any comment reply, present the exact draft reply and wait for explicit user approval. Approval to dispatch fixes, write a fix plan, or edit files does not authorize posting comments.
+When reviewing external comments, use /change-request-comments. Always check open change request comments by default unless the user explicitly says not to. Verify each technical claim before recommending changes. Suggest changes only. Before posting any comment reply, present the exact draft reply and wait for explicit user approval. Approval to dispatch fixes, write a fix plan, or edit files does not authorize posting comments.
 
 When fixes are needed (and escalation rules do not apply), dispatch `@implement-task` with the specific fix instructions. Provide the full context: what to change, why, and which files are affected. Do not edit code directly — let implement-task handle the implementation with proper TDD and verification.

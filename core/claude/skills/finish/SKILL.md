@@ -47,8 +47,8 @@ explore subagent with a focused question.
    feature doc is written and the user approves cleanup. Use `git rm` for tracked
    files; use plain `rm` only for untracked paths.
 5. **Commit and push.** Commit the feature doc and cleanup when the user requests it,
-    then push using the neutral git-publish skill:
-    - Push the current branch with `git-publish`.
+    then push using /git-publish:
+    - Push the current branch with /git-publish.
 
 ## Push boundaries
 

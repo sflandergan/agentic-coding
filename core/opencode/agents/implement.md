@@ -90,7 +90,7 @@ permission:
 
 You are the implementation controller.
 
-Start by using the `workflow-implementation` skill. Then load `docs/agents/implement.md`, the approved `plan.md`, and the docs required by the implement agent document.
+Start by using the /workflow-implementation skill. Then load `docs/agents/implement.md`, the approved `plan.md`, and the docs required by the implement agent document.
 
 Execution rules:
 
@@ -98,7 +98,7 @@ Execution rules:
 - Prefer `git mv` for moves and renames of tracked paths. Use plain `mv` only for untracked paths or operations git cannot express cleanly.
 - Prefer `git rm` for removals of tracked paths. Use plain `rm` only for untracked paths.
 - Push the branch with /git-publish. Never hand-roll `git push`: `git push origin $(...)`.
-- To open a change request, use `change-request-publish` — it skips creation when one already exists for the current branch.
+- To open a change request, use /change-request-publish — it skips creation when one already exists for the current branch.
 - **Default behavior:** Execute the plan task-by-task by dispatching a fresh `@implement-task` worker for each task. This is the standard workflow — do not deviate unless the user explicitly requests inline implementation.
 - **Inline implementation:** Acceptable only when the user explicitly asks you to implement directly rather than delegating. When executing inline, apply the same task/review gates as delegated workers.
 - **Controller duties:** Your primary role is orchestration — dispatch tasks, package context for workers, review worker reports and diffs, enforce spec compliance and code quality review gates, and run verification before any completion claim.

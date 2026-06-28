@@ -19,7 +19,7 @@ list exactly.
 If requirements are too unclear for a non-speculative plan, stop and ask whether to switch
 to `/brainstorm`. Do not invoke brainstorming automatically.
 
-Use the `workflow-planning` and `grill-with-docs` skills for the planning methodology
+Use the /workflow-planning and /grill-with-docs skills for the planning methodology
 and domain grilling. Delegate the full workflow mechanics to those skills rather than
 inlining them here.
 

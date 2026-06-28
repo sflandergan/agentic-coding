@@ -86,7 +86,7 @@ Structure findings into the issue template and save to `.temp/<slug>-issue-body.
 
 ### 7. Create the issue
 
-First, use `issue-tracker` to check for duplicate issues. If duplicates exist, link to them in the issue body. Then use `issue-tracker` to create the issue with the title, body file, and labels.
+First, use /issue-tracker to check for duplicate issues. If duplicates exist, link to them in the issue body. Then use /issue-tracker to create the issue with the title, body file, and labels.
 
 The skill prints the created issue URL. Report this URL to the user.
 
@@ -95,5 +95,5 @@ The skill prints the created issue URL. Report this URL to the user.
 If the user provides additional evidence after the issue is created:
 
 1. Update the issue body file in `.temp/`
-2. Use `issue-tracker` to update the issue with the updated body file
+2. Use /issue-tracker to update the issue with the updated body file
 3. Report the updated issue URL

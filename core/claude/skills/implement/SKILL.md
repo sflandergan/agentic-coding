@@ -46,7 +46,7 @@ Run targeted verification while iterating and the required final verification be
 
 ## Finishing
 
-After final verification, commit all changes and push the branch using the neutral git-publish skill.
-Open a change request with `change-request-publish` when needed.
+After final verification, commit all changes and push the branch using /git-publish.
+Open a change request with /change-request-publish when needed.
 
 The publish scripts refuse `main`/`master` and skip creation when a PR/MR already exists for the branch.

@@ -15,7 +15,7 @@ Scope (if provided): $ARGUMENTS
 
 Read `docs/agents/review-code.md` before reviewing and follow its document list exactly.
 
-Use `change-request-comments` for reading and drafting replies to change-request comments.
+Use /change-request-comments for reading and drafting replies to change-request comments.
 
 ## Review priorities
 
@@ -53,7 +53,7 @@ whether it is a finding.
 
 Use this standard review-code workflow unless the user explicitly requests a different scope:
 
-1. Read open change-request comments first by using the `change-request-comments` skill. If the branch has
+1. Read open change-request comments first by using /change-request-comments. If the branch has
    no detectable change request, state that and continue with the local review.
 2. Identify the plan/spec under review. If multiple candidate plans exist and the user did
    not state which one to use, ask before continuing the plan-conformance part of the
@@ -117,7 +117,7 @@ review-fix scope, (3) which command should handle it and why.
 
 ## External / change-request comments
 
-When reviewing external change-request feedback, use the `change-request-comments` skill. Always
+When reviewing external change-request feedback, use /change-request-comments. Always
 check open change-request comments by default unless the user explicitly says not to. Verify each
 technical claim against current code before recommending a change. Suggest changes only.
 Before posting any change-request comment, present the exact draft reply and wait for explicit
