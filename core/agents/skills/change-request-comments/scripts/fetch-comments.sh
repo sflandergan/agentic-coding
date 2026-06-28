@@ -35,6 +35,7 @@ case "$remote_url" in
     pr_json="$(gh pr view "$pr" --json number,title,headRefName,baseRefName,url,comments,headRepository)"
     repo=$(jq -r '.headRepository.nameWithOwner' <<<"$pr_json")
     issue_comments_json="$(gh api "repos/$repo/issues/$pr/comments")"
+    # shellcheck disable=SC2016 # GraphQL variables ($owner, $name, $pr) are intentionally single-quoted
     inline_comments_json="$(gh api graphql \
       -F owner="${repo%%/*}" \
       -F name="${repo#*/}" \
