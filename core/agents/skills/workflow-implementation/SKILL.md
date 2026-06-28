@@ -97,7 +97,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 ## Boundaries
 
 - The controller agent owns dispatch, model choice, human handoff, push, PR, and finish decisions.
-- After final verification, the controller commits all changes, then pushes the branch with `git-publish` and opens a change request with `change-request-publish`. Never push to the default branch.
+- After final verification, the controller commits all changes, then pushes the branch with /git-publish and opens a change request with /change-request-publish. Never push to the default branch.
 - This skill only defines execution discipline and review gates.
 - Workers follow TDD instructions embedded in the approved plan for behavior changes.
 - Inline execution is acceptable only when the user explicitly requests it or subagent delegation is genuinely unavailable, but keep the same task/review gates.

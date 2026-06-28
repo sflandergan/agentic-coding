@@ -1,6 +1,6 @@
 ---
 name: change-request-publish
-description: Use when opening a pull request or merge request — detects GitHub vs GitLab and delegates to the appropriate CLI
+description: Use when opening a GitHub pull request or GitLab merge request. Delegates to the appropriate CLI
 user-invocable: false
 ---
 

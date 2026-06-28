@@ -66,9 +66,8 @@ inlining them here.
 - Prefer relative workspace paths in commands and examples (e.g.
   `mkdir -p plans/2026-05-30-feature-name`). Avoid absolute workspace paths unless a tool
   requires them.
-- Publish through the neutral git-publish skill:
-  - Push the current branch with `git-publish`.
-  - Open a change request with `change-request-publish` when needed.
+- Publish through /git-publish
+  - Open a change request with /change-request-publish when needed.
   Never hand-roll `git push`.
 
 ## Stop conditions
@@ -76,5 +75,5 @@ inlining them here.
 - Write the plan to `plans/YYYY-MM-DD-feature-name/plan.md`, next to the spec. Commit the
   spec/plan markdown only when the user asks for committed workflow artifacts.
 - After the plan is written, **stop**. Optionally suggest `/review-plan` before handoff.
-- Implementation can run in either harness: Claude Code (`/implement`) or OpenCode
+- Tell the user to review the plan and continue with /review-plan if they have remarks or /implement to start implementing the plan
   (the implement agent). Pick one per branch. Suggest the user's preferred harness.

@@ -16,7 +16,7 @@ Spec or plan to review (if provided): $ARGUMENTS
 Read `docs/agents/review-plan.md` before every review and follow its document list
 exactly.
 
-Use `change-request-comments` for reading and drafting replies to change-request comments.
+Use /change-request-comments for reading and drafting replies to change-request comments.
 
 ## Review goals
 
@@ -47,7 +47,7 @@ executable.
 
 Use this standard review-plan workflow unless the user explicitly requests a different scope:
 
-1. Read open change-request comments first by using the `change-request-comments` skill. If the branch has
+1. Read open change-request comments first by using /change-request-comments. If the branch has
    no detectable change request, state that and continue with the local review.
 2. Review the spec/plan yourself against the repository architecture, testing guidance,
    documented domain language, ADRs, and any area docs loaded from
@@ -77,9 +77,8 @@ document. The gate is approval, not capability:
    config — only the `plans/**` artifacts.
 4. Report the finalized plan path and confirm it is ready for implementation handoff.
 
-Publish through the neutral git-publish skill:
-- Push the current branch with `git-publish`.
-- Open a change request with `change-request-publish` when needed.
+Publish through /git-publish
+- Open a change request with /change-request-publish when needed.
 Never hand-roll `git push`.
 
 ## External / change-request comments
