@@ -14,17 +14,17 @@
       "disable": true
     },
     "planning": {
-      "model": "opencode-go/mimo-v2.5-pro"
+      "model": "openai/gpt-5.6-sol"
     },
     "implement": {
-      "model": "opencode-go/mimo-v2.5-pro"
+      "model": "cline-pass/cline-pass/mimo-v2.5-pro"
     },
     "implement-task": {
-      "model": "opencode-go/mimo-v2.5",
+      "model": "cline-pass/cline-pass/deepseek-v4-flash",
       "mode": "subagent"
     },
     "review": {
-      "model": "openai/gpt-5.5"
+      "model": "openai/gpt-5.6-sol"
     }
   },
   "permission": {
