@@ -77,10 +77,10 @@ During init you choose a model option:
 | Workflow | Bundled OpenCode-Go profile | OpenAI overlay |
 |---|---|---|
 | `brainstorm` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
-| `bugfix` | `opencode-go/qwen3.8-flash`, `max` | unchanged |
+| `bugfix` | `opencode-go/qwen3.8-flash` | unchanged |
 | `explore` | `opencode-go/mimo-v2.5` | unchanged |
 | `finish` | `opencode-go/qwen3.8-flash` | unchanged |
-| `idea` | `opencode-go/glm-5.3-flash`| `openai/gpt-5.6-sol`, `medium` |
+| `idea` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
 | `implement` | `opencode-go/qwen3.8-flash` | unchanged |
 | `implement-task` | `opencode-go/deepseek-v4-flash`, `high` | `openai/gpt-5.6-luna`, `xhigh` |
 | `planner` | `opencode-go/qwen3.8-flash` | unchanged |
@@ -89,19 +89,18 @@ During init you choose a model option:
 | `ui-design` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
 | `ui-design-task` | `opencode-go/qwen3.8-flash` | `openai/gpt-5.6-luna`, `xhigh` |
 
-The top-level default model is Mimo V2.5 Pro, with DeepSeek V4 Flash as `small_model`.
+The top-level default model is Qwen 3.8 Flash, with DeepSeek V4 Flash as `small_model`.
 
 ### Model Choice Rationale
 
 The bundled OpenCode-Go profile assigns models by workflow shape:
 
-- **GLM 5.3 Flash** handles idea intake, brainstorming, and holistic code/plan reviews (`idea`, `brainstorm`, `review-code`, `review-plan` and `ui-design`) as the sol alternative when OpenAI is not used.
-- **Qwen 3.8 Flash** handles implementation, planning, and bugfixing (`implement`, `planner`, `bugfix` and `ui-design-task`). These assignments are never overridden by OpenAI models.
+- **GLM 5.3 Flash** handles idea intake, brainstorming, holistic code/plan reviews, and UI design orchestration (`idea`, `brainstorm`, `review-code`, `review-plan`, and `ui-design`) as the sol alternative when OpenAI is not used.
+- **Qwen 3.8 Flash** handles implementation, planning, and bugfixing (`implement`, `planner`, `bugfix`); `ui-design-task` also starts on Qwen 3.8 Flash but is overridden by the OpenAI overlay.
 - **DeepSeek V4 Flash at `high`** handles tightly bounded implementation tasks (`implement-task`). DeepSeek V4 Flash is text-only, so it is not used for UI work.
-- **Mimo V2.5** handles frequent exploration and UI slices (`explore`, `ui-design-task`), where speed and cost dominate.
-- **Mimo V2.5 Pro** handles controller and default work (`finish` and the top-level `model`).
+- **Mimo V2.5** handles frequent exploration (`explore`), where speed and cost dominate.
 
-When you pick the `opencode-go + OpenAI` option, the installer applies `core/models-openai.json` as a single deterministic overlay: **Sol at `medium`** takes over open-ended ideation and holistic reviews (`idea`, `brainstorm`, `review-code`, `review-plan`), while **Luna at `xhigh`** handles implementation and UI design tasks (`implement-task`, `ui-design-task`). Implementation, planning, and bugfixing (`implement`, `planner`, `bugfix`) always keep their bundled Qwen 3.8 Flash assignments and are never overridden by OpenAI models; all other workflows keep their bundled assignments.
+When you pick the `opencode-go + OpenAI` option, the installer applies `core/models-openai.json` as a single deterministic overlay: **Sol at `medium`** takes over open-ended ideation, holistic reviews, and UI design orchestration (`idea`, `brainstorm`, `review-code`, `review-plan`, `ui-design`), while **Luna at `xhigh`** handles implementation tasks and UI design slices (`implement-task`, `ui-design-task`). Implementation, planning, and bugfixing (`implement`, `planner`, `bugfix`) always keep their bundled Qwen 3.8 Flash assignments and are never overridden by OpenAI models; `explore` and `finish` also keep their bundled assignments.
 
 Neither profile configures a third-party provider router, and the `opencode-go only` selection contains no `openai/` model references.
 
@@ -297,16 +296,17 @@ Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compat
 | `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
 | `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
 | `github-pr-comments` | PR comment fetching, classification, and reply workflow |
+| `test-driven-development` | Remote skill from `obra/superpowers` — TDD discipline for feature and bugfix work |
 | `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
 
-Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/github-pr-comments`. The `writing-skills` skill is also exposed as `/writing-skills`.
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/github-pr-comments`. The `test-driven-development` and `writing-skills` skills are also exposed as `/test-driven-development` and `/writing-skills`.
 
 ### Lockfiles
 
 Two lockfiles track remote skills at different scopes and are not expected to match:
 
-- `skills-lock.json` — remote skills installed in this repo for self-maintenance. Currently tracks `writing-skills` only.
-- `core/skills-lock.json` — remote skills installed into target repos by the toolkit. Currently tracks `context7-cli`, `domain-modeling` and `grilling` (from `mattpocock/skills`), `impeccable` (from `pbakaus/impeccable`), and `writing-skills`.
+- `skills-lock.json` — remote skills installed in this repo for self-maintenance. Currently tracks `test-driven-development` and `writing-skills` (both from `obra/superpowers`).
+- `core/skills-lock.json` — remote skills installed into target repos by the toolkit. Currently tracks `context7-cli`, `domain-modeling` and `grilling` (from `mattpocock/skills`), `impeccable` (from `pbakaus/impeccable`), and `test-driven-development` and `writing-skills` (from `obra/superpowers`).
 
 When updating skills, edit only the lockfile for the scope you changed.
 
