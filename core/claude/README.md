@@ -5,24 +5,48 @@ Claude Code runs the **conversational** half of the agent pipeline. The
 **no orchestrator**: the OpenCode hand-off ends the Claude Code session, and reviews are
 triggered by hand, so the workflows are discrete, manually-invoked entry points.
 
-## The six skills
+## Skills
 
-Each is a real `SKILL.md` under `.claude/skills/<name>/`, marked
-`disable-model-invocation: true` — they never auto-trigger and stay out of the always-loaded
-skill index. You start them with `/name`.
+The canonical skill source is `.agents/skills/`. Every skill under `.claude/skills/`
+is a **symlink** to `../../.agents/skills/<name>`. This avoids duplication — both
+OpenCode and Claude Code read the same files.
+
+User-facing skills are marked `disable-model-invocation: true` so they never
+auto-trigger and stay out of the always-loaded skill index. Hidden support and
+worker skills are additionally marked `user-invocable: false` so they stay out
+of the user-facing skill list and are loaded by agents on demand.
+
+### User-Facing Skills (invoked with `/name`)
 
 | Skill (`/name`) | OpenCode counterpart | Role |
 | --- | --- | --- |
-| `/brainstorm`  | `@brainstorm`  | Idea → approved `spec.md` (interactive; offers domain grilling) |
-| `/bugfix`      | `@bugfix`      | Investigate bug → structured GitHub issue; does not fix |
-| `/planner`     | `@planner`     | Spec → task-by-task `plan.md` (offers grilling only when new domain language or non-trivial decisions appear) |
-| `/review-plan` | `@review-plan` | Review + finalize the OpenCode hand-off plan |
+| `/brainstorm` | `@brainstorm` | Idea → approved `spec.md` (interactive; offers domain grilling) |
+| `/bugfix` | `@bugfix` | Investigate bug → structured GitHub issue; does not fix |
+| `/finish` | `@finish` | Durable feature doc, light glossary/ADR reconciliation, cleanup |
+| `/idea` | `@idea` | Rough prompt → structured feature pitch |
+| `/implement` | `@implement` | Controller that dispatches `@implement-task` workers per plan task |
+| `/planner` | `@planner` | Spec → task-by-task `plan.md` (offers grilling only when new domain language or non-trivial decisions appear) |
 | `/review-code` | `@review-code` | Review a diff/PR → fix-plan hand-off doc |
-| `/finish`      | `@finish`      | Durable feature doc, light glossary/ADR reconciliation, cleanup |
+| `/review-plan` | `@review-plan` | Review + finalize the OpenCode hand-off plan |
+| `/ui-design` | `@ui-design` | Presentation design → HTML/CSS mockups, design tokens; dispatches `@ui-design-task` workers |
+| `/grill-with-docs` | — | Domain grilling against DDD docs (loaded on demand by others) |
+
+### Support and Worker Skills (hidden, `user-invocable: false`)
+
+These are loaded on demand by agents, never invoked directly by the user:
+
+| Skill | Purpose |
+|---|---|
+| `feature-documentation` | Compact capability maps under `docs/features/` |
+| `git-publish` | Guarded Git/GitHub branch publication with draft PR creation and lease-safe retained-head updates |
+| `github-pr-comments` | PR comment fetching, classification, and reply |
+| `implement-task` | Single-task implementation worker (dispatched by implement controller) |
+| `ui-design-task` | Presentation-only worker (dispatched by ui-design controller) |
+| `verification-before-completion` | Evidence-before-claims gate — must run verification before claiming completion |
 
 ## Design principle: delegate to shared authored skills
 
-The six entry-point skills carry per-agent glue (workflow steps, stop/hand-off gates,
+The user-facing entry-point skills carry per-agent glue (workflow steps, stop/hand-off gates,
 escalation rules) but delegate the heavy-lift methodology to authored skills under
 `.agents/skills/`. This avoids inlining duplicate copies of shared workflows.
 
@@ -31,15 +55,23 @@ escalation rules) but delegate the heavy-lift methodology to authored skills und
 These shared skills are symlinked into `.claude/skills/` from `.agents/skills/`:
 
 - `grill-with-docs` — used by `/brainstorm`, `/planner`, `/finish` (+ OpenCode)
-- `workflow-bug-analysis` — used by `/bugfix`
-- `workflow-brainstorming` — used by `/brainstorm`
-- `workflow-planning` — used by `/planner`
-- `workflow-verification` — used by `/finish`
+- `bugfix` (including its scripts) — used by `/bugfix`
+- `brainstorm` (including its preview scripts) — used by `/brainstorm`
+- `planner` — used by `/planner`
+- `implement` — used by `/implement`
+- `implement-task` — used by `/implement`
+- `ui-design` — used by `/ui-design`
+- `ui-design-task` — used by `/ui-design`
+- `review-code` — used by `/review-code`
+- `review-plan` — used by `/review-plan`
+- `finish` — used by `/finish`
+- `idea` — used by `/idea`
 - `feature-documentation` — used by `/finish`
+- `verification-before-completion` — used by `/implement`, `/finish`
+- `git-publish` — used by `/implement`, `/finish`, `/review-plan`, `/review-code` (via publish-branch.sh)
 - `github-pr-comments` — used by `/review-plan`, `/review-code` (+ OpenCode)
 
-Remote skills (e.g. `context7-cli`, `next-best-practices`, `shadcn`, `zoom-out`,
-`write-a-skill`) are declared in `skills-lock.json` and installed via the
+Remote skills (e.g. `context7-cli`, `domain-modeling`, `grilling`, `impeccable`, `writing-skills`) are declared in `skills-lock.json` and installed via the
 [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add`). Each
 lands in `.agents/skills/` and is symlinked into `.claude/skills/`.
 
@@ -65,22 +97,38 @@ All three skills load the shared `grill-with-docs` skill on demand.
 
 ## Skill inventory in `.claude/skills/`
 
-- **Authored agent skills (real dirs):** `brainstorm`, `bugfix`, `planner`, `review-plan`,
-  `review-code`, `finish`.
-- **Symlinked shared skills (auto-invocable):** `grill-with-docs`,
-  `workflow-bug-analysis`, `workflow-brainstorming`, `workflow-planning`,
-  `workflow-verification`, `feature-documentation`, `github-pr-comments`.
+All authored skills are symlinked from `.agents/skills/`:
+
+- **User-facing:** `brainstorm`, `bugfix`, `finish`, `grill-with-docs`, `idea`, `implement`, `planner`, `review-code`, `review-plan`, `ui-design`.
+- **Hidden support:** `feature-documentation`, `git-publish`, `github-pr-comments`, `implement-task`, `planning-structure`, `ui-design-task`, `verification-before-completion`.
 
 To add a newly-installed shared skill:
-`ln -s ../../.agents/skills/<name> .claude/skills/<name>`. `.claude/skills/` is hand-managed.
+`ln -s ../../.agents/skills/<name> .claude/skills/<name>`. `.claude/skills/` is hand-managed
+during init and copy; the installers maintain these symlinks automatically.
+
+## Preview Adapter
+
+The UI-design workflow requires a target-owned preview adapter at
+`.agents/scripts/ui-design/preview.sh`. The toolkit does not supply this script — it
+is a project responsibility. The adapter contract is:
+
+- `bash .agents/scripts/ui-design/preview.sh start` — start the preview server
+- `bash .agents/scripts/ui-design/preview.sh probe` — probe the server (exit 0 if ready)
+- `bash .agents/scripts/ui-design/preview.sh stop` — stop the preview server
+
+The installer preserves an existing `preview.sh` in every copy mode (add/override/skip).
+If a target replaces the adapter with a wrapper (e.g., Docker Compose), the new wrapper's
+dependencies may require re-applying the presentation-root permissions.
 
 ## Permissions
 
 `settings.json` encodes the project-wide permission union the skills need: edit
 allowed; read-only git and common Unix commands allowed; `git push` / `gh pr create` /
-`rm` ask first; branch-delete, worktree-remove denied.
+`rm` ask first; branch-delete, worktree-remove denied. The three preview-adapter commands
+are allowed explicitly.
 
 ## Usage
 
-Type `/brainstorm`, `/bugfix`, `/planner`, `/review-plan`, `/review-code`, or `/finish`
-(optionally with an argument, e.g. `/planner plans/2026-05-30-foo/spec.md`).
+Type `/brainstorm`, `/bugfix`, `/finish`, `/idea`, `/implement`, `/planner`,
+`/review-code`, `/review-plan`, or `/ui-design` (optionally with an argument,
+e.g. `/planner plans/2026-05-30-foo/spec.md`).

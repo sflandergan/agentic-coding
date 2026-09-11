@@ -12,6 +12,9 @@ This is a placeholder project description. Replace this section with a one-parag
 - Do not revert, overwrite, or clean up changes you did not make unless the user explicitly asks.
 - Prefer the smallest correct change over broad refactors.
 - Prefer `git rm` over raw `rm` for tracked files.
+- Workers edit only the files their task or role assigns; controllers own dispatch and acceptance.
+<!-- TODO: Replace the scratch location below with the repository's own convention, e.g. an app-specific temp folder under /tmp with restricted permissions. -->
+- Throwaway work goes below the repository's designated scratch location; clean up after use.
 
 ## Git Conventions
 
@@ -48,7 +51,23 @@ When a workflow change affects both pipelines, update both definitions in the sa
 ## Permissions
 
 - Do not delete branches or remove worktrees.
-- Do not force-push.
+- Do not force-push. The only exception is an explicitly authorized retained-head
+  update through `git-publish` with `--existing-pr`, `--expected-head`, and
+  `--head-branch`, which uses a fully qualified lease
+  (`--force-with-lease=refs/heads/<head>:<expected-sha>`) and never falls back
+  to bare `--force` or `-f`.
+- All branch publication must go through
+  `bash .agents/skills/git-publish/scripts/publish-branch.sh`.
+  Never invoke `git push` or `gh pr create` directly.
+- The UI-design workflow verifies presentation output via a target-owned preview adapter
+  at `.agents/scripts/ui-design/preview.sh`. The toolkit does not supply this script.
+  Permissions for `start`, `probe`, and `stop` are encoded in `.claude/settings.json`.
+- The `implement-task` worker is a subagent dispatched by the `implement` controller.
+  It edits only assigned files, runs role-defined verification, and returns a structured
+  status report. It does not create PRs, push branches, or publish change requests.
+- The `ui-design-task` worker is a subagent dispatched by the `ui-design` controller.
+  It edits only presentation files within its owned scope and does not run tests,
+  verification, or commits.
 
 ## Extending the Toolkit
 

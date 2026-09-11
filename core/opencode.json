@@ -1,36 +1,47 @@
 {
   "agent": {
     "brainstorm": {
-      "model": "opencode-go/qwen3.7-max"
+      "model": "opencode-go/glm-5.3-flash"
     },
     "bugfix": {
-      "model": "opencode-go/kimi-k2.7-code"
+      "model": "opencode-go/qwen3.8-flash"
     },
     "explore": {
       "model": "opencode-go/mimo-v2.5"
     },
     "finish": {
-      "model": "opencode-go/mimo-v2.5-pro"
+      "model": "opencode-go/qwen3.8-flash"
+    },
+    "idea": {
+      "model": "opencode-go/glm-5.3-flash"
     },
     "implement": {
-      "model": "opencode-go/mimo-v2.5-pro"
+      "model": "opencode-go/qwen3.8-flash"
     },
     "implement-task": {
-      "model": "opencode-go/mimo-v2.5",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "high",
       "mode": "subagent"
     },
     "planner": {
-      "model": "opencode-go/mimo-v2.5-pro"
+      "model": "opencode-go/qwen3.8-flash"
     },
     "review-code": {
-      "model": "opencode-go/kimi-k2.7-code"
+      "model": "opencode-go/glm-5.3-flash"
     },
     "review-plan": {
-      "model": "opencode-go/kimi-k2.7-code"
+      "model": "opencode-go/glm-5.3-flash"
+    },
+    "ui-design": {
+      "model": "opencode-go/glm-5.3-flash"
+    },
+    "ui-design-task": {
+      "model": "opencode-go/qwen3.8-flash",
+      "mode": "subagent"
     }
   },
   "default_agent": "brainstorm",
-  "model": "opencode-go/deepseek-v4-pro",
+  "model": "opencode-go/qwen3.8-flash",
   "small_model": "opencode-go/deepseek-v4-flash",
   "permission": {
     "bash": {

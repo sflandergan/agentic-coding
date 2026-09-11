@@ -148,7 +148,6 @@ done
 # ---------------------------------------------------------------------------
 # 5. Prompt for model option
 # ---------------------------------------------------------------------------
-OPENAI_BRAINSTORM=false
 echo ""
 echo "Select model option:"
 select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
@@ -159,10 +158,6 @@ select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
       ;;
     "opencode-go + OpenAI")
       MODELS="opencode-go+openai"
-      echo ""
-      if ask_yn "Also override brainstorm to openai/gpt-5.5?" "n"; then
-        OPENAI_BRAINSTORM=true
-      fi
       break
       ;;
     *)
@@ -280,12 +275,7 @@ done
 
 # --- 6f. OpenAI patch (model option) ---
 if [[ "$MODELS" == "opencode-go+openai" ]]; then
-  if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
-    OPENAI_PATCH_FILE="$ROOT/core/models-openai-brainstorm.json"
-  else
-    OPENAI_PATCH_FILE="$ROOT/core/models-openai.json"
-  fi
-  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$OPENAI_PATCH_FILE" > "$STAGE/opencode.json.tmp"
+  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$ROOT/core/models-openai.json" > "$STAGE/opencode.json.tmp"
   mv "$STAGE/opencode.json.tmp" "$STAGE/opencode.json"
 fi
 
@@ -331,9 +321,12 @@ fi
 # ---------------------------------------------------------------------------
 if [[ -f "$TARGET/opencode.json" ]]; then
   if [[ "$OVERRIDE_MODELS" == "true" ]]; then
-    # Overlay the selected model values (top-level model/small_model and each
-    # agent's model) onto the existing file. Provider/permission keys and any
-    # existing per-agent customizations are preserved.
+    # Overlay the selected model profile onto the existing file. For each
+    # staged agent: take the staged model, take the staged variant when the
+    # profile provides one (dropping a stale target variant otherwise), and
+    # retain the staged subagent mode for worker entries. Permissions,
+    # prompts, colors, modes not set by the profile, and any other existing
+    # per-agent customization are preserved.
     jq -s '
       .[0] as $existing | .[1] as $staged |
       $existing
@@ -342,7 +335,14 @@ if [[ -f "$TARGET/opencode.json" ]]; then
       | .agent = (
           reduce ($staged.agent // {} | to_entries[]) as $e
             ($existing.agent // {};
-             .[$e.key] = ((.[$e.key] // $e.value) + {model: $e.value.model}))
+             .[$e.key] = (
+               (.[$e.key] // $e.value)
+               | .model = $e.value.model
+               | if ($e.value | has("variant")) then .variant = $e.value.variant
+                 else del(.variant)
+                 end
+               | if ($e.value | has("mode")) then .mode = $e.value.mode else . end
+             ))
         )
     ' "$TARGET/opencode.json" "$STAGE/opencode.json" > "$STAGE/opencode.json.tmp"
     mv "$STAGE/opencode.json.tmp" "$TARGET/opencode.json"
@@ -407,43 +407,27 @@ for agent_file in "$STAGE/.opencode/agents/"*.md; do
 done
 
 # ---------------------------------------------------------------------------
-# 11. .claude/skills/{brainstorm,bugfix,finish,planner,review-code,review-plan}/
-# ---------------------------------------------------------------------------
-echo ""
-CLAUDE_SKILLS=(brainstorm bugfix finish planner review-code review-plan)
-for skill_name in "${CLAUDE_SKILLS[@]}"; do
-  src="$STAGE/.claude/skills/$skill_name"
-  dst="$TARGET/.claude/skills/$skill_name"
-  if [[ -e "$dst" ]]; then
-    if [[ "$SKILLS_MODE" == "override" ]]; then
-      rm -rf "$dst"
-      mkdir -p "$TARGET/.claude/skills"
-      cp -R "$src" "$dst"
-      COPIED+=(".claude/skills/$skill_name/ (overwritten)")
-    else
-      SKIPPED+=(".claude/skills/$skill_name/ (existing, skipped)")
-    fi
-  elif [[ "$SKILLS_MODE" == "skip" ]]; then
-    SKIPPED+=(".claude/skills/$skill_name/ (new, skipped: don't modify)")
-  else
-    mkdir -p "$TARGET/.claude/skills"
-    cp -R "$src" "$dst"
-    COPIED+=(".claude/skills/$skill_name/ (new)")
-  fi
-done
-
-# ---------------------------------------------------------------------------
-# 12. .agents/skills/<authored-skill>/ handling
+# 11. .agents/skills/<authored-skill>/ handling
 # ---------------------------------------------------------------------------
 echo ""
 AUTHORED_SKILLS=(
-  grill-with-docs
-  workflow-bug-analysis
-  workflow-brainstorming
-  workflow-planning
-  workflow-verification
+  brainstorm
+  bugfix
   feature-documentation
+  finish
+  git-publish
   github-pr-comments
+  grill-with-docs
+  idea
+  implement
+  implement-task
+  planner
+  planning-structure
+  review-code
+  review-plan
+  ui-design
+  ui-design-task
+  verification-before-completion
 )
 for skill_name in "${AUTHORED_SKILLS[@]}"; do
   src="$STAGE/.agents/skills/$skill_name"
@@ -469,7 +453,7 @@ for skill_name in "${AUTHORED_SKILLS[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-# 13. .claude/README.md handling
+# 12. .claude/README.md handling
 # ---------------------------------------------------------------------------
 echo ""
 if [[ -f "$TARGET/.claude/README.md" ]]; then
@@ -486,7 +470,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 14. DDD docs and area docs — create missing files only, never overwrite
+# 13. DDD docs and area docs — create missing files only, never overwrite
 #     Silent skip with a printed notice per file.
 # ---------------------------------------------------------------------------
 echo ""
@@ -527,7 +511,7 @@ for subdir in agents contexts adr features; do
 done
 
 # ---------------------------------------------------------------------------
-# 15. skills-lock.json handling
+# 14. skills-lock.json handling
 # ---------------------------------------------------------------------------
 echo ""
 if [[ -f "$TARGET/skills-lock.json" ]]; then
@@ -541,7 +525,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 16. Install remote skills from merged lock file
+# 15. Install remote skills from merged lock file
 # ---------------------------------------------------------------------------
 echo ""
 if [[ "$SKILLS_MODE" == "skip" ]]; then
@@ -585,7 +569,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 17. Print summary
+# 16. Print summary
 # ---------------------------------------------------------------------------
 echo ""
 echo "========================================"
@@ -596,11 +580,6 @@ echo "  Target: $TARGET"
 echo "  Stack:  $STACK"
 echo "  Models: $MODELS"
 echo "  Skills: $SKILLS_MODE"
-if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
-  echo "  OpenAI brainstorm override: yes"
-else
-  echo "  OpenAI brainstorm override: no"
-fi
 echo ""
 
 if [[ ${#COPIED[@]} -gt 0 ]]; then
