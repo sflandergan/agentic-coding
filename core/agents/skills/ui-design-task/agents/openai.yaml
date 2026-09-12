@@ -1,0 +1,5 @@
+interface:
+  display_name: "UI Design Task"
+  short_description: "Presentation-only worker for one self-contained UI-design slice — edits permitted presentation files within its owned scope."
+policy:
+  allow_implicit_invocation: false

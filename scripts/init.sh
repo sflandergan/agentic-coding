@@ -65,7 +65,6 @@ done
 # ---------------------------------------------------------------------------
 # 3. Prompt for model option
 # ---------------------------------------------------------------------------
-OPENAI_BRAINSTORM=false
 echo ""
 echo "Select model option:"
 select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
@@ -76,12 +75,6 @@ select MODEL_choice in "opencode-go only" "opencode-go + OpenAI"; do
       ;;
     "opencode-go + OpenAI")
       MODELS="opencode-go+openai"
-      echo ""
-      read -rp "Also override brainstorm to openai/gpt-5.5? [y/N]: " BRAINSTORM_REPLY
-      BRAINSTORM_REPLY_LOWER="$(echo "${BRAINSTORM_REPLY:-n}" | tr '[:upper:]' '[:lower:]')"
-      if [[ "$BRAINSTORM_REPLY_LOWER" == "y" || "$BRAINSTORM_REPLY_LOWER" == "yes" ]]; then
-        OPENAI_BRAINSTORM=true
-      fi
       break
       ;;
     *)
@@ -208,12 +201,7 @@ rm -f "$_seen_tmp"
 
 # --- 5f. OpenAI patch (model option) ---
 if [[ "$MODELS" == "opencode-go+openai" ]]; then
-  if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
-    OPENAI_PATCH_FILE="$ROOT/core/models-openai-brainstorm.json"
-  else
-    OPENAI_PATCH_FILE="$ROOT/core/models-openai.json"
-  fi
-  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$OPENAI_PATCH_FILE" > "$STAGE/opencode.json.tmp"
+  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$ROOT/core/models-openai.json" > "$STAGE/opencode.json.tmp"
   mv "$STAGE/opencode.json.tmp" "$STAGE/opencode.json"
 fi
 
@@ -231,13 +219,23 @@ echo "Staged files copied to $TARGET"
 # Each symlink lives at TARGET/.claude/skills/<name> and points to
 # ../../.agents/skills/<name> (relative from the .claude/skills dir).
 AUTHORED_SKILLS=(
-  "grill-with-docs"
-  "workflow-bug-analysis"
-  "workflow-brainstorming"
-  "workflow-planning"
-  "workflow-verification"
+  "brainstorm"
+  "bugfix"
   "feature-documentation"
+  "finish"
+  "git-publish"
   "github-pr-comments"
+  "grill-with-docs"
+  "idea"
+  "implement"
+  "implement-task"
+  "planner"
+  "planning-structure"
+  "review-code"
+  "review-plan"
+  "ui-design"
+  "ui-design-task"
+  "verification-before-completion"
 )
 
 mkdir -p "$TARGET/.claude/skills"
@@ -245,9 +243,18 @@ for skill_name in "${AUTHORED_SKILLS[@]}"; do
   ln -sfn "../../.agents/skills/$skill_name" "$TARGET/.claude/skills/$skill_name"
 done
 
-# Verify user-invocable: false in each authored skill's SKILL.md
-echo "Verifying authored skill frontmatter..."
-for skill_name in "${AUTHORED_SKILLS[@]}"; do
+# Verify user-invocable: false in hidden support skills' SKILL.md
+echo "Verifying hidden support skill frontmatter..."
+HIDDEN_SKILLS=(
+  "feature-documentation"
+  "git-publish"
+  "github-pr-comments"
+  "implement-task"
+  "planning-structure"
+  "ui-design-task"
+  "verification-before-completion"
+)
+for skill_name in "${HIDDEN_SKILLS[@]}"; do
   skill_md="$TARGET/.agents/skills/$skill_name/SKILL.md"
   if [[ -f "$skill_md" ]]; then
     if ! grep -q "user-invocable: false" "$skill_md"; then
@@ -305,11 +312,6 @@ echo ""
 echo "  Target:      $TARGET"
 echo "  Stack:       $STACK"
 echo "  Models:      $MODELS"
-if [[ "$OPENAI_BRAINSTORM" == "true" ]]; then
-  echo "  OpenAI brainstorm override: yes"
-else
-  echo "  OpenAI brainstorm override: no"
-fi
 echo ""
 echo "Installed assets:"
 echo "  - OpenCode agents in .opencode/agents/"

@@ -42,26 +42,35 @@
       "Bash(which:*)",
       "Bash(mkdir:*)",
 
-      "Bash(bash .claude/skills/github-pr-comments/scripts/fetch-pr-comments.sh:*)",
-      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/create-bug-issue.sh:*)",
+      "Bash(bash .agents/skills/github-pr-comments/scripts/fetch-pr-comments.sh:*)",
+      "Bash(bash .agents/skills/bugfix/scripts/create-bug-issue.sh:*)",
+      "Bash(bash .agents/skills/git-publish/scripts/publish-branch.sh)",
+      "Bash(bash .agents/skills/git-publish/scripts/publish-branch.sh --existing-pr * --expected-head * --head-branch *)",
+      "Bash(bash .agents/skills/finish/scripts/publish-and-ready.sh)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
-      "Bash(gh search issues:*)"
+      "Bash(gh search issues:*)",
+      "Bash(bash .agents/scripts/ui-design/preview.sh start)",
+      "Bash(bash .agents/scripts/ui-design/preview.sh probe)",
+      "Bash(bash .agents/scripts/ui-design/preview.sh stop)"
     ],
     "ask": [
       "Bash(git push:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(gh pr create:*)",
       "Bash(rm:*)",
       "Bash(rm -rf:*)",
-      "Bash(bash .claude/skills/github-pr-comments/scripts/reply-to-pr-comment.sh:*)",
-      "Bash(bash .claude/skills/workflow-bug-analysis/scripts/update-bug-issue.sh:*)"
+      "Bash(bash .agents/skills/github-pr-comments/scripts/reply-to-pr-comment.sh:*)",
+      "Bash(bash .agents/skills/bugfix/scripts/update-bug-issue.sh:*)"
     ],
     "deny": [
       "Bash(git branch -d:*)",
       "Bash(git branch -D:*)",
-      "Bash(git worktree remove:*)"
+      "Bash(git worktree remove:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push origin --force:*)",
+      "Bash(git push origin -f:*)",
+      "Bash(git push * --force:*)",
+      "Bash(git push * -f:*)"
     ]
   }
 }

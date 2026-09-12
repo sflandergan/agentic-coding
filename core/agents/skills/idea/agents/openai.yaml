@@ -1,0 +1,5 @@
+interface:
+  display_name: "Idea"
+  short_description: "Turns a business idea into a correctly labeled issue (or a reasoned rejection) through owner dialogue grounded in business context."
+policy:
+  allow_implicit_invocation: false

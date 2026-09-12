@@ -1,104 +1,61 @@
 ---
 name: feature-documentation
-description: Use when writing or updating durable feature reference documentation under docs/features
+description: Use when deciding, writing, merging, or updating compact package-driven capability maps under docs/features
 user-invocable: false
 ---
 
-# Feature Documentation
+# Compact Feature Maps
 
-## Overview
+## Purpose and applicability
 
-Write durable feature reference documentation for engineers and product readers. A feature doc explains what exists, how it behaves, where it lives, and which boundaries matter. It is not a status report, implementation diary, PR summary, or verification log.
+A feature map gives a compact overview of what has been built for a named capability, then points to the main packages and stable entry points used to extend it, and finally notes the non-obvious decisions that constrain extending it. It is not durable documentation for every endpoint, UI, job, fix, or delivery.
 
-Use this skill whenever creating or updating `docs/features/*.md`.
+- A feature map exists only when it materially helps an engineer understand or extend a named capability or exposes a non-obvious ADR constraint.
+- Omit or merge a map when the capability does not stand alone or its packages are already clear from a broader map.
+- API and frontend surfaces of one capability belong in one map unless each surface is independently extendable.
+- Prefer one map per durable package-spanning capability; do not create refinement or workflow-stage micro-maps.
 
-## Required Style
+## Required investigation
 
-- Write in present tense: describe current behavior.
-- Prefer concrete names: routes, job names, table names, config variables, modules, and file paths.
-- Explain ownership boundaries that exist in your project; do not invent roles that the codebase does not actually have.
-- Include only sections that apply to the feature.
-- Keep implementation history out of the doc unless it explains a durable design decision.
+1. Start from the completed diff and changed packages; group affected files by package or feature-module root.
+2. Read `docs/features/README.md` and neighboring maps to detect overlap.
+3. Verify the current package roots and stable entry points in source.
+4. Load applicable architecture guides independently for correctness; do not add them as map back-references.
+5. Read only ADRs whose non-obvious decisions may constrain the capability.
+6. Decide to create, update, merge, rename, remove, or omit the map before writing.
 
-Do not include:
-
-- implementation status such as "implemented", "ready", or "reviewed"
-- dates, commit hashes, branch names, PR numbers, or cleanup notes
-- verification logs or lists of test commands
-- plan/spec file inventories
-- agent handoff language
-
-## Document Shape
-
-Use this sample as the default shape. Rename, omit, or add sections only when the feature needs it. If a section does not apply to the feature, omit it.
+## Default shape
 
 ```markdown
-# <Feature Name> Feature
+# <Capability> Feature Map
 
-Briefly describe what this feature adds in durable product/engineering terms. Write this as reference documentation, not as an implementation status report.
+<Two or three present-tense sentences: what the built capability does, who owns it,
+and the boundary with adjacent capabilities.>
 
-## Scope
+## Main Packages and Entry Points
 
-- User-visible or system capability 1.
-- User-visible or system capability 2.
-- Important boundary or non-goal if useful.
+- `<package-or-feature-module-root>/` — why an engineer starts here.
+- `<stable-entry-file>` — include only when opening the package root is insufficient.
 
-## APIs
+## Non-obvious Decisions
 
-Describe public/internal APIs if the feature adds or changes any.
-
-### Public API
-
-| Method | Route | Purpose |
-|---|---|---|
-| `GET` | `/api/example` | Describe what the route returns and why it exists. |
-
-### Internal APIs
-
-- `METHOD /internal/example` — purpose and important behavior.
-
-## Background Work / Operational Flows
-
-Describe jobs, scripts, or operational flows when the feature includes any.
-
-- `job-name`
-  - What it does.
-  - What state it reads/writes.
-  - Important scheduling, retry, or idempotency behavior.
-
-## Database State
-
-Describe important tables, fields, uniqueness, and ownership boundaries.
-
-- `table_name`
-  - Purpose.
-  - Important keys or lifecycle fields.
-
-## Configuration
-
-- `ENV_VAR` — purpose and default if relevant.
-
-## Main Code Locations
-
-- Area: `path/to/file.ts`, `path/to/directory`
+- [ADR NNNN](../adr/NNNN-slug.md) — the constraint this decision imposes.
 ```
 
-## Writing Workflow
+`## Non-obvious Decisions` is optional and omitted when no qualifying ADR exists. No `## Architecture References` or mandatory `## Scope` section is allowed.
 
-1. Read the relevant plan/spec files to understand the feature scope.
-2. Identify the durable concepts users will need later: APIs, jobs, database state, configuration, workflows, code locations, and operational behavior.
-3. Draft the feature doc using the sample shape above. Omit any section that does not apply.
-4. Remove transient implementation details.
-5. Check that every section answers "what exists and how should I understand/use it?"
+## Authority and ADR policy
 
-## Quality Checklist
+- Maps must not reproduce architecture, schemas, database layouts, algorithms, configuration inventories, tests, rationale, implementation history, status, roadmaps, or verification evidence.
+- Guides own reusable mechanics and change when reusable mechanics or cross-feature boundaries change; glossaries own terminology and change only when domain terminology changes; ADRs own consequential rationale.
+- Include an ADR only when its decision directly constrains extension and is non-obvious beyond general guides.
+- Create or update an ADR only when all three conditions hold: changing the decision would be meaningfully costly, the result is surprising without rationale, and genuine alternatives were considered and traded off.
+- If an implemented ADR-worthy decision lacks reliable evidence of alternatives or rationale, stop and ask the owner; never fabricate a retrospective ADR.
 
-Before handing off, verify the document:
+## Handoff checks
 
-- starts with a one-paragraph feature description
-- has a `## Scope` section
-- includes API/job/database/configuration sections only when relevant
-- includes `## Main Code Locations`
-- avoids status-report language
-- avoids commit hashes, dates, branch names, and verification logs
-- is understandable without opening the original plan files
+- Every listed package or entry point exists.
+- Every ADR link resolves and its decision actually constrains the capability.
+- The map does not duplicate a neighboring capability or split API/UI without independent value.
+- The index is synchronized atomically with every map addition, merge, rename, or removal.
+- Prose is present tense and contains no dates, branches, PRs, plans, status, tests, or verification history.
