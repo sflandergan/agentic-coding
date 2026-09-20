@@ -72,6 +72,28 @@ assert_not() {
 }
 
 # ---------------------------------------------------------------------------
+# Installer scripts are retained for the deprecation window but advertise the
+# setup skill as the replacement.
+# ---------------------------------------------------------------------------
+INIT_WARNING_STDERR="$SCRATCH/init-deprecation-warning.stderr"
+COPY_WARNING_STDERR="$SCRATCH/copy-deprecation-warning.stderr"
+{
+  printf '1\n1\n\n' | bash "$REPO_ROOT/scripts/init.sh" >/dev/null
+} 2>"$INIT_WARNING_STDERR" || true
+{
+  bash "$REPO_ROOT/scripts/copy.sh" "$SCRATCH/missing-project" >/dev/null
+} 2>"$COPY_WARNING_STDERR" || true
+assert "init.sh and copy.sh print deprecation warnings" \
+  bash -c "
+    for warning_file in \"\$3\" \"\$4\"; do
+      grep -Fqx \"\$1\" \"\$warning_file\" && grep -Fqx \"\$2\" \"\$warning_file\" || exit 1
+    done
+  " _ \
+  'WARNING: installer scripts are deprecated and will be removed in the next release.' \
+  'Install the setup skill using the current command documented in README.md.' \
+  "$INIT_WARNING_STDERR" "$COPY_WARNING_STDERR"
+
+# ---------------------------------------------------------------------------
 # Canonical authored skill names
 # ---------------------------------------------------------------------------
 AUTHORED_SKILLS="brainstorm bugfix feature-documentation finish git-publish github-pr-comments grill-with-docs idea implement implement-task planner planning-structure review-code review-plan ui-design ui-design-task verification-before-completion"

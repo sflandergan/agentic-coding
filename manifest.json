@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "release": {
+    "ref": "main",
+    "channel": "preview"
+  },
+  "skills": {
+    "authored": [
+      {
+        "name": "brainstorm",
+        "path": "skills/brainstorm"
+      },
+      {
+        "name": "bugfix",
+        "path": "skills/bugfix"
+      },
+      {
+        "name": "feature-documentation",
+        "path": "skills/feature-documentation"
+      },
+      {
+        "name": "finish",
+        "path": "skills/finish"
+      },
+      {
+        "name": "git-publish",
+        "path": "skills/git-publish"
+      },
+      {
+        "name": "github-pr-comments",
+        "path": "skills/github-pr-comments"
+      },
+      {
+        "name": "grill-with-docs",
+        "path": "skills/grill-with-docs"
+      },
+      {
+        "name": "idea",
+        "path": "skills/idea"
+      },
+      {
+        "name": "implement",
+        "path": "skills/implement"
+      },
+      {
+        "name": "implement-task",
+        "path": "skills/implement-task"
+      },
+      {
+        "name": "planner",
+        "path": "skills/planner"
+      },
+      {
+        "name": "planning-structure",
+        "path": "skills/planning-structure"
+      },
+      {
+        "name": "review-code",
+        "path": "skills/review-code"
+      },
+      {
+        "name": "review-plan",
+        "path": "skills/review-plan"
+      },
+      {
+        "name": "setup",
+        "path": "skills/setup"
+      },
+      {
+        "name": "ui-design",
+        "path": "skills/ui-design"
+      },
+      {
+        "name": "ui-design-task",
+        "path": "skills/ui-design-task"
+      },
+      {
+        "name": "verification-before-completion",
+        "path": "skills/verification-before-completion"
+      }
+    ],
+    "thirdParty": [
+      {
+        "name": "context7-cli",
+        "source": "upstash/context7",
+        "sourceType": "github",
+        "skillPath": "skills/context7-cli/SKILL.md",
+        "commit": "dedb03d589e6e03e8fb5a2b858bd3c853ac6893e",
+        "computedHash": "f22d21491528a0aaaf21a2a7c546428ffd208852473d6afbaf5e2d4845388639"
+      },
+      {
+        "name": "domain-modeling",
+        "source": "mattpocock/skills",
+        "sourceType": "github",
+        "skillPath": "skills/engineering/domain-modeling/SKILL.md",
+        "commit": "272f99b22574f50e4266791c86b9302682970e23",
+        "computedHash": "67343881f5def98487d56243155716110afbcbf22ec92421c882d532b941cb17"
+      },
+      {
+        "name": "grilling",
+        "source": "mattpocock/skills",
+        "sourceType": "github",
+        "skillPath": "skills/productivity/grilling/SKILL.md",
+        "commit": "272f99b22574f50e4266791c86b9302682970e23",
+        "computedHash": "bf1e75d96966edd298902d63348c828921b8b095d7306d0cdd56b4a591a7a82b"
+      },
+      {
+        "name": "impeccable",
+        "source": "pbakaus/impeccable",
+        "sourceType": "github",
+        "skillPath": ".agents/skills/impeccable/SKILL.md",
+        "commit": "f2c7051853848826aac2f4646581d62a732155ad",
+        "computedHash": "d4cfdc3b7a18041ff02e1ad4b6377450e978e10928ba7e96377ff7d66994b490"
+      },
+      {
+        "name": "writing-skills",
+        "source": "obra/superpowers",
+        "sourceType": "github",
+        "skillPath": "skills/writing-skills/SKILL.md",
+        "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+        "computedHash": "e5dfc1a942f56dc757421b0d87ae1f38ab693ebc71138e65268fd408bb5c93d3"
+      },
+      {
+        "name": "test-driven-development",
+        "source": "obra/superpowers",
+        "sourceType": "github",
+        "skillPath": "skills/test-driven-development/SKILL.md",
+        "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+        "computedHash": "a4126a9c5f17be3c228aa9e5755898ade283448b86099f56f40852e8c14532be"
+      }
+    ]
+  },
+  "opencode": {
+    "primary": [
+      "brainstorm",
+      "bugfix",
+      "idea",
+      "planner",
+      "implement",
+      "review-plan",
+      "review-code",
+      "finish",
+      "ui-design"
+    ],
+    "subagents": [
+      "implement-task",
+      "ui-design-task"
+    ]
+  },
+  "subagents": {
+    "claude": [
+      "implement-task",
+      "ui-design-task"
+    ],
+    "codex": [
+      "implement-task",
+      "ui-design-task"
+    ],
+    "opencode": [
+      "implement-task",
+      "ui-design-task"
+    ]
+  },
+  "nativeAssets": [
+    {
+      "id": "opencode-primary:brainstorm",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/brainstorm.md",
+      "projectTarget": ".opencode/agents/brainstorm.md",
+      "globalTarget": "agent/brainstorm.md",
+      "releaseHash": "75bb292716b085c92ec2e18141d5bef78a228d8d89f82aefc8cbd905cfd19aac"
+    },
+    {
+      "id": "opencode-primary:bugfix",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/bugfix.md",
+      "projectTarget": ".opencode/agents/bugfix.md",
+      "globalTarget": "agent/bugfix.md",
+      "releaseHash": "7e00a3b79106f31f578030579d2c0081cc30c30c80dc2bf066eba23d6f817e3e"
+    },
+    {
+      "id": "opencode-primary:finish",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/finish.md",
+      "projectTarget": ".opencode/agents/finish.md",
+      "globalTarget": "agent/finish.md",
+      "releaseHash": "66c3be9abddf33d4c80cf7e2e1b39746a6866babb326d55642d11830ba857461"
+    },
+    {
+      "id": "opencode-primary:idea",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/idea.md",
+      "projectTarget": ".opencode/agents/idea.md",
+      "globalTarget": "agent/idea.md",
+      "releaseHash": "e435a6bc635f4d8d72f827c46a79ac845c3d365696da7e4c9007e0627f92d7a8"
+    },
+    {
+      "id": "opencode-primary:implement",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/implement.md",
+      "projectTarget": ".opencode/agents/implement.md",
+      "globalTarget": "agent/implement.md",
+      "releaseHash": "1cc50edf086d856ff121234f297ab4574086b35fa86fcf189df9579b1ad58406"
+    },
+    {
+      "id": "opencode-primary:planner",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/planner.md",
+      "projectTarget": ".opencode/agents/planner.md",
+      "globalTarget": "agent/planner.md",
+      "releaseHash": "0f43823695e838a97bd0092dd552dd5339cb8c2c497c957d7a8e29ea0131c253"
+    },
+    {
+      "id": "opencode-primary:review-code",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/review-code.md",
+      "projectTarget": ".opencode/agents/review-code.md",
+      "globalTarget": "agent/review-code.md",
+      "releaseHash": "57dffdefc4147bb6068c3d749789a91db62d832e6a2ddc8723f32672d110ec1b"
+    },
+    {
+      "id": "opencode-primary:review-plan",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/review-plan.md",
+      "projectTarget": ".opencode/agents/review-plan.md",
+      "globalTarget": "agent/review-plan.md",
+      "releaseHash": "2e5c48606bb15f02f3a8311c61dcdfab6ae51792ed570f0927acd6414f0b4e1b"
+    },
+    {
+      "id": "opencode-primary:ui-design",
+      "kind": "agent",
+      "harness": "opencode",
+      "source": "agents/opencode/primary/ui-design.md",
+      "projectTarget": ".opencode/agents/ui-design.md",
+      "globalTarget": "agent/ui-design.md",
+      "releaseHash": "acaad4c812490916e28031c96b375b12cad117c4353f18840336726a87e32964"
+    },
+    {
+      "id": "opencode-subagent:implement-task",
+      "kind": "subagent",
+      "harness": "opencode",
+      "source": "agents/opencode/subagents/implement-task.md",
+      "projectTarget": ".opencode/agents/implement-task.md",
+      "globalTarget": "agent/implement-task.md",
+      "releaseHash": "7344452fb59245f306e71b404658c0360db0dc144084e6caefb4ac7a4e0d6022"
+    },
+    {
+      "id": "opencode-subagent:ui-design-task",
+      "kind": "subagent",
+      "harness": "opencode",
+      "source": "agents/opencode/subagents/ui-design-task.md",
+      "projectTarget": ".opencode/agents/ui-design-task.md",
+      "globalTarget": "agent/ui-design-task.md",
+      "releaseHash": "5f2eeceb8935823d79dedb987ebc936ef4647e521a49b01ce1ecb1217162d6d4"
+    },
+    {
+      "id": "claude-subagent:implement-task",
+      "kind": "subagent",
+      "harness": "claude-code",
+      "source": "agents/claude/implement-task.md",
+      "projectTarget": ".claude/agents/implement-task.md",
+      "globalTarget": "agents/implement-task.md",
+      "releaseHash": "044d2b958f5e89f3990a28d3640cb683b96b1a95e740cd76c4d375c2c91d1f58"
+    },
+    {
+      "id": "claude-subagent:ui-design-task",
+      "kind": "subagent",
+      "harness": "claude-code",
+      "source": "agents/claude/ui-design-task.md",
+      "projectTarget": ".claude/agents/ui-design-task.md",
+      "globalTarget": "agents/ui-design-task.md",
+      "releaseHash": "085efe0f7f4cd0d003c1a285f25ebe0461f103602f72d2504689d34fb76ce00c"
+    },
+    {
+      "id": "codex-subagent:implement-task",
+      "kind": "subagent",
+      "harness": "codex",
+      "source": "agents/codex/implement-task.toml",
+      "projectTarget": ".codex/agents/implement-task.toml",
+      "globalTarget": "agents/implement-task.toml",
+      "releaseHash": "a07da052809a01101ae60961fd96f50ede53f9241840ce5625836434e296a485"
+    },
+    {
+      "id": "codex-subagent:ui-design-task",
+      "kind": "subagent",
+      "harness": "codex",
+      "source": "agents/codex/ui-design-task.toml",
+      "projectTarget": ".codex/agents/ui-design-task.toml",
+      "globalTarget": "agents/ui-design-task.toml",
+      "releaseHash": "def46d93ed3cc7f9d5d4800b49ef3f2c1c76fb33c051e77b16787a92d5baba45"
+    }
+  ],
+  "configurationAssets": [
+    {
+      "id": "claude-code:settings",
+      "harness": "claude-code",
+      "source": "templates/claude/settings.json",
+      "projectTarget": ".claude/settings.json",
+      "globalTarget": "settings.json",
+      "format": "json",
+      "mergeStrategy": "permission-union",
+      "sourceHash": "45c22fafda30f63c8196247bab1f786bd70efbc3ce66b40df289df538d35ea5e"
+    },
+    {
+      "id": "codex:config",
+      "harness": "codex",
+      "source": "templates/codex/config.toml",
+      "projectTarget": ".codex/config.toml",
+      "globalTarget": "config.toml",
+      "format": "toml",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "872e51445b6d8209accf692b08d66eeaba5d5b28fb4aef9e3930201e0264afaa"
+    },
+    {
+      "id": "opencode:config",
+      "harness": "opencode",
+      "source": "templates/opencode/opencode.json",
+      "projectTarget": "opencode.json",
+      "globalTarget": "opencode.json",
+      "format": "json",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "64510ba5965cc6a6b9a7c3c68526bcf1619457dedb6fe1f65c670669ea00d959"
+    },
+    {
+      "id": "opencode:model-profile:openai",
+      "harness": "opencode",
+      "source": "templates/opencode/models-openai.json",
+      "projectTarget": "opencode.json",
+      "globalTarget": "opencode.json",
+      "format": "json",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "6ac91025f4309ba001d075b903b8753ff81660eb8219bc7d2a18d9f7a9ffbdce"
+    }
+  ],
+  "templates": {
+    "agentsMd": "templates/AGENTS.md",
+    "roleDocs": "templates/docs/agents",
+    "harnessConfig": {
+      "claude": "templates/claude",
+      "codex": "templates/codex",
+      "opencode": "templates/opencode"
+    }
+  },
+  "documentation": {
+    "agentsMd": {
+      "source": "templates/AGENTS.md",
+      "target": "AGENTS.md"
+    },
+    "roleDocs": {
+      "source": "templates/docs/agents/*",
+      "target": "docs/agents/*"
+    },
+    "claudeMdLink": {
+      "condition": "Claude Code is selected and CLAUDE.md does not exist",
+      "source": "AGENTS.md",
+      "target": "CLAUDE.md",
+      "action": "relative-symlink"
+    }
+  },
+  "assetHashes": {},
+  "requirements": {
+    "node": ">=20",
+    "skillsCli": ">=1.0"
+  },
+  "pluginManifests": {
+    "claude": ".claude-plugin/plugin.json",
+    "codex": ".codex-plugin/plugin.json"
+  },
+  "retired": []
+}

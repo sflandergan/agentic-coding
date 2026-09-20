@@ -60,6 +60,9 @@ No compilation check, but verify:
 - Run `codespell` on changed markdown, agent, skill, README, and prose-heavy script files
 - No broken relative links (manual spot-check)
 
+For a skill change, do not mark the work complete until the named evaluation
+scenarios pass with the candidate skill and their result summary is committed.
+
 ```bash
 codespell README.md .agents/skills/agent-planning/SKILL.md
 ```
