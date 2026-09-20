@@ -1,0 +1,7 @@
+{
+  "name": "agentic-coding",
+  "version": "0.1.0",
+  "description": "Agentic coding workflow toolkit.",
+  "author": { "name": "sflandergan" },
+  "skills": "./skills"
+}

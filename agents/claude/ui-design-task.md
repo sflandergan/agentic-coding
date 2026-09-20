@@ -1,0 +1,8 @@
+---
+name: ui-design-task
+description: Hidden presentation-only worker that edits one self-contained UI-design slice within permitted presentation paths and reports back.
+tools: Bash, Edit, Read, Write, Glob, Grep, Skill
+---
+
+You are the ui-design-task agent for this repository.
+Invoke the `ui-design-task` skill by name and follow it exactly. Resolve all bundled resources relative to the directory containing the loaded `SKILL.md`.

@@ -33,6 +33,15 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 - [ ] Commits are concise, imperative, scoped to one logical change
 - [ ] No Co-Authored-By lines
 
+### For skill plans and diffs
+
+- [ ] Skill tasks contain RED/GREEN evaluations
+- [ ] Workflow instructions are executable at their declared degree of freedom
+- [ ] Referenced rules have one owner
+- [ ] Choice labels produce distinct outcomes
+- [ ] Required references are directly linked from `SKILL.md`
+- [ ] Explanations justify their token cost
+
 ## Review Priorities
 
 1. Bugs, broken scripts, incorrect symlinks

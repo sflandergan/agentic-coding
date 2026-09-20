@@ -16,6 +16,16 @@ Write lightweight implementation plans for this toolkit repo. There is no applic
 
 If the spec covers multiple independent concerns, suggest splitting into separate plans.
 
+## Skill changes
+
+For every task that modifies `skills/**` or `.agents/skills/**`, name:
+
+- the evaluation record;
+- the RED scenario run before edits;
+- the candidate GREEN rerun;
+- the exact reference owner for each new rule;
+- script tests when deterministic behavior changes.
+
 ## File Mapping
 
 Before defining tasks, map out which files will be created or modified. For each file:

@@ -3,7 +3,10 @@
   "skills": {
     "context7-cli": {
       "source": "upstash/context7",
-      "sourceType": "github"
+      "sourceType": "github",
+      "skillPath": "skills/context7-cli/SKILL.md",
+      "commit": "dedb03d589e6e03e8fb5a2b858bd3c853ac6893e",
+      "computedHash": "f22d21491528a0aaaf21a2a7c546428ffd208852473d6afbaf5e2d4845388639"
     },
     "domain-modeling": {
       "source": "mattpocock/skills",
@@ -23,16 +26,21 @@
       "source": "pbakaus/impeccable",
       "sourceType": "github",
       "skillPath": ".agents/skills/impeccable/SKILL.md",
-      "computedHash": "e07098370ad7fd4605b67d305d8c06623a5c7d7737d2364e30932294ef880ff6"
+      "commit": "f2c7051853848826aac2f4646581d62a732155ad",
+      "computedHash": "d4cfdc3b7a18041ff02e1ad4b6377450e978e10928ba7e96377ff7d66994b490"
     },
     "writing-skills": {
       "source": "obra/superpowers",
-      "sourceType": "github"
+      "sourceType": "github",
+      "skillPath": "skills/writing-skills/SKILL.md",
+      "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+      "computedHash": "e5dfc1a942f56dc757421b0d87ae1f38ab693ebc71138e65268fd408bb5c93d3"
     },
     "test-driven-development": {
       "source": "obra/superpowers",
       "sourceType": "github",
       "skillPath": "skills/test-driven-development/SKILL.md",
+      "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
       "computedHash": "a4126a9c5f17be3c228aa9e5755898ade283448b86099f56f40852e8c14532be"
     }
   }
