@@ -8,16 +8,19 @@
   },
   "agent": {
     "build": {
-      "disable": true
+      "model": "opencode-go/glm-5.3-flash"
+    },
+    "explore": {
+      "model": "opencode-go/mimo-v2.5"
     },
     "plan": {
       "disable": true
     },
     "planning": {
-      "model": "opencode-go/qwen3.8-flash"
+      "model": "opencode-go/glm-5.3-flash"
     },
     "implement": {
-      "model": "opencode-go/qwen3.8-flash"
+      "model": "opencode-go/glm-5.3-flash"
     },
     "implement-task": {
       "model": "openai/gpt-5.6-luna",
