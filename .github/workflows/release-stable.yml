@@ -1,0 +1,153 @@
+name: Stable release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Semantic version component to bump for the next stable release'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      source_revision:
+        description: 'Preview source revision (branch or commit SHA; default main)'
+        required: false
+        default: main
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stable-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      BUMP: ${{ inputs.bump }}
+      SOURCE_REVISION: ${{ inputs.source_revision }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Compute and validate the next release version
+        run: |
+          set -euo pipefail
+          version_output="$(bash scripts/prepare-release.sh --compute-version "$BUMP")"
+          mapfile -t version_lines <<< "$version_output"
+          if [[ "${#version_lines[@]}" -ne 2 ]]; then
+            echo "ERROR: expected previous and next versions, got: $version_output" >&2
+            exit 1
+          fi
+          PREVIOUS_VERSION="${version_lines[0]}"
+          VERSION="${version_lines[1]}"
+          semver_regex='^v[0-9]+\.[0-9]+\.[0-9]+$'
+          if [[ ! "$PREVIOUS_VERSION" =~ $semver_regex ]]; then
+            echo "ERROR: previous version does not match ^v[0-9]+\\.[0-9]+\\.[0-9]+\$ : $PREVIOUS_VERSION" >&2
+            exit 1
+          fi
+          if [[ ! "$VERSION" =~ $semver_regex ]]; then
+            echo "ERROR: computed version does not match ^v[0-9]+\\.[0-9]+\\.[0-9]+\$ : $VERSION" >&2
+            exit 1
+          fi
+          if git ls-remote --exit-code origin "refs/tags/$VERSION" >/dev/null 2>&1; then
+            echo "ERROR: remote tag already exists: $VERSION — resolve explicitly, never force-push." >&2
+            exit 1
+          fi
+          echo "PREVIOUS_VERSION=$PREVIOUS_VERSION" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Bumping version from $PREVIOUS_VERSION to $VERSION"
+
+      - name: Resolve the source revision to one immutable commit
+        run: |
+          set -euo pipefail
+          if [[ "$SOURCE_REVISION" =~ ^[0-9a-f]{40}$ ]]; then
+            git cat-file -e "$SOURCE_REVISION^{commit}" 2>/dev/null || {
+              echo "ERROR: source revision is not a reachable commit: $SOURCE_REVISION" >&2
+              exit 1
+            }
+            source_commit="$SOURCE_REVISION"
+          else
+            refs="$(git ls-remote origin "refs/heads/$SOURCE_REVISION")"
+            count="$(printf '%s\n' "$refs" | grep -c . || true)"
+            if [[ "$count" -ne 1 ]]; then
+              echo "ERROR: source revision did not resolve to exactly one branch: $SOURCE_REVISION" >&2
+              exit 1
+            fi
+            source_commit="$(printf '%s\n' "$refs" | cut -f1)"
+            git fetch --quiet origin "$source_commit"
+          fi
+          git checkout --quiet "$source_commit"
+          echo "SOURCE_COMMIT=$source_commit" >> "$GITHUB_ENV"
+          echo "Releasing $VERSION from source commit $source_commit"
+
+      - name: Install bats
+        run: npm install --global bats@1.11.0
+
+      - name: Prepare the stable manifest
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/prepare-release" bash scripts/prepare-release.sh "$VERSION"
+
+      - name: Commit the release-only manifest change
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit --quiet -m "release: prepare $VERSION"
+          remaining="$(git status --porcelain)"
+          if [[ -n "$remaining" ]]; then
+            echo "ERROR: unexpected working-tree changes after the release commit:" >&2
+            printf '%s\n' "$remaining" >&2
+            exit 1
+          fi
+          release_commit="$(git rev-parse HEAD)"
+          echo "RELEASE_COMMIT=$release_commit" >> "$GITHUB_ENV"
+          echo "Release commit: $release_commit"
+
+      - name: Tag and verify the tagged tree locally
+        run: |
+          set -euo pipefail
+          git tag -a "$VERSION" -m "Release $VERSION"
+          if [[ "$(git rev-parse "$VERSION^{commit}")" != "$RELEASE_COMMIT" ]]; then
+            echo "ERROR: tag $VERSION does not peel to the release commit." >&2
+            exit 1
+          fi
+          git cat-file -e "$VERSION:manifest.json"
+          git cat-file -e "$VERSION:skills/setup/SKILL.md"
+          git show "$VERSION:manifest.json" \
+            | jq -e --arg ref "$VERSION" '.release.ref == $ref and .release.channel == "stable"'
+          git worktree add --quiet "$RUNNER_TEMP/tag-tree" "$VERSION"
+          bash "$RUNNER_TEMP/tag-tree/scripts/validate-release.sh"
+
+      - name: Push only the release tag
+        run: git push origin "refs/tags/$VERSION"
+
+      - name: Verify the published tag on the remote
+        run: |
+          set -euo pipefail
+          git fetch --quiet --no-tags origin "refs/tags/$VERSION:refs/remotes/origin/tags/$VERSION"
+          remote_commit="$(git rev-parse "refs/remotes/origin/tags/$VERSION^{commit}")"
+          if [[ "$remote_commit" != "$RELEASE_COMMIT" ]]; then
+            echo "ERROR: remote tag $VERSION points at $remote_commit, expected $RELEASE_COMMIT." >&2
+            exit 1
+          fi
+          git show "refs/remotes/origin/tags/$VERSION:manifest.json" \
+            | jq -e --arg ref "$VERSION" '.release.ref == $ref and .release.channel == "stable"'
+          echo "Verified: $VERSION -> $remote_commit"
+
+      - name: Report failure context
+        if: failure()
+        run: |
+          echo "Stable release failed for version ${VERSION:-<unset>}."
+          echo "Local release commit: ${RELEASE_COMMIT:-<not created>}."
+          echo "Nothing was published unless the push step already succeeded."
+          echo "Never force-push, delete, or move a published tag; resolve mismatches explicitly."
