@@ -374,72 +374,61 @@ The `ui-design` workflow verifies presentation output differently from code impl
 
 ## Maintainers: releasing the toolkit
 
-The release source of truth is `manifest.json` at the repository root. Before
-tagging a release. Follow this order so the tag is verified locally before it
-is published and the remote is checked only after publication:
+Stable releases are published by the manual **Stable release** workflow
+(`.github/workflows/release-stable.yml`). `main` permanently declares
+`main`/`preview`; stable release metadata is never committed to `main`. The
+workflow builds a release-only commit on top of the selected preview revision,
+tags it, and pushes only the tag, so preview tracking repositories are never
+disturbed by metadata-restoration commits.
 
-1. Choose a stable semantic-version `release_ref` and update `manifest.json`.
-   Fill the declared asset hashes when managed assets change; a release tag uses
-   the chosen ref and `stable` while the development state uses `main` and
-   `preview`.
+To publish a release, dispatch the workflow with a bump selector:
 
-   ```bash
-   toolkit_remote='https://github.com/sflandergan/agentic-coding'
-   release_ref='vMAJOR.MINOR.PATCH'
-   release_path='.temp/release.json'
-   mkdir -p .temp
-   jq --arg ref "$release_ref" '.release.ref = $ref | .release.channel = "stable"' manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json
-   jq -e --arg ref "$release_ref" '.release.ref == $ref and .release.channel == "stable"' manifest.json
-   ```
+```bash
+gh workflow run release-stable.yml --ref main -f bump=patch
+```
 
-2. Run the release validator and the setup test suite:
+The workflow computes the next version from the highest existing stable tag
+(a `patch` bump of `v2.1.0` publishes `v2.1.1`). Optionally pass
+`-f source_revision=<branch-or-sha>` to release from a specific preview
+revision (default `main`). The workflow validates the computed version and
+repository state, prepares the stable manifest with
+`scripts/prepare-release.sh`, runs `scripts/validate-release.sh` and the setup
+test suite, creates the release-only commit and annotated tag, verifies the
+tagged tree locally, pushes only `refs/tags/<version>`, and re-resolves the
+published tag from the remote.
 
-   ```bash
-   scripts/validate-release.sh
-   SCRATCH="$PWD/.temp/setup-release-tests" bats skills/setup/test/*.bats
-   ```
+After the run succeeds, verify the release manually:
 
-3. Commit the validated manifest and release source, then record the intended
-   release commit:
+```bash
+toolkit_remote='https://github.com/sflandergan/agentic-coding'
+release_ref='v2.1.1'
+release_path='.temp/release.json'
+mkdir -p .temp
+skills/setup/scripts/resolve-release.sh "$toolkit_remote" stable "$release_ref" "$release_path"
+jq -e --arg ref "$release_ref" '.ref == $ref and .channel == "stable"' "$release_path"
+```
 
-   ```bash
-   git add manifest.json skills agents templates stacks
-   git commit -m "release: prepare $release_ref"
-   release_commit="$(git rev-parse HEAD)"
-   ```
+Recovery rules:
 
-4. Create the annotated tag at that commit:
+- If the workflow fails before the push step, nothing was published; fix the
+  cause and re-run.
+- If the push fails because the remote tag already exists, do not force-push.
+  Compare the remote tag's commit and manifest with the intended release and
+  resolve the conflict explicitly.
+- If post-push verification reports a mismatch, leave the immutable tag in
+  place and investigate; never delete or move a published tag.
 
-   ```bash
-   git tag -a "$release_ref" -m "Release $release_ref"
-   ```
+To exercise the preparation mechanics locally without pushing, run the script
+against a scratch clone in `.temp/`:
 
-5. Verify the tag locally before publishing. Its peeled commit must equal the
-   intended release commit, and its tree must contain the matching manifest and
-   setup skill:
-
-   ```bash
-   test "$(git rev-parse "$release_ref^{commit}")" = "$release_commit"
-   git cat-file -e "$release_ref:manifest.json"
-   git cat-file -e "$release_ref:skills/setup/SKILL.md"
-   cmp <(git show "$release_ref:manifest.json") manifest.json
-   jq -e --arg ref "$release_ref" '.release.ref == $ref and .release.channel == "stable"' <(git show "$release_ref:manifest.json")
-   ```
-
-6. Publish the tag only under explicit human control. Publication requires
-   explicit human approval before this command is run:
-
-   ```bash
-   git push origin "$release_ref"
-   ```
-
-7. After the tag exists on the remote, resolve it and require the remote
-   metadata to match the local tagged commit:
-
-   ```bash
-   skills/setup/scripts/resolve-release.sh "$toolkit_remote" stable "$release_ref" "$release_path"
-   jq -e --arg ref "$release_ref" --arg commit "$(git rev-parse "$release_ref^{commit}")" '.ref == $ref and .channel == "stable" and .commit == $commit' "$release_path"
-   ```
+```bash
+rm -rf .temp/release-smoke
+git clone --quiet --branch main . .temp/release-smoke
+(cd .temp/release-smoke && bash scripts/prepare-release.sh --compute-version patch)
+(cd .temp/release-smoke && bash scripts/prepare-release.sh v0.0.999)
+git -C .temp/release-smoke checkout -- manifest.json
+rm -rf .temp/release-smoke
+```
 
 The tagged `manifest.json` and declared assets are the immutable release source
 that setup fetches and verifies.
