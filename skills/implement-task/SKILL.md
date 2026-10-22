@@ -31,7 +31,9 @@ do not invent commands.
    task (or, if none are specified, the role-defined checks from
    `docs/agents/implement-task.md`). Report the command output and exit code in your status
    report. Before reporting `DONE`, apply the `verification-before-completion` skill: do not
-   claim a test passes unless you just ran it and saw it pass.
+   claim a test passes unless you just ran it and saw it pass. Use the testing steps and
+   verification commands the task file specifies; do not load repository testing guides
+   on your own.
 
 4. **No commits, no subdelegation.** Do not commit changes, push, create PRs, amend
    commits, delete branches, remove worktrees, or dispatch subagents. Your job is to

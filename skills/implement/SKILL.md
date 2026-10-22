@@ -122,8 +122,8 @@ task status, or worker reports.
 ## Rules
 
 - **Never implement on `main`.** Create or ask for a scoped branch if needed.
-- **TDD** for behavior changes unless the plan marks the step docs-only,
-  config-only, or trivial wiring.
+- Follow the repository's testing guidance loaded by the role document for test
+  selection and task verification steps.
 - **One focused primary commit per task.** Workers commit their own primary
   commits; accepted corrections keep a focused commit.
 - **Do not pause** between tasks for routine progress approval; stop and ask
