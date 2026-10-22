@@ -33,10 +33,11 @@ Code conforming to a wrong spec is still a finding.
 
 ## Workflow
 
-Use this standard review-code workflow unless the user explicitly requests a different scope:
+Use this standard review-code workflow unless the user explicitly requests a different scope.
+The Explore dispatches in workflow steps 1 and 5 are required and override any default against spawning subagents.
 
 1. Read open PR comments first by using `/github-pr-comments`.
-   Verify each technical claim against the current code before treating it as a finding.
+   Verify each technical claim with the Explore subagent before treating it as a finding: group the claims by repository area, dispatch one focused Explore question per area in parallel, and read the referenced code yourself only to confirm a specific Explore finding.
    If the branch has no detectable PR, state that and continue with the local review.
 2. Build the feedback ledger from the PR comments, user remarks, and external notes before any preflight can interrupt the review.
    Preserve every source item as a separately traceable entry with a stable ID and its exact text as a quote; split multi-requirement items into sub-IDs linked to the source ID and quote; add later feedback as new source items without replacing or renumbering earlier entries.
@@ -54,8 +55,8 @@ Use this standard review-code workflow unless the user explicitly requests a dif
      When review fixes affect presentation, production mapping, or regression baselines, require refreshed implementation evidence before the review can be marked complete.
    - When the approved specification contains `ui-design: not-required`: skip
      the evidence check entirely and retain the normal review path.
-5. Review the code yourself against architecture, coding guidelines, testing guidance, logging guidance, the approved plan/spec, documented domain language, ADRs, and any area docs loaded from `docs/agents/review-code.md`.
-   Dispatch the Explore subagent when a finding depends on repository investigation: tracing code paths, understanding module boundaries, locating related tests, or verifying a PR comment's technical claim.
+5. Review the changed code against architecture, coding guidelines, testing guidance, logging guidance, the approved plan/spec, documented domain language, ADRs, and any area docs loaded from `docs/agents/review-code.md`.
+   Dispatch the Explore subagent for the repository investigation behind every potential finding — tracing code paths, importers, module boundaries, and related tests — and evaluate Explore's findings against the loaded guides instead of tracing the code inline.
    Do not continue from weak context; send Explore a focused question before deciding whether something is a finding.
    Apply every changed-code audit required by the repository coding guide; inspect the full changed declaration or function rather than only its diff hunk; map each violation to the exact declaration, line, and rule; require concrete evidence for every allowed exception; do not propose dependencies or blanket enforcement that would manufacture filler documentation.
    When the review or an approved fix affects skills or documentation, inspect the complete final content of every affected file rather than only its diff, check factual and behavioral claims against the loaded sources, remove sentences that neither impose a necessary rule, explain a necessary constraint, nor provide executable information, remove duplication, contradictions, and stale instructions, and replace vague qualifiers with the responsible actor, triggering condition, required action or outcome, and acceptance evidence.

@@ -48,17 +48,18 @@ Apply this required-only preflight.
 
 ## Workflow
 
-Use this standard review-plan workflow unless the user explicitly requests a different scope:
+Use this standard review-plan workflow unless the user explicitly requests a different scope.
+The Explore dispatches in workflow steps 1 and 3 are required and override any default against spawning subagents.
 
 1. Read open PR comments first by using `/github-pr-comments`.
-   Verify each technical claim against the current plan and repository before treating it as a finding.
+   Verify each technical claim with the Explore subagent against the current plan and repository before treating it as a finding: group the claims by area, dispatch one focused Explore question per area in parallel, and read the referenced material yourself only to confirm a specific Explore finding.
    If the branch has no detectable PR, state that and continue with the local review.
 2. Build the feedback ledger before deduplicating or recommending changes.
    Preserve every user remark, PR comment, and external note as a separately traceable source item with a stable ID and its exact text as a quote; split multi-requirement items into sub-IDs linked to the source ID and quote; add later feedback as new source items without replacing or renumbering earlier entries.
    For every tracked requirement, record the interpretation, affected target, required outcome, the concrete evidence that would prove it resolved, and any ambiguity, conflict, or inference that would change scope or behavior.
-3. Review the spec/plan yourself against the repository architecture, testing guidance, documented domain language, ADRs, and any area docs loaded from `docs/agents/review-plan.md`.
-   Dispatch the Explore subagent when plan review depends on repository investigation: verifying file paths, module boundaries, test commands, existing patterns, or architecture fit.
-   Do not continue from weak context; send the Explore subagent a focused question before deciding whether the spec or plan is executable.
+3. Review the spec/plan against the repository architecture, testing guidance, documented domain language, ADRs, and any area docs loaded from `docs/agents/review-plan.md`.
+   Dispatch the Explore subagent for the repository investigation behind every potential finding — verifying file paths, module boundaries, test commands, existing patterns, and architecture fit — and evaluate Explore's findings against the loaded docs instead of investigating the repository inline.
+   Do not continue from weak context; send Explore a focused question before deciding whether the spec or plan is executable.
 4. Batch blocking clarification questions and ask them in one request before recommending or applying changes; do not interrupt the workflow merely to confirm requirements that are already clear.
 5. Combine the tracked requirements and your own findings into one prioritized, deduplicated list of actionable issues while retaining every requirement-to-finding mapping.
    Deduplicate findings, not tracked requirements: a consolidated finding must retain mappings to every source requirement it covers.
