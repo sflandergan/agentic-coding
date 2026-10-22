@@ -21,6 +21,7 @@ review-fix plan, the `plan.md` and linked `tasks/*.md` in the specific
 
 - **Specs:** clarity, completeness, scope, non-goals, architecture fit, data boundaries, missing edge cases, testability.
 - **Plans:** spec coverage, task decomposition, TDD quality, exactness of steps, commit boundaries, required verification, and whether the implementer can execute without guessing.
+  Assess proposed coverage against the repository's testing guidance loaded by the role document.
 - **Open questions are a blocking finding:** a plan containing an Open Questions
   section or an unresolved fork is not implementable — flag it as blocking.
 - **Split plans:** verify that every task in the `plan.md` index has a corresponding `tasks/*.md` file and vice versa.

@@ -133,11 +133,16 @@ documentation steps into the task whose deliverable needs them; split only
 where a reviewer could meaningfully reject one task while approving its
 neighbor. Each task ends with an independently testable deliverable.
 
-Each step is one action (2-5 minutes): write the failing test → run it to
-verify it fails → implement the minimal code → run the tests to verify they
-pass → commit.
+Choose test steps using the repository's testing guidance loaded by the role
+document. The test-first sequence below applies to behavior changes; each step
+is one action (2-5 minutes): write the failing test → run it to verify it
+fails → implement the minimal code → run the tests to verify they pass →
+commit.
 
 Each task uses this structure:
+
+This example is for a behavior-changing task; use the repository's testing
+guidance for test-only consolidation steps.
 
 **Files:**
 - Create: `exact/path/to/file.py`

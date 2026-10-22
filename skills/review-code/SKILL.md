@@ -19,7 +19,7 @@ Load every relevant document it lists for the area under review.
 ## Review priorities
 
 - Bugs, behavior regressions, data corruption, security, race conditions, broken error handling.
-- Missing or weak tests, especially for repository queries, API boundaries, integrations, and user flows.
+- Test coverage that violates the repository's testing guidance loaded by the role document.
 - Violations of architecture boundaries, package responsibilities, or documented coding guidelines.
 - Deviations from the approved spec or plan.
 - Divergence from documented domain language or decisions named by `docs/agents/review-code.md` — flag for reconciliation and identify whether it is spec/design reconciliation (`/brainstorm`) or finishing documentation cleanup (`/finish`); do not edit glossaries or ADRs yourself.
