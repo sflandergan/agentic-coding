@@ -155,6 +155,10 @@ Claude Code subagents and under `agents/codex/` as Codex TOML subagents:
 
 `implement-task`, `ui-design-task`
 
+Claude Code additionally receives `agents/claude/explore.md`, which shadows the
+built-in `Explore` so repository investigation runs read-only on Haiku instead
+of inheriting the main conversation's model.
+
 OpenCode primary agents dispatch the workers; Claude Code and Codex receive
 the worker subagents without the OpenCode primary-agent layer. Other harnesses
 receive the skills only and have no native agent bundle in this release.

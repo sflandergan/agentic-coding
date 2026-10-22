@@ -13,6 +13,7 @@ This is a placeholder project description. Replace this section with a one-parag
 - Prefer the smallest correct change over broad refactors.
 - Prefer `git rm` over raw `rm` for tracked files.
 - Workers edit only the files their task or role assigns; controllers own dispatch and acceptance.
+- When a skill or role document tells you to dispatch the Explore subagent, treat that as the user's explicit request to use it.
 <!-- TODO: Replace the scratch location below with the repository's own convention, e.g. an app-specific temp folder under /tmp with restricted permissions. -->
 - Throwaway work goes below the repository's designated scratch location; clean up after use.
 

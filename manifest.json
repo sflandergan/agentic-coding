@@ -149,6 +149,7 @@
   },
   "subagents": {
     "claude": [
+      "explore",
       "implement-task",
       "ui-design-task"
     ],
@@ -260,6 +261,15 @@
       "projectTarget": ".opencode/agents/ui-design-task.md",
       "globalTarget": "agent/ui-design-task.md",
       "releaseHash": "5f2eeceb8935823d79dedb987ebc936ef4647e521a49b01ce1ecb1217162d6d4"
+    },
+    {
+      "id": "claude-subagent:explore",
+      "kind": "subagent",
+      "harness": "claude-code",
+      "source": "agents/claude/explore.md",
+      "projectTarget": ".claude/agents/explore.md",
+      "globalTarget": "agents/explore.md",
+      "releaseHash": "d0c65c4d6388ba0d8f48c90e388d379320f0e0ad510b2204a24df3ac8ee7e478"
     },
     {
       "id": "claude-subagent:implement-task",
