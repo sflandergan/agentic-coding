@@ -12,6 +12,10 @@
 - Area docs listed below when the diff touches that area
 - `docs/ARCHITECTURE.md` when the change crosses package or ownership boundaries
 
+## Repo Specifics
+
+- Report a finding for every changed identifier that uses domain-sounding vocabulary the context glossary does not define, naming the identifier and proposing a glossary term or an effect-named alternative.
+
 ## Area Docs
 
 <!-- Add project-specific area docs here. -->

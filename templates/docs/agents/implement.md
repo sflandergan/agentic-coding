@@ -20,6 +20,8 @@
 
 ## Repo Specifics
 
+- When a task or worker report introduces a domain-sounding name the context glossary does not define, do not accept it; return the term to planning or the user before accepting the task as DONE.
+
 <!-- TODO: Replace with repository-specific implementation configuration, such as:
      UI integration startup commands, readiness URLs, and screenshot paths;
      directories the worker may write to during implementation;
