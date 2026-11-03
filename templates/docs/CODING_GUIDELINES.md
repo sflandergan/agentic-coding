@@ -3,6 +3,9 @@
 ## Naming
 
 - Use clear, intention-revealing names that match the domain language in `docs/contexts/*/CONTEXT.md`.
+- Name domain concepts only with terms the relevant `docs/contexts/<context>/CONTEXT.md` glossary defines (find the context through `CONTEXT-MAP.md`), honoring its prohibited-alternatives (_Avoid_) list.
+- Name technical mechanics by their observable effect in the platform's own vocabulary (DOM, HTTP, SQL, or the language and framework in use), for example `focusHeading` rather than `focusAfterAuthoritativeTransition`.
+- When a name needs a domain concept the glossary does not define, do not coin one; raise the term through your workflow role (planner, implement worker, or reviewer).
 - Avoid abbreviations unless the domain already uses them.
 - Prefer full words over single letters except for well-known loop indices and stream/map parameters.
 

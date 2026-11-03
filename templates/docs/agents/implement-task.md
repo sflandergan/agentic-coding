@@ -19,4 +19,6 @@ Run the focused commands named by the task, normally:
 
 ## Repo Specifics
 
+- When a name the task introduces needs a domain concept the context glossary does not define, report `NEEDS_CONTEXT` with the proposed term instead of coining one.
+
 <!-- TODO: Replace with repository-specific task-worker configuration, such as pre-commit checks to run before committing. -->
