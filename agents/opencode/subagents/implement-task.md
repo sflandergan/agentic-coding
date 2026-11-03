@@ -6,7 +6,6 @@ temperature: 0.3
 permission:
   edit: allow
   bash:
-    "*": ask
     "git push *": deny
 
     "git diff *": allow

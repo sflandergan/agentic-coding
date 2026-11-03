@@ -7,8 +7,8 @@ Shared conventions for AI agents maintaining this toolkit repo. This file is loa
 A reusable agentic coding toolkit. The `skills/`, `agents/`, `templates/`, and
 `stacks/` trees are source assets distributed to other repositories by the
 setup skill; `scripts/init.sh` and `scripts/copy.sh` are deprecated transition
-tools. There is no application code, no DDD contexts, and no test suite — only
-markdown templates and bash scripts.
+tools. There is no application code and no DDD contexts — only markdown
+templates and bash scripts, plus the self-maintenance runtime below.
 
 ## Maintenance Surface
 
@@ -21,6 +21,7 @@ The files this repo's agents operate on:
 - `manifest.json`
 - `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`
 - `skills-lock.json` for this repo's self-maintenance skills
+- Self-maintenance runtime: root `opencode.json`, `.opencode/`, `.claude/`
 - `core/skills-lock.json` for third-party skills installed into target repos
 - Deprecated `scripts/init.sh` (~325 lines), `scripts/copy.sh` (~618 lines)
 
@@ -53,6 +54,24 @@ These must stay consistent with the actual files:
 - The dot-mapping table above
 - Agent file names in `agents/opencode/` vs what `templates/opencode/opencode.json` references
 - Plugin manifest component paths vs canonical source files
+- `.opencode/agents/implement-task.md` vs `.claude/agents/implement-task.md` worker contract
+- `opencode.json` agent names vs files under `.opencode/agents/` and `.opencode/prompts/`
+
+## Self-Maintenance Runtime
+
+This repo's own agent runtime follows the build-with-skills model: OpenCode's
+`build` agent (`default_agent`) loads the `agent-*` skills from `.agents/skills/`
+instead of switching between primary agents. Only workers exist as agents:
+
+- `explore` (read-only) and `implement-task` (hidden worker) in OpenCode,
+  configured in `opencode.json` and `.opencode/agents/implement-task.md`.
+- `.claude/agents/explore.md` (symlink to `agents/claude/explore.md`) and
+  `.claude/agents/implement-task.md` in Claude Code.
+- Permissions live in `opencode.json` (`build`, `explore`, global) and
+  `.claude/settings.json`; different runtimes, no shared source, so keep them in
+  sync by hand.
+- `.opencode/plugins/mistral-glm*` adapts Mistral-hosted GLM 5.3 for OpenCode V1.
+  Run its tests from `.opencode/` with `bun test ./plugins/mistral-glm/test`.
 
 ## Skill Lockfile Scopes
 

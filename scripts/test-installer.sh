@@ -156,10 +156,12 @@ for skill_name in $AUTHORED_SKILLS; do
     test "$actual_link" = "../../.agents/skills/$skill_name"
 done
 
-assert "pnpm: .opencode/agents/idea.md exists" \
-  test -f "$PNPM_TARGET/.opencode/agents/idea.md"
-assert "pnpm: .opencode/agents/ui-design.md exists" \
-  test -f "$PNPM_TARGET/.opencode/agents/ui-design.md"
+assert "pnpm: .opencode/agents/explore.md exists" \
+  test -f "$PNPM_TARGET/.opencode/agents/explore.md"
+assert "pnpm: .opencode/agents/implement-task.md exists" \
+  test -f "$PNPM_TARGET/.opencode/agents/implement-task.md"
+assert "pnpm: opencode.json defaults to the build agent" \
+  jq -e '.default_agent == "build"' "$PNPM_TARGET/opencode.json"
 assert "pnpm: .opencode/agents/ui-design-task.md exists" \
   test -f "$PNPM_TARGET/.opencode/agents/ui-design-task.md"
 
@@ -201,10 +203,12 @@ for skill_name in $AUTHORED_SKILLS; do
     test "$actual_link" = "../../.agents/skills/$skill_name"
 done
 
-assert "maven: .opencode/agents/idea.md exists" \
-  test -f "$MAVEN_TARGET/.opencode/agents/idea.md"
-assert "maven: .opencode/agents/ui-design.md exists" \
-  test -f "$MAVEN_TARGET/.opencode/agents/ui-design.md"
+assert "maven: .opencode/agents/explore.md exists" \
+  test -f "$MAVEN_TARGET/.opencode/agents/explore.md"
+assert "maven: .opencode/agents/implement-task.md exists" \
+  test -f "$MAVEN_TARGET/.opencode/agents/implement-task.md"
+assert "maven: opencode.json defaults to the build agent" \
+  jq -e '.default_agent == "build"' "$MAVEN_TARGET/opencode.json"
 assert "maven: .opencode/agents/ui-design-task.md exists" \
   test -f "$MAVEN_TARGET/.opencode/agents/ui-design-task.md"
 

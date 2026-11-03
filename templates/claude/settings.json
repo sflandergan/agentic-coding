@@ -17,6 +17,8 @@
       "Bash(git merge-base:*)",
       "Bash(git rev-parse:*)",
       "Bash(git ls-files:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git check-ignore:*)",
       "Bash(git branch:*)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
@@ -24,6 +26,7 @@
       "Bash(git rm:*)",
       "Bash(git mv:*)",
       "Bash(git rebase:*)",
+      "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "Bash(git pull)",
 
@@ -36,6 +39,9 @@
       "Bash(tail:*)",
       "Bash(wc:*)",
       "Bash(sort:*)",
+      "Bash(diff:*)",
+      "Bash(jq:*)",
+      "Bash(test:*)",
       "Bash(pwd)",
       "Bash(echo:*)",
       "Bash(date:*)",
@@ -47,17 +53,26 @@
       "Bash(bash *scripts/publish-branch.sh)",
       "Bash(bash *scripts/publish-branch.sh --existing-pr * --expected-head * --head-branch *)",
       "Bash(bash *scripts/publish-and-ready.sh)",
+      "Bash(bash *scripts/ensure-fresh.sh:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
       "Bash(gh search issues:*)",
+      "Bash(gh label list:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
       "Bash(bash .agents/scripts/ui-design/preview.sh start)",
       "Bash(bash .agents/scripts/ui-design/preview.sh probe)",
       "Bash(bash .agents/scripts/ui-design/preview.sh stop)"
     ],
     "ask": [
-      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
       "Bash(rm:*)",
       "Bash(rm -rf:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue edit:*)",
       "Bash(bash *scripts/reply-to-pr-comment.sh:*)",
       "Bash(bash *scripts/update-bug-issue.sh:*)"
     ],
@@ -65,12 +80,12 @@
       "Bash(git branch -d:*)",
       "Bash(git branch -D:*)",
       "Bash(git worktree remove:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git push origin --force:*)",
-      "Bash(git push origin -f:*)",
-      "Bash(git push * --force:*)",
-      "Bash(git push * -f:*)"
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr ready:*)",
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf ..:*)"
     ]
   }
 }

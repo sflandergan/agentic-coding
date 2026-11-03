@@ -6,21 +6,30 @@ temperature: 0.3
 permission:
   edit: allow
   bash:
-    "*": ask
+    "true": allow
+    "test *": allow
+    "pwd": allow
+
     # Git inspection and single-task commits
     "git diff *": allow
     "git grep *": allow
     "git log *": allow
     "git ls-files *": allow
+    "git ls-tree *": allow
     "git rev-parse *": allow
     "git show *": allow
     "git status *": allow
     "git branch *": allow
+    "git check-ignore *": allow
+    "git merge-base *": allow
     "git add *": allow
     "git checkout *": allow
     "git commit *": allow
     "git mv *": allow
     "git rm *": allow
+    "git restore -- *": allow
+    "git restore --staged *": allow
+
     # File read and inspection
     "cat *": allow
     "diff *": allow
@@ -28,41 +37,82 @@ permission:
     "grep *": allow
     "head *": allow
     "ls *": allow
-    "pwd": allow
     "rg *": allow
-    "sort *": allow
     "sed -n *": allow
+    "sort *": allow
     "tail *": allow
     "wc *": allow
-    # File write and transformation helpers
-    "cp *": ask
-    "chmod +x scripts/*": allow
-    "chmod 755 scripts/*": allow
+    "nl *": allow
+    "readlink *": allow
     "jq *": allow
     "file *": allow
     "stat *": allow
     "tr *": allow
+    "cut *": allow
     "uniq *": allow
+    "paste *": allow
     "echo *": allow
-    "echo *>*": deny
+    "printf *": allow
+    "which *": allow
+    "command -v *": allow
     "date *": allow
+
+    # File write helpers
+    "cp *": ask
+    "chmod +x scripts/*": allow
+    "chmod 755 scripts/*": allow
     "mkdir *": allow
     "mkdir -p *": allow
-    "mkdir .temp/*": allow
-    "mkdir -p .temp/*": allow
     "touch *": allow
-    # Verification and symlink commands
+    "ln -s ../../.agents/skills/*": allow
+
+    # Verification commands
     "shellcheck *": allow
     "bash -n *": allow
     "codespell *": allow
-    "ln -s *": allow
+    "bats *": allow
+    "bash scripts/init.sh *": allow
+    "bash scripts/copy.sh *": allow
+    "bash scripts/validate-release.sh *": allow
+    "bash scripts/test-installer.sh *": allow
     "rm -rf .temp/*": allow
     "rm -rf .temp": allow
+
     # Protective rules are last because opencode uses last-match-wins permissions
-    "git push *": deny
+    "rm *..*": deny
+    "sed -i *": deny
+    "sed *-i*": deny
+    "python *": deny
+    "python3 *": deny
+    "ruby *": deny
+    "perl *": deny
+    "php *": deny
+    "git push*": deny
     "git branch -d *": deny
     "git branch -D *": deny
     "git worktree remove *": deny
+    "git diff *--ext-diff*": deny
+    "git diff *--textconv*": deny
+    "git diff *--output*": deny
+    "git log *--ext-diff*": deny
+    "git log *--textconv*": deny
+    "git log *--output*": deny
+    "git show *--ext-diff*": deny
+    "git show *--textconv*": deny
+    "git show *--output*": deny
+    "*<*": deny
+    "*>*/Applications/*": deny
+    "*>*/Library/*": deny
+    "*>*/System/*": deny
+    "*>*/Users/*": deny
+    "*>*/bin/*": deny
+    "*>*/etc/*": deny
+    "*>*/usr/*": deny
+    "*>*/var/*": deny
+    "*>*..*": deny
+    "*>*~/*": deny
+    "*>*$*": deny
+    "*>*`*": deny
   task:
     "*": deny
     "explore": allow

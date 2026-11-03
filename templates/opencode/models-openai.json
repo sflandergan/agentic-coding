@@ -1,11 +1,7 @@
 {
   "agent": {
-    "brainstorm": { "model": "openai/gpt-5.6-sol", "variant": "medium" },
-    "idea": { "model": "openai/gpt-5.6-sol", "variant": "medium" },
+    "build": { "model": "openai/gpt-6.1-sol", "variant": "medium" },
     "implement-task": { "model": "openai/gpt-5.6-luna", "variant": "xhigh" },
-    "review-code": { "model": "openai/gpt-5.6-sol", "variant": "medium" },
-    "review-plan": { "model": "openai/gpt-5.6-sol", "variant": "medium" },
-    "ui-design": { "model": "openai/gpt-5.6-sol", "variant": "medium" },
-    "ui-design-task": { "model": "openai/gpt-5.6-luna", "variant": "xhigh" }
+    "ui-design-task": { "model": "openai/gpt-6-luna", "variant": "xhigh" }
   }
 }

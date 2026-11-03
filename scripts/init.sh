@@ -123,7 +123,6 @@ echo "Building staging area in $STAGE ..."
 # --- 5a. Copy template directories and native agent definitions (base layer) ---
 # agents/opencode/ → .opencode/agents/
 mkdir -p "$STAGE/.opencode/agents"
-cp -R "$ROOT/agents/opencode/primary/." "$STAGE/.opencode/agents"
 cp -R "$ROOT/agents/opencode/subagents/." "$STAGE/.opencode/agents"
 
 # templates/claude/ → .claude/
@@ -335,5 +334,5 @@ echo ""
 echo "Next steps:"
 echo "  cd $TARGET"
 echo "  # Review AGENTS.md and customize for your project"
-echo "  # Start with @brainstorm or /brainstorm"
+echo "  # Start with /brainstorm"
 echo ""

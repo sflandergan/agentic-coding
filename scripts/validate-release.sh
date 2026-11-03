@@ -95,7 +95,7 @@ validateManifestShape() {
     (.skills.thirdParty | all(.[]; type == "object" and (.name | type == "string" and length > 0) and (.source | type == "string" and length > 0) and (.sourceType | type == "string" and length > 0) and ((has("skillPath") | not) or (.skillPath | type == "string")) and (.commit | type == "string" and test("^[0-9a-f]{40}$")) and ((has("computedHash") | not) or (.computedHash | type == "string")))) and
     (.opencode | type == "object") and
     (.opencode.primary | type == "array") and
-    (.opencode.primary | all(.[]; type == "string" and length > 0)) and
+    (.opencode.primary | length == 0) and
     (.opencode.subagents | type == "array") and
     (.opencode.subagents | all(.[]; type == "string" and length > 0)) and
     (.subagents | type == "object") and
@@ -206,7 +206,8 @@ compareAgentInventory() {
 }
 
 validateNativeAgents() {
-  compareAgentInventory '.opencode.primary' "$REPO_ROOT/agents/opencode/primary" '.md' 'OpenCode primary agent'
+  [[ ! -e "$REPO_ROOT/agents/opencode/primary" ]] ||
+    exitWithError "agents/opencode/primary must not exist; OpenCode uses the build agent with skills."
   compareAgentInventory '.opencode.subagents' "$REPO_ROOT/agents/opencode/subagents" '.md' 'OpenCode subagent'
   compareAgentInventory '.subagents.claude' "$REPO_ROOT/agents/claude" '.md' 'Claude subagent'
   compareAgentInventory '.subagents.codex' "$REPO_ROOT/agents/codex" '.toml' 'Codex subagent'
@@ -219,8 +220,7 @@ validateNativeAssets() {
   local actual_hash
 
   if ! jq -e '
-    [(.opencode.primary[] | "opencode-primary:" + .),
-     (.opencode.subagents[] | "opencode-subagent:" + .),
+    [(.opencode.subagents[] | "opencode-subagent:" + .),
      (.subagents.claude[] | "claude-subagent:" + .),
      (.subagents.codex[] | "codex-subagent:" + .)] as $expected |
     (.nativeAssets | map(.id)) as $actual |
@@ -242,13 +242,7 @@ validateNativeAssets() {
 
   if ! jq -e '
     all(.nativeAssets[];
-      if (.id | startswith("opencode-primary:")) then
-        (.id | split(":")[1]) as $name |
-        (.kind == "agent" and .harness == "opencode" and
-         .source == ("agents/opencode/primary/" + $name + ".md") and
-         .projectTarget == (".opencode/agents/" + $name + ".md") and
-         .globalTarget == ("agent/" + $name + ".md"))
-      elif (.id | startswith("opencode-subagent:")) then
+      if (.id | startswith("opencode-subagent:")) then
         (.id | split(":")[1]) as $name |
         (.kind == "subagent" and .harness == "opencode" and
          .source == ("agents/opencode/subagents/" + $name + ".md") and

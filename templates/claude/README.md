@@ -1,9 +1,10 @@
 # Claude Code agent setup
 
-Claude Code runs the **conversational** half of the agent pipeline. The
-**implementation** half stays in OpenCode. There is deliberately
-**no orchestrator**: the OpenCode hand-off ends the Claude Code session, and reviews are
-triggered by hand, so the workflows are discrete, manually-invoked entry points.
+Claude Code and OpenCode run the same workflow skills through each harness's
+skill interface. The only native agents are the workers (`explore`,
+`implement-task`, `ui-design-task`). There is deliberately **no orchestrator**:
+reviews and hand-offs are triggered by hand, so the workflows are discrete,
+manually-invoked entry points.
 
 ## Skills
 
@@ -18,18 +19,18 @@ of the user-facing skill list and are loaded by agents on demand.
 
 ### User-Facing Skills (invoked with `/name`)
 
-| Skill (`/name`) | OpenCode counterpart | Role |
-| --- | --- | --- |
-| `/brainstorm` | `@brainstorm` | Idea → approved `spec.md` (interactive; offers domain grilling) |
-| `/bugfix` | `@bugfix` | Investigate bug → structured GitHub issue; does not fix |
-| `/finish` | `@finish` | Durable feature doc, light glossary/ADR reconciliation, cleanup |
-| `/idea` | `@idea` | Rough prompt → structured feature pitch |
-| `/implement` | `@implement` | Controller that dispatches `@implement-task` workers per plan task |
-| `/planner` | `@planner` | Spec → task-by-task `plan.md` (offers grilling only when new domain language or non-trivial decisions appear) |
-| `/review-code` | `@review-code` | Review a diff/PR → fix-plan hand-off doc |
-| `/review-plan` | `@review-plan` | Review + finalize the OpenCode hand-off plan |
-| `/ui-design` | `@ui-design` | Presentation design → HTML/CSS mockups, design tokens; dispatches `@ui-design-task` workers |
-| `/grill-with-docs` | — | Domain grilling against DDD docs (loaded on demand by others) |
+| Skill (`/name`) | Role |
+| --- | --- |
+| `/brainstorm` | Idea → approved `spec.md` (interactive; offers domain grilling) |
+| `/bugfix` | Investigate bug → structured GitHub issue; does not fix |
+| `/finish` | Durable feature doc, light glossary/ADR reconciliation, cleanup |
+| `/idea` | Rough prompt → structured feature pitch |
+| `/implement` | Controller that dispatches `@implement-task` workers per plan task |
+| `/planner` | Spec → task-by-task `plan.md` (offers grilling only when new domain language or non-trivial decisions appear) |
+| `/review-code` | Review a diff/PR → fix-plan hand-off doc |
+| `/review-plan` | Review + finalize the implementation plan |
+| `/ui-design` | Presentation design → HTML/CSS mockups, design tokens; dispatches `@ui-design-task` workers |
+| `/grill-with-docs` | Domain grilling against DDD docs (loaded on demand by others) |
 
 ### Support and Worker Skills (hidden, `user-invocable: false`)
 
@@ -54,7 +55,7 @@ skills. This avoids inlining duplicate copies of shared workflows.
 
 These shared skills are installed for Claude Code by setup:
 
-- `grill-with-docs` — used by `/brainstorm`, `/planner`, `/finish` (+ OpenCode)
+- `grill-with-docs` — used by `/brainstorm`, `/planner`, `/finish` in both harnesses
 - `bugfix` (including its scripts) — used by `/bugfix`
 - `brainstorm` (including its preview scripts) — used by `/brainstorm`
 - `planner` — used by `/planner`
@@ -69,7 +70,7 @@ These shared skills are installed for Claude Code by setup:
 - `feature-documentation` — used by `/finish`
 - `verification-before-completion` — used by `/implement`, `/finish`
 - `git-publish` — used by `/implement`, `/finish`, `/review-plan`, `/review-code` (via publish-branch.sh)
-- `github-pr-comments` — used by `/review-plan`, `/review-code` (+ OpenCode)
+- `github-pr-comments` — used by `/review-plan`, `/review-code` in both harnesses
 
 Remote skills (e.g. `context7-cli`, `domain-modeling`, `grilling`, `impeccable`, `writing-skills`) are declared in `skills-lock.json` and installed via the
 [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add`). Each
@@ -122,9 +123,10 @@ dependencies may require re-applying the presentation-root permissions.
 ## Permissions
 
 `settings.json` encodes the project-wide permission union the skills need: edit
-allowed; read-only git and common Unix commands allowed; `git push` / `gh pr create` /
-`rm` ask first; branch-delete, worktree-remove denied. The three preview-adapter commands
-are allowed explicitly.
+allowed; read-only git and common Unix commands allowed; `git push`, `gh pr create`,
+`gh pr ready`, branch deletion, and worktree removal are denied; publishing goes
+through the `git-publish` skill; `rm` asks first. The three preview-adapter
+commands are allowed explicitly.
 
 ## Usage
 

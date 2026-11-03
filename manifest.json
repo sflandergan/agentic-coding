@@ -131,18 +131,9 @@
     ]
   },
   "opencode": {
-    "primary": [
-      "brainstorm",
-      "bugfix",
-      "idea",
-      "planner",
-      "implement",
-      "review-plan",
-      "review-code",
-      "finish",
-      "ui-design"
-    ],
+    "primary": [],
     "subagents": [
+      "explore",
       "implement-task",
       "ui-design-task"
     ]
@@ -158,92 +149,12 @@
       "ui-design-task"
     ],
     "opencode": [
+      "explore",
       "implement-task",
       "ui-design-task"
     ]
   },
   "nativeAssets": [
-    {
-      "id": "opencode-primary:brainstorm",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/brainstorm.md",
-      "projectTarget": ".opencode/agents/brainstorm.md",
-      "globalTarget": "agent/brainstorm.md",
-      "releaseHash": "75bb292716b085c92ec2e18141d5bef78a228d8d89f82aefc8cbd905cfd19aac"
-    },
-    {
-      "id": "opencode-primary:bugfix",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/bugfix.md",
-      "projectTarget": ".opencode/agents/bugfix.md",
-      "globalTarget": "agent/bugfix.md",
-      "releaseHash": "7e00a3b79106f31f578030579d2c0081cc30c30c80dc2bf066eba23d6f817e3e"
-    },
-    {
-      "id": "opencode-primary:finish",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/finish.md",
-      "projectTarget": ".opencode/agents/finish.md",
-      "globalTarget": "agent/finish.md",
-      "releaseHash": "66c3be9abddf33d4c80cf7e2e1b39746a6866babb326d55642d11830ba857461"
-    },
-    {
-      "id": "opencode-primary:idea",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/idea.md",
-      "projectTarget": ".opencode/agents/idea.md",
-      "globalTarget": "agent/idea.md",
-      "releaseHash": "e435a6bc635f4d8d72f827c46a79ac845c3d365696da7e4c9007e0627f92d7a8"
-    },
-    {
-      "id": "opencode-primary:implement",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/implement.md",
-      "projectTarget": ".opencode/agents/implement.md",
-      "globalTarget": "agent/implement.md",
-      "releaseHash": "1cc50edf086d856ff121234f297ab4574086b35fa86fcf189df9579b1ad58406"
-    },
-    {
-      "id": "opencode-primary:planner",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/planner.md",
-      "projectTarget": ".opencode/agents/planner.md",
-      "globalTarget": "agent/planner.md",
-      "releaseHash": "0f43823695e838a97bd0092dd552dd5339cb8c2c497c957d7a8e29ea0131c253"
-    },
-    {
-      "id": "opencode-primary:review-code",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/review-code.md",
-      "projectTarget": ".opencode/agents/review-code.md",
-      "globalTarget": "agent/review-code.md",
-      "releaseHash": "57dffdefc4147bb6068c3d749789a91db62d832e6a2ddc8723f32672d110ec1b"
-    },
-    {
-      "id": "opencode-primary:review-plan",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/review-plan.md",
-      "projectTarget": ".opencode/agents/review-plan.md",
-      "globalTarget": "agent/review-plan.md",
-      "releaseHash": "2e5c48606bb15f02f3a8311c61dcdfab6ae51792ed570f0927acd6414f0b4e1b"
-    },
-    {
-      "id": "opencode-primary:ui-design",
-      "kind": "agent",
-      "harness": "opencode",
-      "source": "agents/opencode/primary/ui-design.md",
-      "projectTarget": ".opencode/agents/ui-design.md",
-      "globalTarget": "agent/ui-design.md",
-      "releaseHash": "acaad4c812490916e28031c96b375b12cad117c4353f18840336726a87e32964"
-    },
     {
       "id": "opencode-subagent:implement-task",
       "kind": "subagent",
@@ -251,7 +162,7 @@
       "source": "agents/opencode/subagents/implement-task.md",
       "projectTarget": ".opencode/agents/implement-task.md",
       "globalTarget": "agent/implement-task.md",
-      "releaseHash": "7344452fb59245f306e71b404658c0360db0dc144084e6caefb4ac7a4e0d6022"
+      "releaseHash": "40dfd64d94e0777aec5de1a6da27c6980c03921d0c024b69e2290952d55a11d9"
     },
     {
       "id": "opencode-subagent:ui-design-task",
@@ -306,6 +217,15 @@
       "projectTarget": ".codex/agents/ui-design-task.toml",
       "globalTarget": "agents/ui-design-task.toml",
       "releaseHash": "def46d93ed3cc7f9d5d4800b49ef3f2c1c76fb33c051e77b16787a92d5baba45"
+    },
+    {
+      "id": "opencode-subagent:explore",
+      "kind": "subagent",
+      "harness": "opencode",
+      "source": "agents/opencode/subagents/explore.md",
+      "projectTarget": ".opencode/agents/explore.md",
+      "globalTarget": "agent/explore.md",
+      "releaseHash": "1ee8609433a225d3a1251722252b4262f8b6fbb2778080379d1cfe845a29f27c"
     }
   ],
   "configurationAssets": [
@@ -317,7 +237,7 @@
       "globalTarget": "settings.json",
       "format": "json",
       "mergeStrategy": "permission-union",
-      "sourceHash": "45c22fafda30f63c8196247bab1f786bd70efbc3ce66b40df289df538d35ea5e"
+      "sourceHash": "6b0da561ddc84d1a904ffd6b8ad0fee30cbaefdf7f5cbab79ee93575b0373485"
     },
     {
       "id": "codex:config",
@@ -337,7 +257,7 @@
       "globalTarget": "opencode.json",
       "format": "json",
       "mergeStrategy": "deep-merge",
-      "sourceHash": "64510ba5965cc6a6b9a7c3c68526bcf1619457dedb6fe1f65c670669ea00d959"
+      "sourceHash": "f8e55b53d92fbb348d68c7fa876a87e13a1e2386afbb1a6a5e46ae6b7b109b0c"
     },
     {
       "id": "opencode:model-profile:openai",
@@ -347,7 +267,7 @@
       "globalTarget": "opencode.json",
       "format": "json",
       "mergeStrategy": "deep-merge",
-      "sourceHash": "6ac91025f4309ba001d075b903b8753ff81660eb8219bc7d2a18d9f7a9ffbdce"
+      "sourceHash": "b4648dbf2c3145fa4a9fc33388d5aea5e75acc9eb721014f1c1d5c0dafba4792"
     }
   ],
   "templates": {
@@ -384,5 +304,15 @@
     "claude": ".claude-plugin/plugin.json",
     "codex": ".codex-plugin/plugin.json"
   },
-  "retired": []
+  "retired": [
+    "opencode-primary:brainstorm",
+    "opencode-primary:bugfix",
+    "opencode-primary:finish",
+    "opencode-primary:idea",
+    "opencode-primary:implement",
+    "opencode-primary:planner",
+    "opencode-primary:review-code",
+    "opencode-primary:review-plan",
+    "opencode-primary:ui-design"
+  ]
 }
