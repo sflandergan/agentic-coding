@@ -73,7 +73,7 @@ Scope `codespell` to changed files by default. Run it more broadly when a plan e
 
 ```bash
 # README lists match actual files
-ls .opencode/agents/          # should match README's agent list
+ls .opencode/agents/ .claude/agents/   # workers should match README's agent list (build and explore come from opencode.json)
 ls .agents/skills/            # should match README's skill list
 
 # Lockfiles match their distinct scopes

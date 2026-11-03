@@ -25,7 +25,7 @@ manifest whose `schemaVersion` is unsupported before applying any category.
   the GitHub tree URL passed to `npx skills add`; descriptors may also include
   a `skillPath` and `computedHash`. These fields are installation provenance,
   not permission to copy a fetched checkout.
-- **`opencode`** — object containing the OpenCode `primary` and `subagents`
+- **`opencode`** — object containing the OpenCode `primary` (always empty; the build agent runs workflow skills) and `subagents`
   name lists. These names resolve to the corresponding harness-native agent
   assets in the release.
 - **`subagents`** — per-harness name lists for `claude`, `codex`, and
@@ -33,8 +33,7 @@ manifest whose `schemaVersion` is unsupported before applying any category.
 - **`nativeAssets`** — the complete release-hash-managed inventory of native
   agents. Each entry has an ID, `kind` (`agent` or `subagent`), `harness`,
   repository-relative `source`, project and logical global targets, and a
-  lowercase SHA-256 `releaseHash` of that source. OpenCode primary agents use
-  IDs such as `opencode-primary:brainstorm`; worker agents use
+  lowercase SHA-256 `releaseHash` of that source. Worker agents use IDs
   `opencode-subagent:<name>`, `claude-subagent:<name>`, or
   `codex-subagent:<name>`.
 - **`configurationAssets`** — the complete inventory of harness configuration
@@ -63,13 +62,14 @@ manifest whose `schemaVersion` is unsupported before applying any category.
 - **`pluginManifests`** — harness-to-manifest paths for plugin coverage, such
   as Claude Code and Codex. Validate an installed plugin manifest before
   excluding its covered authored skills from Vercel CLI management.
-- **`retired`** — array of asset or skill identifiers no longer shipped.
-  Present these as proposed removals and obtain approval before deleting
-  anything.
+- **`retired`** — array of asset or skill identifiers no longer shipped, such
+  as the former `opencode-primary:<name>` agents whose project target was
+  `.opencode/agents/<name>.md`. Present these as proposed removals and obtain
+  approval before deleting anything.
 
 Native and configuration sources must exist in the selected release. Native
-asset IDs must exactly cover the OpenCode primary and worker inventories and
-the Claude Code and Codex worker inventories, with no duplicate IDs or
+asset IDs must exactly cover the OpenCode, Claude Code, and Codex worker
+inventories, with no duplicate IDs or
 source/target pairs. Project targets must use the harness paths declared by
 the asset, and logical global targets are relative to the harness home:
 
@@ -79,8 +79,8 @@ the asset, and logical global targets are relative to the harness home:
 | Codex | `${CODEX_HOME:-$HOME/.codex}` | `agents/<name>.toml` | `config.toml` |
 | OpenCode | `${XDG_CONFIG_HOME:-$HOME/.config}/opencode` | `agent/<name>.md` | `opencode.json` |
 
-OpenCode primary and worker agents intentionally share the `agent/` global
-directory because OpenCode merges both kinds under that layout. Missing
+OpenCode worker agents, including the `explore` override of the built-in
+agent, use the `agent/` global directory. Missing
 required fields, invalid types, duplicate names, paths outside the release,
 hash mismatches, or inconsistent release/channel data make the manifest
 unusable. Unknown fields may be ignored only when the declared schema version

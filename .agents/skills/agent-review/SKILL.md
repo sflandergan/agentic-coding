@@ -73,7 +73,7 @@ Use this standard self-maintenance review workflow unless the user explicitly re
 8. After plan updates or review-finding plan creation, self-review every tracked remark and finding. Map each item to the changed section, review-finding plan section, or intentional unresolved status.
 9. Draft exact GitHub replies for resolved PR comments and ask for explicit approval before posting. Approval to edit files or write a plan does not authorize posting GitHub comments.
 
-**Distinction:** Plan review updates the reviewed plan/spec after approval; diff review writes a review-finding implementation plan for `@implement` after approval.
+**Distinction:** Plan review updates the reviewed plan/spec after approval; diff review writes a review-finding implementation plan for the `agent-implementation` skill after approval.
 
 ## Output
 

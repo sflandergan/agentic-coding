@@ -1,61 +1,254 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "agent": {
-    "brainstorm": {
-      "model": "opencode-go/glm-5.3-flash"
+    "plan": {
+      "disable": true
     },
-    "bugfix": {
-      "model": "opencode-go/qwen3.8-flash"
+    "build": {
+      "model": "opencode-go/glm-5.3-flash",
+      "permission": {
+        "edit": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "implement-task": "allow",
+          "ui-design-task": "allow"
+        },
+        "bash": {
+          "true": "allow",
+          ":": "allow",
+          "pwd": "allow",
+          "test *": "allow",
+          "read *": "allow",
+          "set -e": "allow",
+          "set +e": "allow",
+
+          "gh pr list *": "allow",
+          "gh pr view *": "allow",
+          "gh pr checks *": "allow",
+          "gh run list *": "allow",
+          "gh run view *": "allow",
+          "gh issue list *": "allow",
+          "gh issue view *": "allow",
+          "gh search issues *": "allow",
+          "gh label list": "allow",
+          "gh label list *": "allow",
+          "gh repo view *": "allow",
+          "gh issue create *": "ask",
+          "gh issue edit *": "ask",
+
+          "git add *": "allow",
+          "git branch *": "allow",
+          "git checkout *": "allow",
+          "git check-ignore *": "allow",
+          "git commit *": "allow",
+          "git diff *": "allow",
+          "git fetch *": "allow",
+          "git grep *": "allow",
+          "git log *": "allow",
+          "git ls-files *": "allow",
+          "git ls-tree *": "allow",
+          "git merge-base *": "allow",
+          "git mv *": "allow",
+          "git pull *": "allow",
+          "git rebase *": "allow",
+          "GIT_EDITOR=true git rebase *": "allow",
+          "git remote -v": "allow",
+          "git remote get-url *": "allow",
+          "git rev-parse *": "allow",
+          "git rm *": "allow",
+          "git show *": "allow",
+          "git status *": "allow",
+          "git reset --soft *": "allow",
+          "git reset --mixed *": "allow",
+          "git reset --hard *": "ask",
+
+          "bash *scripts/publish-branch.sh": "allow",
+          "bash *scripts/publish-branch.sh --existing-pr * --expected-head * --head-branch *": "ask",
+          "bash *scripts/publish-and-ready.sh": "ask",
+          "bash *scripts/ensure-fresh.sh": "allow",
+          "bash *scripts/ensure-fresh.sh *": "allow",
+          "bash *scripts/fetch-pr-comments.sh *": "allow",
+          "bash \"*scripts/fetch-pr-comments.sh\" *": "allow",
+          "bash *scripts/reply-to-pr-comment.sh *": "ask",
+          "bash \"*scripts/reply-to-pr-comment.sh\" *": "ask",
+          "bash *scripts/create-bug-issue.sh *": "allow",
+          "bash *scripts/update-bug-issue.sh *": "allow",
+          "bash *scripts/start-server.sh *": "allow",
+          "bash *scripts/stop-server.sh *": "allow",
+          "bash .agents/scripts/ui-design/preview.sh start": "allow",
+          "bash .agents/scripts/ui-design/preview.sh probe": "allow",
+          "bash .agents/scripts/ui-design/preview.sh stop": "allow",
+          "node *.agents/skills/impeccable/scripts/*": "allow",
+          "node *.claude/skills/impeccable/scripts/*": "allow",
+          "ctx7 library *": "allow",
+          "ctx7 docs *": "allow",
+
+          "cat *": "allow",
+          "cmp *": "allow",
+          "comm *": "allow",
+          "cut *": "allow",
+          "diff *": "allow",
+          "dirname *": "allow",
+          "find *": "allow",
+          "fold *": "allow",
+          "grep *": "allow",
+          "head *": "allow",
+          "jq *": "allow",
+          "ls *": "allow",
+          "nl *": "allow",
+          "paste *": "allow",
+          "readlink *": "allow",
+          "rg *": "allow",
+          "sed *": "allow",
+          "seq *": "allow",
+          "sort *": "allow",
+          "stat *": "allow",
+          "tail *": "allow",
+          "tr *": "allow",
+          "uniq *": "allow",
+          "wc *": "allow",
+          "xargs rg *": "allow",
+          "file *": "allow",
+          "echo *": "allow",
+          "printf *": "allow",
+          "date *": "allow",
+          "which *": "allow",
+          "command -v *": "allow",
+          "mktemp": "allow",
+          "sleep *": "allow",
+
+          "mkdir plans/*": "allow",
+          "mkdir -p plans/*": "allow",
+          "mkdir \"plans/*\"": "allow",
+          "mkdir -p \"plans/*\"": "allow",
+          "mkdir .temp/*": "allow",
+          "mkdir -p .temp/*": "allow",
+          "mkdir \".temp/*\"": "allow",
+          "mkdir -p \".temp/*\"": "allow",
+
+          "curl * -L *": "ask",
+          "curl * --location*": "ask",
+          "curl * -d *": "ask",
+          "curl * --data *": "ask",
+          "curl * -F *": "ask",
+          "curl * --form *": "ask",
+          "curl * -T *": "ask",
+          "curl * --upload-file *": "ask",
+          "curl * -X POST *": "ask",
+          "curl * -X PUT *": "ask",
+          "curl * -X PATCH *": "ask",
+          "curl * -X DELETE *": "ask",
+          "curl * -o *": "ask",
+          "curl * --output *": "ask",
+
+          "sed -i *": "deny",
+          "sed *-i*": "deny",
+          "sort *-o*": "deny",
+          "python *": "deny",
+          "python3 *": "deny",
+          "ruby *": "deny",
+          "php *": "deny",
+          "perl *": "deny",
+          "deno *": "deny",
+          "* node -e *": "deny",
+          "* node --eval *": "deny",
+          "* node -p *": "deny",
+          "* node --print *": "deny",
+          "* bun -e *": "deny",
+          "*rg *--pre*": "deny",
+          "*rg *--hostname-bin*": "deny",
+          "gh pr create *": "deny",
+          "gh pr ready *": "deny",
+          "git push*": "deny",
+          "git branch -d *": "deny",
+          "git branch -D *": "deny",
+          "git worktree remove *": "deny",
+          "git diff *--ext-diff*": "deny",
+          "git diff *--textconv*": "deny",
+          "git diff *--output*": "deny",
+          "git log *--ext-diff*": "deny",
+          "git log *--textconv*": "deny",
+          "git log *--output*": "deny",
+          "git show *--ext-diff*": "deny",
+          "git show *--textconv*": "deny",
+          "git show *--output*": "deny",
+          "gh issue list * --web*": "deny",
+          "gh search issues * --web*": "deny",
+
+          "*<*": "deny",
+          "*>*/Applications/*": "deny",
+          "*>*/Library/*": "deny",
+          "*>*/System/*": "deny",
+          "*>*/Users/*": "deny",
+          "*>*/Volumes/*": "deny",
+          "*>*/bin/*": "deny",
+          "*>*/etc/*": "deny",
+          "*>*/home/*": "deny",
+          "*>*/opt/*": "deny",
+          "*>*/private/*": "deny",
+          "*>*/sbin/*": "deny",
+          "*>*/usr/*": "deny",
+          "*>*/var/*": "deny",
+          "*>*..*": "deny",
+          "*>*~/*": "deny",
+          "*>*$*": "deny",
+          "*>*`*": "deny"
+        }
+      }
     },
     "explore": {
-      "model": "opencode-go/mimo-v2.5"
-    },
-    "finish": {
-      "model": "opencode-go/qwen3.8-flash"
-    },
-    "idea": {
-      "model": "opencode-go/glm-5.3-flash"
-    },
-    "implement": {
-      "model": "opencode-go/qwen3.8-flash"
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "variant": "low"
     },
     "implement-task": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "variant": "max",
       "mode": "subagent"
     },
-    "planner": {
-      "model": "opencode-go/qwen3.8-flash"
-    },
-    "review-code": {
-      "model": "opencode-go/glm-5.3-flash"
-    },
-    "review-plan": {
-      "model": "opencode-go/glm-5.3-flash"
-    },
-    "ui-design": {
-      "model": "opencode-go/glm-5.3-flash"
-    },
     "ui-design-task": {
-      "model": "opencode-go/qwen3.8-flash",
+      "model": "opencode-go/glm-5.3-flash",
       "mode": "subagent"
     }
   },
-  "default_agent": "brainstorm",
+  "default_agent": "build",
   "model": "opencode-go/qwen3.8-flash",
-  "small_model": "opencode-go/deepseek-v4-flash",
+  "small_model": "opencode-go/deepseek-v4.1-flash",
   "permission": {
     "bash": {
       "*": "ask",
-      "git branch -d *": "deny",
-      "git branch -D *": "deny",
-      "git worktree remove *": "deny"
+      "*>*": "ask",
+      "*<*": "ask",
+
+      "bun -e *": "deny",
+      "deno eval *": "deny",
+      "node -e *": "deny",
+      "node --eval *": "deny",
+      "node -p *": "deny",
+      "node --print *": "deny",
+      "perl -e *": "deny",
+      "php -r *": "deny",
+      "python -c *": "deny",
+      "python3 -c *": "deny",
+      "ruby -e *": "deny"
     },
     "edit": {
-      "*": "allow"
+      "*": "deny"
     },
+    "grep": "allow",
+    "glob": "allow",
     "read": {
       "*": "allow"
     },
-    "webfetch": "ask"
+    "webfetch": "ask",
+    "websearch": "ask",
+    "external_directory": {
+      "~/.local/share/opencode/tool-output/**": "allow",
+      "~/.claude/skills/**": "allow",
+      "~/.agents/skills/**": "allow",
+      "~/.config/opencode/skills/**": "allow",
+      "/var/**": "deny"
+    }
   }
 }
