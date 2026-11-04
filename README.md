@@ -399,8 +399,9 @@ revision (default `main`). The workflow validates the computed version and
 repository state, prepares the stable manifest with
 `scripts/prepare-release.sh`, runs `scripts/validate-release.sh` and the setup
 test suite, creates the release-only commit and annotated tag, verifies the
-tagged tree locally, pushes only `refs/tags/<version>`, and re-resolves the
-published tag from the remote.
+tagged tree locally, pushes only `refs/tags/<version>`, re-resolves the
+published tag from the remote, and creates the GitHub Release for that tag with
+generated notes.
 
 After the run succeeds, verify the release manually. Fetch the tag locally first
 (`git fetch --tags`); the check compares against your local `$release_ref`.
