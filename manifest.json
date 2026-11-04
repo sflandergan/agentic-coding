@@ -162,7 +162,7 @@
       "source": "agents/opencode/subagents/implement-task.md",
       "projectTarget": ".opencode/agents/implement-task.md",
       "globalTarget": "agent/implement-task.md",
-      "releaseHash": "40dfd64d94e0777aec5de1a6da27c6980c03921d0c024b69e2290952d55a11d9"
+      "releaseHash": "0d7006b5c1d237b3fffabc3d45159ba3cd807b5dc02c4d70f8e485291aa7ca54"
     },
     {
       "id": "opencode-subagent:ui-design-task",

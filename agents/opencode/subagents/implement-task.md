@@ -22,7 +22,10 @@ permission:
 
     "git add *": allow
     "git checkout *": allow
-    "git commit *": deny
+    "git commit *": allow
+    "git commit *--amend*": deny
+    "git commit *--no-verify*": deny
+    "git restore --staged *": allow
     "git mv *": allow
     "git rm *": allow
 

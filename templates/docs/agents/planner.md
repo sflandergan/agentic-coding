@@ -14,7 +14,7 @@
 
 ## Repo Specifics
 
-- Before a task introduces an identifier for a domain concept the context glossary does not define, stop and resolve the term with the user through the `domain-modeling` skill; tasks may only name glossary terms or effect-named mechanics.
+<!-- Add project-specific planning rules here. -->
 
 ## Area Docs
 

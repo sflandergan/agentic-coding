@@ -89,6 +89,9 @@ during planning — never defer it to the reader.
   sentence supporting two readings, an unclear dependency or rollout order —
   **stop and ask the user**, using the `question` or `AskUserQuestion` tool,
   whichever is available, always attaching your recommended answer.
+- Before a task introduces an identifier for a domain concept the context glossary
+  does not define, stop and resolve the term with the user through the
+  `domain-modeling` skill; tasks may only name glossary terms or effect-named mechanics.
 - Questions answerable from the codebase must be explored (e.g. via the
   Explore subagent), not asked.
 - If a fork cannot be resolved interactively, state the assumption you verified
