@@ -22,6 +22,7 @@ review-fix plan, the `plan.md` and linked `tasks/*.md` in the specific
 - **Specs:** clarity, completeness, scope, non-goals, architecture fit, data boundaries, missing edge cases, testability.
 - **Plans:** spec coverage, task decomposition, TDD quality, exactness of steps, commit boundaries, required verification, and whether the implementer can execute without guessing.
   Assess proposed coverage against the repository's testing guidance loaded by the role document.
+- **Test names:** check every `it`, `test`, and `describe` name against the repository's test-naming rules and domain glossary; a name that uses code identifiers, internal working terms, technique words, or change history, or that does not state the situation and expected outcome, is a blocking finding.
 - **Open questions are a blocking finding:** a plan containing an Open Questions
   section or an unresolved fork is not implementable — flag it as blocking.
 - **Split plans:** verify that every task in the `plan.md` index has a corresponding `tasks/*.md` file and vice versa.
@@ -35,7 +36,7 @@ Apply this required-only preflight.
 
 1. Read the spec's `## UI Design` section and note the approved marker.
 2. For `ui-design: required`, verify before reviewing task decomposition that the final `plans/<feature-dir>/ui-design.md` exists.
-   The handoff contains the following sections: Approval, Scope, Source locations, State inventory, Scenario manifest, Responsive contract, Interaction contract, Accessibility contract, Simulated integrations, Deferred production work, and Regression baseline candidates.
+   The handoff contains the following sections: Approval, Scope, Source locations, State inventory, Scenario manifest, Responsive contract, Interaction contract, Accessibility contract, Simulated integrations, and Deferred production work.
    Verify every referenced tracked source, test, fixture, and adapter exists and every stable preview scenario URL in the scenario manifest is reachable.
 3. For `ui-design: required`, verify the plan consumes the final handoff, creates `ui-integration.md`, checks the integrated UI, and records production-isolation evidence from the production build.
    Reject a plan that creates or changes `ui-design.md` as an implementation task.
@@ -81,5 +82,5 @@ The Explore dispatches in workflow steps 1 and 3 are required and override any d
 Explicit user approval permits this skill to edit only the reviewed `plans/**` specification, plan, and linked task artifacts.
 Apply only the approved changes, including an approved `spec.md` update when needed; do not touch application code, tests, or config.
 Run the final document quality gate and produce the requirement reconciliation table before claiming the plan is finalized.
-Then commit the changed plan artifacts, use `/git-publish` to publish the branch and ensure a draft change request exists, report the finalized plan path and change request URL, and stop.
+Then commit the changed plan artifacts, use the `git-publish` skill to publish the branch and ensure a draft change request exists, report the finalized plan path and change request URL, and stop.
 Do not create an empty commit when no owned files changed.

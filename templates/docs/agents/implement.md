@@ -29,7 +29,6 @@ Used only when the approved spec's `## UI Design` marker is `ui-design: required
 <!-- TODO: Replace with repository-specific UI integration configuration:
      startup commands and readiness URLs;
      deterministic local data setup and teardown;
-     screenshot baseline paths;
      prohibited endpoints, credentials, or data. -->
 
 <!-- TODO: Replace with repository-specific implementation configuration, such as:

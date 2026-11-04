@@ -20,6 +20,12 @@ Keep the Act phase to a single call when possible. Multiple assertions in one te
 - Assert on the specific value, not just the shape (`expect(x).toBe(3)` over `expect(x).toBeGreaterThan(0)`).
 - Avoid `toMatchObject` and similar partial matchers when an exact match is possible.
 
+## Test Names
+
+- Name each test for the situation and the expected outcome, in the terms of the relevant bounded-context glossary (`CONTEXT-MAP.md`).
+- Do not put code identifiers, internal working terms, or technique words in a name unless the identifier is itself the externally visible contract under test.
+- Do not describe the history of a change ("now", "still", "unchanged", "replaces the old").
+
 ## TDD
 
 - For behavior changes, write a failing test first, then implement the minimum code to make it pass, then refactor.

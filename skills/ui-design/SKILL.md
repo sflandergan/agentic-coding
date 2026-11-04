@@ -87,9 +87,9 @@ If evidence collection causes a code change, return to a new human feedback roun
 Whether or not evidence collection finds defects, present the live preview URL together with the collected evidence and accepted limitations, then wait for explicit final human approval.
 
 Only after final approval, write the final handoff at the location in `docs/agents/ui-design.md`.
-- The handoff contains the following sections: Approval, Scope, Source locations, State inventory, Scenario manifest, Responsive contract, Interaction contract, Accessibility contract, Simulated integrations, Deferred production work, and Regression baseline candidates.
+- The handoff contains the following sections: Approval, Scope, Source locations, State inventory, Scenario manifest, Responsive contract, Interaction contract, Accessibility contract, Simulated integrations, and Deferred production work.
 - The Deferred production work section must state that automated verification (lint, typecheck, tests, build, integration, end-to-end) was deferred and that the changed presentation code is not verified.
-- Neither UI-design nor `ui-design-task` edits an existing test whose expectations became obsolete; the handoff records the affected behavior and regression baseline candidates for implementation.
+- Neither UI-design nor `ui-design-task` edits an existing test whose expectations became obsolete; the handoff records the affected behavior for implementation.
 - Create one final commit; it may run the repository's normal pre-commit hooks. UI-design runs no separate test, lint, typecheck, build, integration, or end-to-end commands before that commit.
 
 ## 5. Failure and reconciliation

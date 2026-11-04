@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Use when turning an approved spec or clear requirements into a reviewable plan.md with checkbox tasks and TDD steps — resolves every fork during planning and ships zero open questions.
+description: Use when turning an approved spec or clear requirements into a reviewable plan (index plus task files) with TDD steps — resolves every fork during planning and ships zero open questions.
 argument-hint: [path to spec or requirements]
 disable-model-invocation: true
 ---
@@ -10,6 +10,9 @@ disable-model-invocation: true
 Write comprehensive implementation plans as bite-sized tasks an engineer with
 zero codebase context can execute: exact files, complete code, testing, and
 docs for every task. DRY. YAGNI. TDD. Frequent commits.
+
+**Context:** Plan on the existing scoped branch, never directly on `main`.
+Reuse the branch's existing PR; `git-publish` only ensures one exists.
 
 ## Load first
 
@@ -35,7 +38,8 @@ not invoke brainstorming automatically.
    created or modified and each one's responsibility. Design units with clear
    boundaries; prefer smaller, focused files; files that change together live
    together; follow established patterns in existing codebases.
-5. **Write the plan** following `/planning-structure`.
+5. **Write the plan** following `/planning-structure`: the `plan.md` index plus
+   `tasks/NN-<slug>.md` files.
 6. **Self-review** (below), fix inline, and report.
 
 ## UI-design preflight
@@ -51,8 +55,8 @@ Verify the following before proceeding:
 1. `plans/<feature-dir>/ui-design.md` exists as the final handoff.
 2. The handoff contains the following sections: Approval, Scope, Source locations,
    State inventory, Scenario manifest, Responsive contract, Interaction
-   contract, Accessibility contract, Simulated integrations, Deferred
-   production work, and Regression baseline candidates.
+   contract, Accessibility contract, Simulated integrations, and
+   Deferred production work.
 3. Every referenced tracked source, test, fixture, and adapter exists.
 4. Every stable preview scenario URL listed in the Scenario manifest is
    reachable.
@@ -100,17 +104,14 @@ during planning — never defer it to the reader.
 
 ## Plan artifact structure
 
-Follow `/planning-structure` for directory layout, file names, numbering, and slug rules.
-
-Write the plan to `plans/YYYY-MM-DD-feature-name/plan.md`, next to the spec.
-The plan is a single file containing all tasks as checkbox sections.
+Follow `/planning-structure` for the `plan.md` index, the `tasks/NN-<slug>.md` files, and the directory layout, file names, numbering, and slug rules.
 
 **Plan header (every plan MUST start with this):**
 
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For implementation agents:** Execute this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For implementation agents:** Execute this plan task-by-task from the files under `tasks/`.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -142,15 +143,14 @@ is one action (2-5 minutes): write the failing test → run it to verify it
 fails → implement the minimal code → run the tests to verify they pass →
 commit.
 
-Each task uses this structure:
+This example is for a behavior-changing task; use the repository's testing guidance for test-only consolidation steps.
 
-This example is for a behavior-changing task; use the repository's testing
-guidance for test-only consolidation steps.
+Each task file (`tasks/NN-<slug>.md`) uses this structure:
 
 **Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/exact/path/to/test.py`
+- Create: `exact/path/to/file.ts`
+- Modify: `exact/path/to/existing.ts:123-145`
+- Test: the test path required by the repository's testing guidance
 
 **Interfaces:**
 - Consumes: [what this task uses from earlier tasks — exact signatures]
@@ -160,22 +160,24 @@ guidance for test-only consolidation steps.
 
 - [ ] **Step 1: Write the failing test**
 
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
+```ts
+// Name the situation and the expected outcome in domain terms with concrete values.
+it("rejects an order with no items", () => {
+  expect(() => placeOrder({ items: [] })).toThrow("An order needs at least one item");
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `<the focused test command for this package>`
-Expected: FAIL with "function not defined"
+Expected: FAIL with "placeOrder is not defined"
 
 - [ ] **Step 3: Write minimal implementation**
 
-```python
-def function(input):
-    return expected
+```ts
+export function placeOrder(order: { items: unknown[] }): void {
+  if (order.items.length === 0) throw new Error("An order needs at least one item");
+}
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -186,7 +188,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add tests/path/test.py src/path/file.py
+git add tests/path/test.ts src/path/file.ts
 git commit -m "feat: add specific feature"
 ```
 
@@ -209,7 +211,17 @@ subagent dispatch:
 2. **Placeholder scan:** no patterns from "No placeholders".
 3. **Type consistency:** types, method signatures, and property names match
    across tasks.
-4. **Zero open questions:** every fork resolved or carried as a prominently
+4. **Index/task consistency:** Does every task in the plan index have a
+   corresponding task file? Does every task file have a summary in the index?
+   Flag any mismatch as a blocking issue.
+5. **Test names:** Read every `it`, `test`, and `describe` name in the plan
+   against the repository's test-naming rules and domain glossary loaded by
+   the role document. Each name must state the situation and the expected
+   outcome in domain terms with the test's concrete values, and must not use
+   code identifiers, internal working terms, technique words, or change
+   history. Rewrite every name that fails; a reviewer must not have to ask
+   what a test proves.
+6. **Zero open questions:** every fork resolved or carried as a prominently
    stated, verified assumption.
 
 Fix issues inline.
@@ -218,8 +230,9 @@ Fix issues inline.
 
 Use `/grill-with-docs` when the plan introduces new or fuzzy domain language or
 a real, hard-to-reverse decision, pointing it at the docs named by
-`docs/agents/planner.md`. Skip it for plans that introduce no new terms or
-decisions.
+`docs/agents/planner.md`. A term counts as new when it is absent from the
+loaded glossary, even if the spec states that no glossary addition is needed.
+Skip it for plans that introduce no new terms or decisions.
 
 ## Verification
 
@@ -237,6 +250,7 @@ unless a tool requires them.
 
 After saving the plan, report the plan path, docs used, and self-review
 findings. Plans contain no open questions. After the user approves the plan,
-commit the plan/spec artifacts if they changed, and stop. Do not create an
-empty commit when no owned files changed. Do not invoke implementation agents
-automatically — ask the user first.
+commit the plan artifacts, use the `git-publish` skill to publish the branch and
+ensure a GitHub PR exists, report the finalized plan path and PR URL, and stop.
+Do not create an empty commit when no owned files changed. Do not invoke
+implementation agents automatically — ask the user first.

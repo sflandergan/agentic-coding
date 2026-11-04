@@ -17,9 +17,9 @@ Read `docs/agents/brainstorm.md` and follow it.
 Load every doc it lists for the area you are touching.
 Do not guess the domain — read the glossary docs it names.
 
-A brainstorm may start from an issue. When it does, read the issue first, treat its
-problem statement and constraints as the idea intake, and make the resulting spec
-reference the issue.
+A brainstorm may start from an issue. When it does, read the issue first with the
+issue tracker documented in `AGENTS.md`, treat its problem statement and
+constraints as the idea intake, and make the resulting spec PR link the issue.
 
 <HARD-GATE>
 Do NOT write code, scaffold anything, or take any implementation action until you have
@@ -119,10 +119,10 @@ classification portable across codebases.
 
 ## Stop conditions
 
-- After the spec is approved, save and report the spec path. Publish the spec
-  only when the installed brainstorm contract requires publication, by loading
-  the `git-publish` skill and running `bash scripts/publish-branch.sh` from that
-  skill's root.
+- After the spec is approved, commit the spec artifact if it changed, use the
+  `git-publish` skill to publish the current branch and ensure a GitHub PR
+  exists (this branch and PR carry the work through every later workflow),
+  report the spec path and PR URL, and stop.
   Never embed raw push or provider CLI commands and never invoke planning
   automatically.
 - Do not create an empty commit when no owned files changed.
@@ -142,8 +142,13 @@ Available as a tool — not a mode.
 - Do not offer it upfront. The first time a question would genuinely be clearer
   shown than told (a real mockup, layout, or diagram question — not merely a UI
   topic), offer it as its own message and wait for the response.
-- If accepted, start the server with `--project-dir <repo>`, share the URL from
-  the server output, and read `visual-companion.md`
+- If accepted, start the server with `--scratch-dir <scratch-location>`, share
+  the URL from the server output, and read `visual-companion.md`
   before proceeding. Decide per question whether the browser (visual content)
   or the terminal (text content) fits better.
+- The server binds to `127.0.0.1` by default; reaching it from another device
+  requires `--host 0.0.0.0 --url-host <reachable-host>`.
+- If the user supplies a hostname or IP address for another device, pass it
+  with `--url-host` and reuse it for companion restarts in this session unless
+  they ask to change it.
 - If declined, continue text-only and do not offer again unless the user raises it.

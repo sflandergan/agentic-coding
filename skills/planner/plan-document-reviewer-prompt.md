@@ -23,16 +23,19 @@ OpenCode task tool:
     | Completeness | TODOs, placeholders, incomplete tasks, missing steps |
     | Spec Alignment | Plan covers spec requirements, no major scope creep |
     | Task Decomposition | Tasks have clear boundaries, steps are actionable |
+    | Index/Task Consistency | Every task in `plan.md` index has a `tasks/*.md` file and vice versa; index summaries match task file content |
     | Buildability | Could an engineer follow this plan without getting stuck? |
+    | Test names | Does every test name state the situation and expected outcome in the repository's domain terms with concrete values, without code identifiers, internal working terms, technique words, or change history? |
 
     ## Calibration
 
     **Only flag issues that would cause real problems during implementation.**
     An implementer building the wrong thing or getting stuck is an issue.
     Minor wording, stylistic preferences, and "nice to have" suggestions are not.
+    Test names are not minor wording: implementers copy them verbatim, so a test name that breaks the repository's naming rules is an issue.
 
     Approve unless there are serious gaps — missing requirements from the spec,
-    contradictory steps, placeholder content, or tasks so vague they can't be acted on.
+    contradictory steps, placeholder content, test names that break the naming rules, or tasks so vague they can't be acted on.
 
     ## Required Double Check
 
