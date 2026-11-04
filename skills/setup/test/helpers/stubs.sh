@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared Bats fixtures for release-resolution and exact-source tests.
+# Shared Bats fixtures for release selection and exact-source tests.
 
 set -euo pipefail
 
@@ -9,33 +9,50 @@ stub_setup() {
   TEST_ROOT="$scratch_root/test-${BATS_TEST_NUMBER:-0}-${RANDOM}"
   STUB_BIN="$TEST_ROOT/bin"
   mkdir -p "$STUB_BIN"
-  REAL_TAR="$(command -v tar)"
-  export TEST_ROOT STUB_BIN REAL_TAR
+  REAL_GIT="$(command -v git)"
+  export TEST_ROOT STUB_BIN REAL_GIT
   export PATH="$STUB_BIN:$PATH"
 
   GIT_OUTPUT_FILE="$TEST_ROOT/git-output"
   GIT_CALL_LOG="$TEST_ROOT/git-calls"
   GIT_RESULT_INDEX_FILE="$TEST_ROOT/git-result-index"
+  GIT_FETCH_INDEX_FILE="$TEST_ROOT/git-fetch-index"
   GIT_RESULTS='0'
-  CURL_PAYLOAD=''
-  CURL_RESULTS='0'
-  CURL_CALL_LOG="$TEST_ROOT/curl-calls"
-  CURL_URL_LOG="$TEST_ROOT/curl-urls"
-  TAR_CALL_LOG="$TEST_ROOT/tar-calls"
-  export GIT_OUTPUT_FILE GIT_CALL_LOG GIT_RESULT_INDEX_FILE GIT_RESULTS CURL_PAYLOAD CURL_RESULTS CURL_CALL_LOG CURL_URL_LOG TAR_CALL_LOG
+  GIT_FETCH_RESULTS='0'
+  export GIT_OUTPUT_FILE GIT_CALL_LOG GIT_RESULT_INDEX_FILE GIT_FETCH_INDEX_FILE GIT_RESULTS GIT_FETCH_RESULTS
   : > "$GIT_OUTPUT_FILE"
   : > "$GIT_CALL_LOG"
   : > "$GIT_RESULT_INDEX_FILE"
-  : > "$CURL_CALL_LOG"
-  : > "$CURL_URL_LOG"
-  : > "$TAR_CALL_LOG"
+  : > "$GIT_FETCH_INDEX_FILE"
 
   cat > "$STUB_BIN/git" <<'EOF'
 #!/usr/bin/env bash
 set -u
 printf '%s\n' "$*" >> "$GIT_CALL_LOG"
+is_fetch=0
+for argument in "$@"; do
+  if [[ "$argument" == 'fetch' ]]; then
+    is_fetch=1
+    break
+  fi
+done
+if [[ "$is_fetch" -eq 1 ]]; then
+  IFS=',' read -r -a fetch_results <<< "${GIT_FETCH_RESULTS:-0}"
+  fetch_index=0
+  if [[ -s "$GIT_FETCH_INDEX_FILE" ]]; then
+    fetch_index="$(<"$GIT_FETCH_INDEX_FILE")"
+  fi
+  (( fetch_index < ${#fetch_results[@]} )) || fetch_index=$((${#fetch_results[@]} - 1))
+  fetch_result="${fetch_results[$fetch_index]}"
+  printf '%s\n' "$((fetch_index + 1))" > "$GIT_FETCH_INDEX_FILE"
+  if [[ "$fetch_result" -ne 0 ]]; then
+    exit "$fetch_result"
+  fi
+  exec "$REAL_GIT" "$@"
+fi
 if [[ "${1:-}" == 'ls-remote' ]]; then
   refspec=''
+  remote_seen=0
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
       ls-remote|--tags)
@@ -47,7 +64,11 @@ if [[ "${1:-}" == 'ls-remote' ]]; then
       -*|http://*|https://*)
         ;;
       *)
-        refspec="$1"
+        if [[ "$remote_seen" -eq 0 ]]; then
+          remote_seen=1
+        else
+          refspec="$1"
+        fi
         ;;
     esac
     shift
@@ -73,64 +94,9 @@ if [[ "${1:-}" == 'ls-remote' ]]; then
   done < "$GIT_OUTPUT_FILE"
   exit 0
 fi
-exit 97
+exec "$REAL_GIT" "$@"
 EOF
   chmod +x "$STUB_BIN/git"
-
-  cat > "$STUB_BIN/curl" <<'EOF'
-#!/usr/bin/env bash
-set -u
-output_path=''
-url=''
-saw_retry=0
-saw_retry_all_errors=0
-while [[ "$#" -gt 0 ]]; do
-  case "$1" in
-    --output)
-      output_path="${2:-}"
-      shift 2
-      ;;
-    --retry)
-      [[ "${2:-}" == '1' ]] || exit 96
-      saw_retry=1
-      shift 2
-      ;;
-    --retry-all-errors)
-      saw_retry_all_errors=1
-      shift
-      ;;
-    http://*|https://*)
-      url="$1"
-      shift
-      ;;
-    *)
-      shift
-      ;;
-  esac
-done
-printf '%s\n' "$*" >> "$CURL_CALL_LOG"
-printf '%s\n' "$url" >> "$CURL_URL_LOG"
-[[ -n "$output_path" && "$saw_retry" -eq 1 && "$saw_retry_all_errors" -eq 1 ]] || exit 96
-
-IFS=',' read -r -a results <<< "${CURL_RESULTS:-0}"
-for result in "${results[@]}"; do
-  printf '%s\n' "$result" >> "$CURL_CALL_LOG"
-  if [[ "$result" == '0' ]]; then
-    cp "$CURL_PAYLOAD" "$output_path"
-    exit 0
-  fi
-done
-exit "${results[${#results[@]}-1]}"
-EOF
-  chmod +x "$STUB_BIN/curl"
-
-  cat > "$STUB_BIN/tar" <<EOF
-#!/usr/bin/env bash
-set -u
-printf '%s\n' "\$*" >> "\$TAR_CALL_LOG"
-exec "$REAL_TAR" "\$@"
-EOF
-  chmod +x "$STUB_BIN/tar"
 }
 
 stub_teardown() {
@@ -147,23 +113,10 @@ stub_git_output() {
   : > "$GIT_RESULT_INDEX_FILE"
 }
 
-stub_git_failure() {
-  : > "$GIT_OUTPUT_FILE"
-  GIT_RESULTS='1'
-  export GIT_RESULTS
-  : > "$GIT_RESULT_INDEX_FILE"
-}
-
 stub_git_results() {
   GIT_RESULTS="$1"
   export GIT_RESULTS
   : > "$GIT_RESULT_INDEX_FILE"
-}
-
-stub_curl_payload() {
-  CURL_PAYLOAD="$1"
-  CURL_RESULTS="${2:-0}"
-  export CURL_PAYLOAD CURL_RESULTS
 }
 
 write_test_manifest() {
@@ -195,52 +148,4 @@ write_test_manifest() {
       }
     } | .skills["third" + "Party"] = []
   ' > "$output_path"
-}
-
-make_release_archive() {
-  local archive_path="$1"
-  local root_name="$2"
-  local manifest_path="$3"
-  local content_root="$TEST_ROOT/archive-content"
-
-  rm -rf "$content_root"
-  mkdir -p "$content_root/$root_name"
-  cp "$manifest_path" "$content_root/$root_name/manifest.json"
-  printf 'release asset\n' > "$content_root/$root_name/README.md"
-  "$REAL_TAR" -czf "$archive_path" -C "$content_root" "$root_name"
-}
-
-make_archive_with_member() {
-  local archive_path="$1"
-  local root_name="$2"
-  local member_name="$3"
-  local member_content="${4:-unsafe}\n"
-  local content_root="$TEST_ROOT/archive-content"
-  local member_path
-
-  rm -rf "$content_root"
-  mkdir -p "$content_root/$root_name"
-  printf '%b' "$member_content" > "$content_root/$root_name/manifest.json"
-  member_path="$content_root/$root_name/$member_name"
-  if [[ "$member_name" == /* || "$member_name" == ../* || "$member_name" == */../* ]]; then
-    python3 - "$archive_path" "$root_name" "$member_name" "$member_content" <<'PY'
-import io
-import sys
-import tarfile
-
-archive_path, root_name, member_name, content = sys.argv[1:]
-with tarfile.open(archive_path, "w:gz") as archive:
-    root = tarfile.TarInfo(root_name + "/")
-    root.type = tarfile.DIRTYPE
-    archive.addfile(root)
-    member = tarfile.TarInfo(member_name)
-    payload = content.encode()
-    member.size = len(payload)
-    archive.addfile(member, io.BytesIO(payload))
-PY
-  else
-    mkdir -p "$(dirname "$member_path")"
-    printf '%b' "$member_content" > "$member_path"
-    "$REAL_TAR" -czf "$archive_path" -C "$content_root" "$root_name"
-  fi
 }

@@ -402,16 +402,31 @@ test suite, creates the release-only commit and annotated tag, verifies the
 tagged tree locally, pushes only `refs/tags/<version>`, and re-resolves the
 published tag from the remote.
 
-After the run succeeds, verify the release manually:
+After the run succeeds, verify the release manually. Fetch the tag locally first
+(`git fetch --tags`); the check compares against your local `$release_ref`.
 
 ```bash
 toolkit_remote='https://github.com/sflandergan/agentic-coding-next'
 release_ref='v2.1.1'
-release_path='.temp/release.json'
 mkdir -p .temp
-skills/setup/scripts/resolve-release.sh "$toolkit_remote" stable "$release_ref" "$release_path"
-jq -e --arg ref "$release_ref" '.ref == $ref and .channel == "stable"' "$release_path"
+release_verification_dir="$(mktemp -d .temp/release-verification.XXXXXX)"
+if bash skills/setup/scripts/fetch-release.sh manifest \
+    "$toolkit_remote" "$release_ref" "$release_verification_dir" && \
+  jq -e --arg ref "$release_ref" \
+    --arg commit "$(git rev-parse "$release_ref^{commit}")" \
+    '.ref == $ref and .channel == "stable" and .commit == $commit' \
+    "$release_verification_dir/release.json"; then
+  rm -rf "$release_verification_dir"
+  rmdir .temp 2>/dev/null || true
+else
+  printf 'ERROR: release verification failed; inspect %s\n' \
+    "$release_verification_dir" >&2
+  false
+fi
 ```
+
+Failed verification preserves the generated directory for inspection and
+blocks completion of the release checklist.
 
 Recovery rules:
 
