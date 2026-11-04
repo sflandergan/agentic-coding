@@ -226,6 +226,33 @@
       "projectTarget": ".opencode/agents/explore.md",
       "globalTarget": "agent/explore.md",
       "releaseHash": "1ee8609433a225d3a1251722252b4262f8b6fbb2778080379d1cfe845a29f27c"
+    },
+    {
+      "id": "opencode-plugin:mistral-3rd-party",
+      "kind": "plugin",
+      "harness": "opencode",
+      "source": ".opencode/plugins/mistral-3rd-party.ts",
+      "projectTarget": ".opencode/plugins/mistral-3rd-party.ts",
+      "globalTarget": "plugins/mistral-3rd-party.ts",
+      "releaseHash": "f64740fa473608f03aecce5a52afa5157e334cee6bc09532956bbced29150a2e"
+    },
+    {
+      "id": "opencode-plugin:mistral-3rd-party-compatibility",
+      "kind": "plugin",
+      "harness": "opencode",
+      "source": ".opencode/plugins/mistral-3rd-party/compatibility.ts",
+      "projectTarget": ".opencode/plugins/mistral-3rd-party/compatibility.ts",
+      "globalTarget": "plugins/mistral-3rd-party/compatibility.ts",
+      "releaseHash": "23bc9523c30cd94bfb3234c79bc697436ff814525a780ddfdbdc6c710498117a"
+    },
+    {
+      "id": "opencode-plugin:mistral-3rd-party-readme",
+      "kind": "plugin",
+      "harness": "opencode",
+      "source": ".opencode/plugins/mistral-3rd-party/README.md",
+      "projectTarget": ".opencode/plugins/mistral-3rd-party/README.md",
+      "globalTarget": "plugins/mistral-3rd-party/README.md",
+      "releaseHash": "fb0fa0c5d0f61a7dd785b809c1bc35dd6b83968fd41e6553a888cc6411d66211"
     }
   ],
   "configurationAssets": [
@@ -268,6 +295,16 @@
       "format": "json",
       "mergeStrategy": "deep-merge",
       "sourceHash": "b4648dbf2c3145fa4a9fc33388d5aea5e75acc9eb721014f1c1d5c0dafba4792"
+    },
+    {
+      "id": "opencode:model-profile:mistral",
+      "harness": "opencode",
+      "source": "templates/opencode/models-mistral.json",
+      "projectTarget": "opencode.json",
+      "globalTarget": "opencode.json",
+      "format": "json",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "6e6b0f73fae114779f36fdde5e4de5d15a6be597dce277cc93955c13fe814430"
     }
   ],
   "templates": {

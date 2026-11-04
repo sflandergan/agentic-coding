@@ -93,15 +93,22 @@ new installations.
 ## OpenCode model profiles
 
 Setup inspects the target environment and proposes model or permission changes
-for explicit approval. It offers two named profiles:
+for explicit approval. It offers three named profiles:
 
 | Profile | Default | Behavior |
 |---|---|---|
 | `opencode-go` | Yes | Uses the bundled OpenCode-Go assignments below |
 | `opencode-go-openai` | No | Adds the deterministic OpenAI overlay to the bundled assignments |
+| `opencode-go-mistral` | No | Adds the Mistral overlay (GLM 5.3, GLM 5.3 Flash, DeepSeek V4.1 Flash) for OpenCode V1; also approve the bundled Mistral 3rd-party compatibility plugin assets |
 
-When existing model values are retained instead of selecting either profile,
+When existing model values are retained instead of selecting a profile,
 setup records `configuration.opencodeModelProfile: custom-retained`.
+
+The `opencode-go-mistral` profile adds the `mistral-3rd-party` provider block and
+moves the default model and the `build` agent onto
+`mistral-3rd-party/zai-glm-5-3` through the Mistral 3rd-party compatibility plugin, distributed
+as `plugin`-kind native assets; the other agent assignments stay at the base
+profile's values.
 
 ### Workflow Assignments
 
@@ -114,7 +121,7 @@ setup records `configuration.opencodeModelProfile: custom-retained`.
 
 The top-level default model is Qwen 3.8 Flash, with DeepSeek V4.1 Flash as
 `small_model`. The OpenAI overlay changes only the agents shown in the
-table; neither profile configures a third-party provider router.
+table; none of the profiles configures a provider router.
 
 The base `opencode.json` sets `default_agent` to `build`, disables `plan`, and
 carries the `build` bash allowlist: read-only Git and GitHub queries, local Git
@@ -168,6 +175,13 @@ Setup-managed native agents use `.opencode/agents/*.md`,
 `.claude/agents/*.md`, and `.codex/agents/*.toml` in project scope. Global
 agents use the harness-logical `agent/` or `agents/` targets under the selected
 harness home; the state file does not store absolute home paths.
+
+OpenCode's Mistral 3rd-party compatibility plugin ships as `plugin`-kind native assets
+installed to `.opencode/plugins/` (global: the OpenCode `plugins/` directory):
+`mistral-3rd-party.ts`, `mistral-3rd-party/compatibility.ts`, and `mistral-3rd-party/README.md`.
+The plugin's tests stay in this repository. Selecting the
+`opencode-go-mistral` profile should be paired with approving these three
+assets.
 
 ### Project templates and docs
 
@@ -486,7 +500,7 @@ This repo maintains its own markdown templates and bash scripts with a small age
 
 This repo uses OpenCode's `build` agent (the `default_agent`) with the skills below; it has no
 primary workflow agents. `opencode.json` carries the `build` permissions, the `explore` and
-`implement-task` worker settings, and the Mistral GLM 5.3 provider.
+`implement-task` worker settings, and the Mistral 3rd-party provider (GLM 5.3, GLM 5.3 Flash, DeepSeek V4.1 Flash).
 
 | Agent | Runtime | Purpose |
 |---|---|---|
@@ -495,8 +509,8 @@ primary workflow agents. `opencode.json` carries the `build` permissions, the `e
 | `implement-task` | OpenCode (`.opencode/agents/implement-task.md`, hidden), Claude Code (`.claude/agents/implement-task.md`) | Worker for exactly one task — verifies, commits, reports |
 
 Claude Code permissions live in `.claude/settings.json`; keep them aligned with `opencode.json` by hand.
-`.opencode/plugins/mistral-glm.ts` adapts Mistral-hosted GLM 5.3 to OpenCode V1; see
-`.opencode/plugins/mistral-glm/README.md` for setup and tests.
+`.opencode/plugins/mistral-3rd-party.ts` adapts Mistral-hosted GLM 5.3, GLM 5.3 Flash, and DeepSeek V4.1 Flash to OpenCode V1; see
+`.opencode/plugins/mistral-3rd-party/README.md` for setup and tests.
 
 ### Skills
 

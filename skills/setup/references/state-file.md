@@ -34,13 +34,13 @@ and the immutable 40-character lowercase commit resolved for the release.
 | `release.ref` | String | Selected release reference. |
 | `release.channel` | `stable` or `preview` | Selected release channel. |
 | `release.commit` | Lowercase 40-character hexadecimal string | Immutable commit resolved for the release. |
-| `scope` | Object | Skill and native-agent scopes. |
-| `scope.skills`, `scope.nativeAgents` | `project` or `global` | Each scope independently. |
+| `scope` | Object | Skill, native-agent, and plugin-file scopes. |
+| `scope.skills`, `scope.nativeAgents` | `project` or `global` | Each scope independently; the `nativeAgents` scope covers native agents and plugin files. |
 | `harnesses` | Array of harness identifier strings | Configured harnesses. |
 | `skillDistribution` | Object keyed by harness | Authored and third-party skill distribution channels for each harness. |
 | `skillDistribution.<harness>.authored`, `skillDistribution.<harness>.thirdParty` | `plugin` or `vercel-cli` | The installation channel for each skill category. |
 | `configuration` | Object | Harness configuration selections and contributions. |
-| `configuration.opencodeModelProfile` | String | Selected OpenCode model profile. |
+| `configuration.opencodeModelProfile` | String | Selected OpenCode model profile: opencode-go, opencode-go-openai, opencode-go-mistral, or custom-retained. |
 | `configuration.contributions` | Object keyed by configuration asset ID; each value contains a managed key/value map and `sourceHash` | Managed configuration values and the configuration asset source hash. |
 | `managedAssets` | Array of objects | Managed asset records. |
 | `managedAssets[].assetId` | String | Manifest asset identifier. |
