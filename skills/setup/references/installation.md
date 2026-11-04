@@ -73,6 +73,11 @@ use [release.md](release.md) for release resolution and source fetching.
    - `opencode-go`: base `templates/opencode/opencode.json`.
    - `opencode-go-openai`: the base profile plus
      `templates/opencode/models-openai.json`.
+   - `opencode-go-mistral`: the base profile plus
+     `templates/opencode/models-mistral.json`; also approve the three
+     Mistral 3rd-party compatibility plugin assets from `nativeAssets`, because OpenCode V1 needs
+     the plugin's request adapter for Mistral-hosted models. Setup lists the
+     assets with the profile but does not enforce the pairing.
 
    Preserve existing model values unless the user selects a profile or
    approves each changed value. Record the selected profile or

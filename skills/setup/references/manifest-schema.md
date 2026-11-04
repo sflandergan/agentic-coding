@@ -31,16 +31,22 @@ manifest whose `schemaVersion` is unsupported before applying any category.
 - **`subagents`** — per-harness name lists for `claude`, `codex`, and
   `opencode`.
 - **`nativeAssets`** — the complete release-hash-managed inventory of native
-  agents. Each entry has an ID, `kind` (`agent` or `subagent`), `harness`,
-  repository-relative `source`, project and logical global targets, and a
-  lowercase SHA-256 `releaseHash` of that source. Worker agents use IDs
-  `opencode-subagent:<name>`, `claude-subagent:<name>`, or
-  `codex-subagent:<name>`.
+  agents and OpenCode plugin files. Each entry has an ID, `kind` (`agent`,
+  `subagent`, or `plugin`), `harness`, repository-relative `source`, project
+  and logical global targets, and a lowercase SHA-256 `releaseHash` of that
+  source. Worker agents use IDs `opencode-subagent:<name>`,
+  `claude-subagent:<name>`, or `codex-subagent:<name>`. Plugin entries ship
+  harness runtime files that are not agents; the Mistral 3rd-party compatibility plugin
+  entries use IDs `opencode-plugin:mistral-3rd-party`,
+  `opencode-plugin:mistral-3rd-party-compatibility`, and
+  `opencode-plugin:mistral-3rd-party-readme`, whose project targets mirror their
+  sources under `.opencode/plugins/`.
 - **`configurationAssets`** — the complete inventory of harness configuration
   contributions. Each entry has an ID, harness, source, project/global
   targets, format, merge strategy, and lowercase SHA-256 `sourceHash`.
   `claude-code:settings` uses `permission-union`; `codex:config`,
-  `opencode:config`, and `opencode:model-profile:openai` use `deep-merge`.
+  `opencode:config`, `opencode:model-profile:openai`, and
+  `opencode:model-profile:mistral` use `deep-merge`.
   Configuration hashes protect only approved managed contributions, not the
   rest of a project-owned configuration file.
 - **`templates`** — paths for `agentsMd`, role documents, and the Claude Code,
@@ -65,19 +71,27 @@ manifest whose `schemaVersion` is unsupported before applying any category.
 - **`retired`** — array of asset or skill identifiers no longer shipped, such
   as the former `opencode-primary:<name>` agents whose project target was
   `.opencode/agents/<name>.md`. Present these as proposed removals and obtain
-  approval before deleting anything.
+  approval before deleting anything. `retired` entries are bare asset
+  identifiers without target paths. Setup derives a removal target only for
+  identifiers this schema defines (`opencode-primary:<name>`); retiring
+  `opencode-plugin:*` identifiers requires a target-derivation rule added in
+  the release that retires them.
 
-Native and configuration sources must exist in the selected release. Native
-asset IDs must exactly cover the OpenCode, Claude Code, and Codex worker
-inventories, with no duplicate IDs or
-source/target pairs. Project targets must use the harness paths declared by
-the asset, and logical global targets are relative to the harness home:
+Native and configuration sources must exist in the selected release. `agent`
+and `subagent` native asset IDs exactly cover the OpenCode, Claude Code, and
+Codex worker inventories; `plugin` native assets are listed separately, with no
+duplicate IDs or source/target pairs. Project targets must use the harness
+paths declared by the asset, and logical global targets are relative to the
+harness home:
 
 | Harness | Global home | Agent target | Configuration target |
 |---|---|---|---|
 | Claude Code | `${CLAUDE_CONFIG_DIR:-$HOME/.claude}` | `agents/<name>.md` | `settings.json` |
 | Codex | `${CODEX_HOME:-$HOME/.codex}` | `agents/<name>.toml` | `config.toml` |
 | OpenCode | `${XDG_CONFIG_HOME:-$HOME/.config}/opencode` | `agent/<name>.md` | `opencode.json` |
+
+Plugin native assets for OpenCode resolve their logical global targets under the
+OpenCode `plugins/` directory, for example `plugins/mistral-3rd-party.ts`.
 
 OpenCode worker agents, including the `explore` override of the built-in
 agent, use the `agent/` global directory. Missing

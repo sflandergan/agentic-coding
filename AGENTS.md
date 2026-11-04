@@ -70,8 +70,8 @@ instead of switching between primary agents. Only workers exist as agents:
 - Permissions live in `opencode.json` (`build`, `explore`, global) and
   `.claude/settings.json`; different runtimes, no shared source, so keep them in
   sync by hand.
-- `.opencode/plugins/mistral-glm*` adapts Mistral-hosted GLM 5.3 for OpenCode V1.
-  Run its tests from `.opencode/` with `bun test ./plugins/mistral-glm/test`.
+- `.opencode/plugins/mistral-3rd-party*` adapts Mistral-hosted GLM 5.3, GLM 5.3 Flash, and DeepSeek V4.1 Flash for OpenCode V1.
+  Run its tests from `.opencode/` with `bun test ./plugins/mistral-3rd-party/test`.
 
 ## Skill Lockfile Scopes
 

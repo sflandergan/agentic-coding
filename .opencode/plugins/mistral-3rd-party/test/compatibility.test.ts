@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createMistralGlmFetch, MODEL_ID } from "../compatibility";
-import { MistralGlmPlugin } from "../../mistral-glm";
+import { createMistral3rdPartyFetch, MODEL_IDS } from "../compatibility";
+import { Mistral3rdPartyPlugin } from "../../mistral-3rd-party";
 import type { Config, PluginInput } from "@opencode-ai/plugin";
 
 const endpoint = "https://api.mistral.ai/v1/chat/completions";
@@ -12,7 +12,7 @@ const chunk = (delta: unknown, finish_reason: string | null = null, index = 0) =
 const init = (extra: Record<string, unknown> = {}): RequestInit => ({
   method: "POST",
   headers: { "content-type": "application/json", authorization: "Bearer test-key" },
-  body: JSON.stringify({ model: MODEL_ID, stream: true, messages: [], ...extra }),
+  body: JSON.stringify({ model: "zai-glm-5-3", stream: true, messages: [], ...extra }),
 });
 function sse(parts: string[], headers: Record<string, string> = {}) {
   return new Response(
@@ -26,14 +26,14 @@ function sse(parts: string[], headers: Record<string, string> = {}) {
   );
 }
 async function normalized(parts: string[]) {
-  const response = await createMistralGlmFetch(async () => sse(parts))(endpoint, init());
+  const response = await createMistral3rdPartyFetch(async () => sse(parts))(endpoint, init());
   return (await response.text())
     .split("\n\n")
     .filter((value) => value.startsWith("data: {"))
     .map((value) => JSON.parse(value.slice(6)));
 }
 
-describe("Mistral GLM V1 compatibility", () => {
+describe("Mistral 3rd-party V1 compatibility", () => {
   test("keeps missing IDs stable across fragmented, parallel calls and normalizes stop", async () => {
     const values = await normalized([
       event(
@@ -122,7 +122,7 @@ describe("Mistral GLM V1 compatibility", () => {
         "",
       ].join(newline);
       // Single-character chunks include the problematic split between CR and LF.
-      const response = await createMistralGlmFetch(async () => sse([...raw]))(endpoint, init());
+      const response = await createMistral3rdPartyFetch(async () => sse([...raw]))(endpoint, init());
       const output = await response.text();
       expect(output).toContain(": heartbeat\n\n");
       expect(output).toContain("event: message\nid: 12\n");
@@ -135,7 +135,7 @@ describe("Mistral GLM V1 compatibility", () => {
     const bytes = encoder.encode(
       event(chunk({ content: [{ type: "text", text: "🚲" }] })).trimEnd(),
     );
-    const fetch = createMistralGlmFetch(
+    const fetch = createMistral3rdPartyFetch(
       async () =>
         new Response(
           new ReadableStream({
@@ -162,7 +162,7 @@ describe("Mistral GLM V1 compatibility", () => {
       { role: "assistant", reasoning: "", content: "Done" },
       { role: "user", content: "Question" },
     ];
-    const fetch = createMistralGlmFetch(async (_input, options) => {
+    const fetch = createMistral3rdPartyFetch(async (_input, options) => {
       sent = options;
       return sse(["data: [DONE]\n\n"]);
     });
@@ -186,7 +186,7 @@ describe("Mistral GLM V1 compatibility", () => {
   test("Request-object rewriting still normalizes responses and propagates cancellation signals", async () => {
     const abort = new AbortController();
     let sent: Request | undefined;
-    const fetch = createMistralGlmFetch(async (input) => {
+    const fetch = createMistral3rdPartyFetch(async (input) => {
       sent = input as Request;
       return sse([event(chunk({ content: [{ type: "thinking", thinking: "Plan" }] }))]);
     });
@@ -212,7 +212,7 @@ describe("Mistral GLM V1 compatibility", () => {
     const response = sse([event(chunk({ content: [{ type: "text", text: "Unchanged" }] }))]);
     const options = init(extra);
     let sent: RequestInit | undefined;
-    const fetch = createMistralGlmFetch(async (_input, value) => {
+    const fetch = createMistral3rdPartyFetch(async (_input, value) => {
       sent = value;
       return response;
     });
@@ -225,8 +225,8 @@ describe("Mistral GLM V1 compatibility", () => {
       status: 429,
       headers: { "retry-after": "10" },
     });
-    expect(await createMistralGlmFetch(async () => error)(endpoint, init())).toBe(error);
-    const response = await createMistralGlmFetch(async () =>
+    expect(await createMistral3rdPartyFetch(async () => error)(endpoint, init())).toBe(error);
+    const response = await createMistral3rdPartyFetch(async () =>
       sse(["data: [DONE]\n\n"], {
         "content-length": "100",
         "content-encoding": "gzip",
@@ -241,13 +241,13 @@ describe("Mistral GLM V1 compatibility", () => {
   });
 
   test("fails visibly on unsupported content and oversized SSE events", async () => {
-    const fetch = createMistralGlmFetch(async () =>
+    const fetch = createMistral3rdPartyFetch(async () =>
       sse([event(chunk({ content: [{ type: "unknown" }] }))]),
     );
     await expect((await fetch(endpoint, init())).text()).rejects.toThrow(
       "unsupported content type",
     );
-    const oversized = createMistralGlmFetch(async () => sse(["data: " + "x".repeat(1024 * 1024)]));
+    const oversized = createMistral3rdPartyFetch(async () => sse(["data: " + "x".repeat(1024 * 1024)]));
     await expect((await oversized(endpoint, init())).text()).rejects.toThrow("character limit");
   });
 
@@ -259,13 +259,13 @@ describe("Mistral GLM V1 compatibility", () => {
         }),
       ),
     );
-    const fetch = createMistralGlmFetch(async () => sse(parts));
+    const fetch = createMistral3rdPartyFetch(async () => sse(parts));
     await expect((await fetch(endpoint, init())).text()).rejects.toThrow("too many tool calls");
   });
 
   test("cancels the upstream stream when the consumer cancels", async () => {
     let cancelled = false;
-    const fetch = createMistralGlmFetch(
+    const fetch = createMistral3rdPartyFetch(
       async () =>
         new Response(
           new ReadableStream({
@@ -286,21 +286,63 @@ describe("Mistral GLM V1 compatibility", () => {
     expect(cancelled).toBe(true);
   });
 
-  test("plugin wraps only the configured compatibility provider", async () => {
+  test.each([...MODEL_IDS])(
+    "fills missing tool-call IDs and rewrites reasoning for %s",
+    async (model) => {
+      // Shape reported by OpenCode's "Type validation failed" error: no id, empty name.
+      const continuation = {
+        id: "abc",
+        object: "chat.completion.chunk",
+        model,
+        choices: [
+          {
+            index: 0,
+            delta: {
+              tool_calls: [{ function: { name: "", arguments: '{"command": "gh pr view ' }, index: 0 }],
+              index: 0,
+              content: "",
+            },
+            finish_reason: null,
+          },
+        ],
+      };
+      let sent: RequestInit | undefined;
+      const fetch = createMistral3rdPartyFetch(async (_input, options) => {
+        sent = options;
+        return sse([event(continuation), event(continuation)]);
+      });
+      const response = await fetch(
+        endpoint,
+        init({ model, messages: [{ role: "assistant", reasoning_content: "Plan", content: "" }] }),
+      );
+      const values = (await response.text())
+        .split("\n\n")
+        .filter((value) => value.startsWith("data: {"))
+        .map((value) => JSON.parse(value.slice(6)));
+      const [first, second] = values.map((value) => value.choices[0].delta.tool_calls[0].id);
+      expect(first).toMatch(/^call_[a-f0-9]{32}$/);
+      expect(second).toBe(first);
+      expect(JSON.parse(sent!.body as string).messages[0].content).toEqual([
+        { type: "thinking", thinking: [{ type: "text", text: "Plan" }] },
+      ]);
+    },
+  );
+
+  test.each([...MODEL_IDS])("plugin wraps only the compatibility provider configured with %s", async (model) => {
     const original = async () => sse(["data: [DONE]\n\n"]);
     const config: Config = {
       provider: {
-        "mistral-glm": {
+        "mistral-3rd-party": {
           npm: "@ai-sdk/openai-compatible",
-          models: { [MODEL_ID]: {} },
+          models: { [model]: {} },
           options: { fetch: original },
         },
         mistral: { options: { fetch: original } },
       },
     };
-    const hooks = await MistralGlmPlugin({} as PluginInput);
+    const hooks = await Mistral3rdPartyPlugin({} as PluginInput);
     await hooks.config!(config);
-    expect(config.provider!["mistral-glm"].options!.fetch).not.toBe(original);
+    expect(config.provider!["mistral-3rd-party"].options!.fetch).not.toBe(original);
     expect(config.provider!.mistral.options!.fetch).toBe(original);
   });
 });

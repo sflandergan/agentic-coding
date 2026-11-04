@@ -109,7 +109,7 @@ validateManifestShape() {
      (.nativeAssets | all(.[];
        type == "object" and
        (.id | type == "string" and length > 0) and
-       (.kind | type == "string" and (. == "agent" or . == "subagent")) and
+       (.kind | type == "string" and (. == "agent" or . == "subagent" or . == "plugin")) and
        (.harness | type == "string" and (. == "opencode" or . == "claude-code" or . == "codex")) and
        (.source | type == "string" and length > 0) and
        (.projectTarget | type == "string" and length > 0) and
@@ -220,14 +220,18 @@ validateNativeAssets() {
   local actual_hash
 
   if ! jq -e '
-    [(.opencode.subagents[] | "opencode-subagent:" + .),
+    ([(.opencode.subagents[] | "opencode-subagent:" + .),
      (.subagents.claude[] | "claude-subagent:" + .),
-     (.subagents.codex[] | "codex-subagent:" + .)] as $expected |
-    (.nativeAssets | map(.id)) as $actual |
-    (($actual | unique | length) == ($actual | length)) and
-    (($expected | sort) == ($actual | sort))
+     (.subagents.codex[] | "codex-subagent:" + .)] | sort) as $expected |
+    ([.nativeAssets[] | select(.kind != "plugin") | .id] | sort) as $actual |
+    ($expected == $actual) and
+    (([.nativeAssets[].id] | unique | length) == ([.nativeAssets[].id] | length)) and
+    (all(.nativeAssets[] | select(.kind == "plugin");
+      (.id | startswith("opencode-plugin:")) and (.harness == "opencode") and
+      (.projectTarget == .source) and
+      (.globalTarget == ("plugins/" + (.source | sub("^\\.opencode/plugins/"; ""))))))
   ' "$MANIFEST" >/dev/null; then
-    exitWithError "$MANIFEST: nativeAssets IDs must exactly match the declared agent inventories."
+    exitWithError "$MANIFEST: subagent asset IDs must exactly match the declared agent inventories; plugin assets must be self-consistent; asset IDs must be unique."
   fi
 
   if ! jq -e '
@@ -260,6 +264,11 @@ validateNativeAssets() {
          .source == ("agents/codex/" + $name + ".toml") and
          .projectTarget == (".codex/agents/" + $name + ".toml") and
          .globalTarget == ("agents/" + $name + ".toml"))
+      elif (.kind == "plugin") then
+        (.id | startswith("opencode-plugin:")) and
+        (.harness == "opencode") and
+        (.projectTarget == .source) and
+        (.globalTarget == ("plugins/" + (.source | sub("^\\.opencode/plugins/"; ""))))
       else false end
     )
   ' "$MANIFEST" >/dev/null; then
@@ -284,7 +293,8 @@ validateConfigurationAssets() {
       {id: "claude-code:settings", harness: "claude-code", source: "templates/claude/settings.json", projectTarget: ".claude/settings.json", globalTarget: "settings.json", format: "json", mergeStrategy: "permission-union"},
       {id: "codex:config", harness: "codex", source: "templates/codex/config.toml", projectTarget: ".codex/config.toml", globalTarget: "config.toml", format: "toml", mergeStrategy: "deep-merge"},
       {id: "opencode:config", harness: "opencode", source: "templates/opencode/opencode.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"},
-      {id: "opencode:model-profile:openai", harness: "opencode", source: "templates/opencode/models-openai.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"}
+      {id: "opencode:model-profile:openai", harness: "opencode", source: "templates/opencode/models-openai.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"},
+      {id: "opencode:model-profile:mistral", harness: "opencode", source: "templates/opencode/models-mistral.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"}
     ] as $expected |
     (.configurationAssets | map(del(.sourceHash)) | sort_by(.id)) == ($expected | sort_by(.id)) and
     ((.configurationAssets | map(.id) | unique | length) == (.configurationAssets | length))

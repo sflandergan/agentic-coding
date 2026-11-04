@@ -1,5 +1,11 @@
-export const PROVIDER_ID = "mistral-glm";
-export const MODEL_ID = "zai-glm-5-3";
+export const PROVIDER_ID = "mistral-3rd-party";
+// Mistral-hosted models that share the same streaming quirks (missing tool-call IDs,
+// structured thinking content). Pinned IDs only; "-latest" aliases are not matched.
+export const MODEL_IDS: ReadonlySet<string> = new Set([
+  "zai-glm-5-3",
+  "zai-glm-5-3-flash",
+  "deepseek-v4-1-flash-1017",
+]);
 const ENDPOINT = "https://api.mistral.ai/v1/chat/completions";
 const MAX_EVENT_CHARS = 1024 * 1024;
 const MAX_TOOL_CALLS = 4096;
@@ -29,7 +35,7 @@ async function prepareRequest(input: RequestInfo | URL, init?: RequestInit) {
   } catch {
     return;
   }
-  if (!object(body) || body.model !== MODEL_ID || body.stream !== true) return;
+  if (!object(body) || typeof body.model !== "string" || !MODEL_IDS.has(body.model) || body.stream !== true) return;
 
   let changed = false;
   for (const message of Array.isArray(body.messages) ? body.messages : []) {
@@ -69,7 +75,7 @@ function flattenContent(parts: unknown[]) {
   const text: string[] = [];
   const reasoning: string[] = [];
   for (const part of parts) {
-    if (!object(part)) throw new Error("Mistral GLM returned an invalid content part");
+    if (!object(part)) throw new Error("Mistral 3rd-party returned an invalid content part");
     if (part.type === "text" && typeof part.text === "string") {
       text.push(part.text);
     } else if (part.type === "thinking") {
@@ -77,12 +83,12 @@ function flattenContent(parts: unknown[]) {
       else if (Array.isArray(part.thinking)) {
         for (const item of part.thinking) {
           if (!object(item) || item.type !== "text" || typeof item.text !== "string") {
-            throw new Error("Mistral GLM returned an invalid thinking part");
+            throw new Error("Mistral 3rd-party returned an invalid thinking part");
           }
           reasoning.push(item.text);
         }
-      } else throw new Error("Mistral GLM returned an invalid thinking part");
-    } else throw new Error(`Mistral GLM returned unsupported content type: ${String(part.type)}`);
+      } else throw new Error("Mistral 3rd-party returned an invalid thinking part");
+    } else throw new Error(`Mistral 3rd-party returned unsupported content type: ${String(part.type)}`);
   }
   return { text: text.join(""), reasoning: reasoning.join("") };
 }
@@ -112,7 +118,7 @@ function normalizeChunk(chunk: unknown, ids: Map<string, string>, toolChoices: S
         let id = ids.get(key);
         if (!id) {
           if (ids.size >= MAX_TOOL_CALLS)
-            throw new Error("Mistral GLM stream contains too many tool calls");
+            throw new Error("Mistral 3rd-party stream contains too many tool calls");
           id =
             typeof call.id === "string" && call.id
               ? call.id
@@ -123,7 +129,7 @@ function normalizeChunk(chunk: unknown, ids: Map<string, string>, toolChoices: S
         toolChoices.add(index);
       }
     }
-    // Mistral-hosted GLM can report stop even after emitting tool calls.
+    // Mistral-hosted models can report stop even after emitting tool calls.
     if (choice.finish_reason === "stop" && toolChoices.has(index))
       choice.finish_reason = "tool_calls";
   }
@@ -167,7 +173,7 @@ function normalizeStream(body: ReadableStream<Uint8Array>) {
   function line(value: string, controller: TransformStreamDefaultController<string>) {
     eventChars += value.length + 1;
     if (eventChars > MAX_EVENT_CHARS)
-      throw new Error("Mistral GLM SSE event exceeds character limit");
+      throw new Error("Mistral 3rd-party SSE event exceeds character limit");
     if (value === "") event(controller);
     else lines.push(value);
   }
@@ -198,7 +204,7 @@ function normalizeStream(body: ReadableStream<Uint8Array>) {
           }
           buffer = buffer.slice(start);
           if (eventChars + buffer.length > MAX_EVENT_CHARS)
-            throw new Error("Mistral GLM SSE event exceeds character limit");
+            throw new Error("Mistral 3rd-party SSE event exceeds character limit");
         },
         flush(controller) {
           if (buffer.endsWith("\r")) line(buffer.slice(0, -1), controller);
@@ -210,7 +216,7 @@ function normalizeStream(body: ReadableStream<Uint8Array>) {
     .pipeThrough(new TextEncoderStream());
 }
 
-export function createMistralGlmFetch(originalFetch: Fetch): Fetch {
+export function createMistral3rdPartyFetch(originalFetch: Fetch): Fetch {
   return async (input, init) => {
     const request = await prepareRequest(input, init);
     const response = await originalFetch(request?.input ?? input, request ? request.init : init);

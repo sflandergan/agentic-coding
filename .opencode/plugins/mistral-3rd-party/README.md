@@ -1,19 +1,23 @@
-# Mistral GLM 5.3 compatibility (OpenCode V1)
+# Mistral 3rd-party compatibility (OpenCode V1)
 
-The project-local `../mistral-glm.ts` plugin is automatically discovered on restart.
-It wraps only the `mistral-glm` provider configured in the root `opencode.json`.
-Requests must be streaming POSTs for the exact `zai-glm-5-3` model at
-`https://api.mistral.ai/v1/chat/completions` to be transformed.
+The plugin is automatically discovered on restart: project-local at `../mistral-3rd-party.ts`, or global in the OpenCode `plugins/` directory.
+It wraps only the `mistral-3rd-party` provider configured in the root `opencode.json`.
+Requests must be streaming POSTs for one of the pinned models (`zai-glm-5-3`,
+`zai-glm-5-3-flash`, `deepseek-v4-1-flash-1017`; see `MODEL_IDS` in
+`compatibility.ts`) at `https://api.mistral.ai/v1/chat/completions` to be transformed.
 
 ## Setup
 
-Restart OpenCode, run `/connect`, choose **Mistral GLM 5.3 (V1 compatibility)**,
+Restart OpenCode, run `/connect`, choose **Mistral 3rd-party (V1 compatibility)**,
 and enter your Mistral API key. Alternatively, provide `MISTRAL_API_KEY` in the
 environment of the OpenCode process. An existing connection to the built-in
 `mistral` provider is a separate connection and is not automatically reused.
 
-Select `mistral-glm/zai-glm-5-3` in `/models`. This is also the configured build
-agent and project default. The existing small-model selection remains available
+Select `mistral-3rd-party/zai-glm-5-3`, `mistral-3rd-party/zai-glm-5-3-flash` or
+`mistral-3rd-party/deepseek-v4-1-flash-1017` in `/models`. Do not use the built-in
+`mistral/...` entries for these models: they bypass the plugin and fail with
+`Type validation failed ... tool_calls[0].id` errors. `zai-glm-5-3` is also the
+configured build agent and project default. The existing small-model selection remains available
 for title generation.
 
 ## Behavior
@@ -38,15 +42,15 @@ loops with older versions of the compatible SDK.
 This code does not log prompts or credentials, make additional network requests,
 or download remote plugin code. It is a V1-specific adapter; remove it when moving
 to V2's native Mistral support. Model IDs are deliberately pinned rather than
-following `zai-glm-latest`.
+following `zai-glm-latest`. To cover another Mistral-hosted model with the same
+symptoms, add it to `MODEL_IDS` and to the `mistral-3rd-party` provider in `opencode.json`.
 
 ## Verification
 
 From the repository root:
 
 ```sh
-pnpm exec bun test ./.opencode/plugins/mistral-glm/test
-pnpm exec tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler --lib es2022,dom,dom.iterable .opencode/plugins/mistral-glm.ts
+cd .opencode && bun test ./plugins/mistral-3rd-party/test
 opencode debug config
 ```
 

@@ -39,7 +39,7 @@ Run fresh and read the output. Scope each command to the changed files.
 - Script behavior changes: smoke run against `.temp/`, then remove the scratch directory
 - Skill script tests: `bats <skill>/test` for any skill whose scripts changed
 - Prose, templates, agents, skills, README: `codespell <changed files>`
-- Plugin changes under `.opencode/plugins/`: `cd .opencode && bun test ./plugins/mistral-glm/test`
+- Plugin changes under `.opencode/plugins/`: `cd .opencode && bun test ./plugins/mistral-3rd-party/test`
 - Configuration: `jq -e . <changed json files>` and `opencode debug config`
 - Consistency: README lists, `manifest.json`, lockfiles, dot-mapping, symlink resolution (`ls -la .agents/skills .claude/skills`)
 
