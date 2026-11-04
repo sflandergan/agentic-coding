@@ -59,6 +59,15 @@ The helper is the stable interface for this workflow.
 - Outdated inline threads may still be valid.
   Verify one against the current code before dismissing it.
 
+## Review Workflow
+
+1. Fetch PR comments when the caller's workflow involves a PR.
+2. Read the code each thread points at through its printed `path:line` anchor.
+3. Distinguish top-level conversation comments from inline threads before posting replies.
+4. Surface outdated inline threads as context; the calling review agent decides whether they still apply.
+5. For posting inside inline threads, require an exact approved reply batch with the target type, the `thread_id`, and the body.
+6. Post only the exact approved reply batch.
+
 ## Replies
 
 Replying mutates GitHub state, so it is not hidden behind the read helper.

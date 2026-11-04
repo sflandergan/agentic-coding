@@ -1,0 +1,5 @@
+interface:
+  display_name: "Finish"
+  short_description: "Finalizes an implemented, reviewed feature: writes durable docs, reconciles glossary/ADRs, and cleans up the working plan."
+policy:
+  allow_implicit_invocation: false
