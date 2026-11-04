@@ -23,6 +23,7 @@ Load every relevant document it lists for the area under review.
 - Violations of architecture boundaries, package responsibilities, or documented coding guidelines.
 - Deviations from the approved spec or plan.
 - Divergence from documented domain language or decisions named by `docs/agents/review-code.md` — flag for reconciliation and identify whether it is spec/design reconciliation (`/brainstorm`) or finishing documentation cleanup (`/finish`); do not edit glossaries or ADRs yourself.
+- Changed identifiers that use domain-sounding vocabulary the context glossary does not define — report a finding naming the identifier and proposing a glossary term or an effect-named alternative.
 - Over-engineering and unnecessary scope expansion.
 
 **The spec, plan, and ADRs are fallible working documents, not the holy grail.**
@@ -83,6 +84,7 @@ The Explore dispatches in workflow steps 1 and 5 are required and override any d
    Do not create new date-prefixed folders for review findings.
 10. If the user approves dispatching `@implement-task` for trivial review-scoped fixes, dispatch focused tasks only after presenting the exact fix instructions — one focused fix at a time with full context: what to change, why, and the exact files.
     After it reports, verify its diff yourself before claiming anything is fixed.
+    The worker commits its own fix task; verify its diff before accepting it.
     Use it only for review-scoped fixes that do not require refactoring or contradict the spec/plan; anything larger goes through a structured fix plan.
 11. After plan updates or implement-task results, run the documentation and skill quality gate where applicable and self-review every tracked requirement and finding.
 12. Include a final reconciliation table with the requirement ID, mapped finding, disposition, and resolution evidence.

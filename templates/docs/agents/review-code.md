@@ -14,7 +14,7 @@
 
 ## Repo Specifics
 
-- Report a finding for every changed identifier that uses domain-sounding vocabulary the context glossary does not define, naming the identifier and proposing a glossary term or an effect-named alternative.
+<!-- Add project-specific review rules here. -->
 
 ## Area Docs
 

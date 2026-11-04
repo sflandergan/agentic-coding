@@ -20,9 +20,17 @@
 
 ## Repo Specifics
 
-- When a task or worker report introduces a domain-sounding name the context glossary does not define, do not accept it; return the term to planning or the user before accepting the task as DONE.
+- Name the repository's changed-code audit document and the enumerations it requires; the controller and workers apply it.
+
+## UI Integration
+
+Used only when the approved spec's `## UI Design` marker is `ui-design: required`.
+
+<!-- TODO: Replace with repository-specific UI integration configuration:
+     startup commands and readiness URLs;
+     deterministic local data setup and teardown;
+     screenshot baseline paths;
+     prohibited endpoints, credentials, or data. -->
 
 <!-- TODO: Replace with repository-specific implementation configuration, such as:
-     UI integration startup commands, readiness URLs, and screenshot paths;
-     directories the worker may write to during implementation;
-     prohibited endpoints, credentials, or data. -->
+     directories the worker may write to during implementation. -->
