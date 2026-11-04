@@ -149,6 +149,18 @@ jobs:
             | jq -e --arg ref "$VERSION" '.release.ref == $ref and .release.channel == "stable"'
           echo "Verified: $VERSION -> $remote_commit"
 
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$VERSION" \
+            --verify-tag \
+            --title "Agentic Coding $VERSION" \
+            --generate-notes \
+            --notes-start-tag "$PREVIOUS_VERSION" \
+            --latest
+
       - name: Report failure context
         if: failure()
         run: |
