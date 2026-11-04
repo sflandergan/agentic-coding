@@ -89,7 +89,12 @@ jobs:
           echo "Releasing $VERSION from source commit $source_commit"
 
       - name: Install bats
-        run: npm install --global bats@1.11.0
+        run: |
+          set -euo pipefail
+          # Install into a runner-owned prefix: the global npm prefix (/usr/local) is not writable.
+          npm install --global --prefix "$RUNNER_TEMP/bats" bats@1.11.0
+          echo "$RUNNER_TEMP/bats/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/bats/bin/bats" --version
 
       - name: Prepare the stable manifest
         run: |
