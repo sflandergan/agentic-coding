@@ -7,18 +7,23 @@ loaded.
 1. Check the required tools before writing dependent files:
 
    ```bash
-   command -v git curl jq tar node npx mktemp
+   for required_tool in git jq tar node npx mktemp; do
+     command -v "$required_tool" >/dev/null 2>&1 || {
+       printf 'ERROR: required tool is missing: %s\n' "$required_tool" >&2
+       exit 1
+     }
+   done
    node --version
    npx skills --version
    ```
 
-   Read the selected manifest's declared Node.js and skills CLI constraints
-   and compare them with those versions. Stop before dependent writes when a
+   `fetch-release.sh` checks for `shasum` or `sha256sum` itself. Read the
+   selected manifest's declared Node.js and skills CLI constraints and
+   compare them with those versions. Stop before dependent writes when a
    required tool is missing or a constraint is not satisfied.
 
-2. Resolve the requested release once. `latest` selects the highest semantic
-   version tag on the stable channel, an exact semantic-version tag must
-   exist, and `main` resolves the preview branch `refs/heads/main`:
+2. Generate a dedicated scratch directory and fetch the requested release
+   metadata and manifest:
 
    ```bash
    temp_root="${TMPDIR:-${TMP:-/tmp}}"
@@ -26,46 +31,35 @@ loaded.
      printf 'ERROR: unable to create release scratch directory below %s\n' "$temp_root" >&2
      exit 1
    }
-   release_path="$scratch_dir/release.json"
-   bash scripts/resolve-release.sh "$toolkit_remote" "$channel" "$requested_ref" "$release_path"
+   bash scripts/fetch-release.sh manifest \
+     "$toolkit_remote" "$requested_ref" "$scratch_dir"
    ```
 
-3. Read the resolver output and require a user-facing `ref`, a `stable` or
-   `preview` `channel`, and a 40-character hexadecimal `commit`:
+3. `fetch-release.sh manifest` has already validated the metadata; read it
+   into variables:
 
    ```bash
-   jq -e '
-     (.ref | type == "string" and length > 0) and
-     (.channel == "stable" or .channel == "preview") and
-     (.commit | type == "string" and test("^[0-9a-fA-F]{40}$"))
-   ' "$release_path"
+   release_path="$scratch_dir/release.json"
+   manifest_path="$scratch_dir/manifest.json"
+   clone_dir="$scratch_dir/clone"
+   source_dir="$scratch_dir/source"
    release_ref="$(jq -r '.ref' "$release_path")"
    release_channel="$(jq -r '.channel' "$release_path")"
    release_commit="$(jq -r '.commit' "$release_path")"
    ```
 
-4. Fetch only the selected release metadata into the generated scratch directory:
-
-   ```bash
-   manifest_path="$scratch_dir/manifest.json"
-   bash scripts/fetch-release-manifest.sh \
-     "$toolkit_remote" "$release_ref" "$release_channel" "$release_commit" "$manifest_path"
-   ```
-
-5. Present `ref`, `channel`, `commit`, requested scope, selected harnesses,
+4. Present `ref`, `channel`, `commit`, requested scope, selected harnesses,
    and the manifest's proposed authored, third-party, native, and template
    components. Ask for approval before fetching or writing release assets.
 
-6. After approval, fetch the archive at the same immutable commit. Do not run
-   the resolver again during this setup run:
+5. After approval, export the pinned tree from the same clone. Do not clone
+   again or select another release during this setup run:
 
    ```bash
-   source_dir="$scratch_dir/source"
-   bash scripts/fetch-release-assets.sh \
-     "$toolkit_remote" "$release_commit" "$manifest_path" "$source_dir"
+   bash scripts/fetch-release.sh source "$scratch_dir"
    ```
 
-7. After all approved operations and state verification succeed, remove only the
+6. After all approved operations and state verification succeed, remove only the
    generated scratch directory:
 
    ```bash
@@ -73,4 +67,6 @@ loaded.
    ```
 
    If any operation fails, leave `$scratch_dir` intact and report its exact
-   value so the user can recover or inspect it.
+   value so the user can recover or inspect it. If a fetch fails on
+   authentication, tell the user to configure git credentials for the toolkit
+   remote and retry the setup run; do not write `.agentic-coding.json`.
