@@ -1,0 +1,5 @@
+interface:
+  display_name: "Bugfix"
+  short_description: "Investigates bugs from error logs or behavior descriptions, traces root cause through code and data, and produces a structured GitHub issue."
+policy:
+  allow_implicit_invocation: false

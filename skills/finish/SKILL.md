@@ -92,11 +92,17 @@ If the user requested narrower verification, follow that and state what was not 
 
 ### Step 7 — Publish the change request
 
-Publish the verified commit and mark the PR ready in one guarded step:
+Publish the verified commit and mark the PR ready in one guarded step.
+
+Codex: run the publication helper with `sandbox_permissions: "require_escalated"` from the start because remote Git and GitHub access are required.
+
+Run:
 
 ```bash
 bash scripts/publish-and-ready.sh
 ```
+
+Run the command shown above with no arguments and no flags.
 
 The script rechecks freshness first (exit `99` means the base moved and a rebase was performed — rerun the complete applicable verification gate from Step 6, then retry this step). It then publishes through `git-publish` — argument-less first publication when the remote branch is absent, guarded existing-PR mode when the branch is retained — validates the PR identity, and marks the open PR ready with the exact verified SHA.
 

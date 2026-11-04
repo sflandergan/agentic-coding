@@ -1,0 +1,5 @@
+interface:
+  display_name: "Review Plan"
+  short_description: "Reviews a spec or plan, reports findings, and finalizes it for implementation after approval."
+policy:
+  allow_implicit_invocation: false

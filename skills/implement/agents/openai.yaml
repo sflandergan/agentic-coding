@@ -1,0 +1,5 @@
+interface:
+  display_name: "Implement"
+  short_description: "Implements an approved plan task-by-task by dispatching implement-task workers, with TDD, one commit per task, and verification."
+policy:
+  allow_implicit_invocation: false
