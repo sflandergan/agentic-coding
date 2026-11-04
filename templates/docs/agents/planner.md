@@ -14,7 +14,7 @@
 
 ## Repo Specifics
 
-<!-- Add project-specific planning rules here. -->
+<!-- Add project-specific rules here. -->
 
 ## Area Docs
 

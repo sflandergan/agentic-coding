@@ -237,7 +237,7 @@ Under `docs/`:
 - `docs/contexts/placeholder/CONTEXT.md`
 - `docs/adr/0001-record-architecture-decisions.md`
 - `docs/adr/ADR-TEMPLATE.md`
-- `docs/features/README.md`
+- `docs/features/index.md`
 
 ### Area Docs
 

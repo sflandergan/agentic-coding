@@ -81,16 +81,28 @@ bash scripts/start-server.sh --project-dir /path/to/project --foreground
 
 **Other environments:** The server must keep running in the background across conversation turns. If your environment reaps detached processes, use `--foreground` and launch the command with your platform's background execution mechanism.
 
-If the URL is unreachable from your browser (common in remote/containerized setups), bind a non-loopback host:
+## LAN mode
+
+The companion server binds to `127.0.0.1` by default, so the URL it prints is reachable only from the machine running it.
+
+Reaching the companion from another device requires binding a non-loopback host and printing a reachable URL host:
 
 ```bash
 bash scripts/start-server.sh \
   --project-dir /path/to/project \
   --host 0.0.0.0 \
-  --url-host localhost
+  --url-host <reachable-host>
 ```
 
-Use `--url-host` to control what hostname is printed in the returned URL JSON.
+- `--host 0.0.0.0` binds the server to all interfaces.
+- `--url-host` controls the hostname printed in the returned JSON URL.
+  Use the hostname or IP the user will type into their browser.
+
+**Session persistence.**
+If the user supplies `--url-host`, remember that value and reuse it for every companion restart in the same session unless they ask to change it.
+
+**Security note.**
+Binding to `0.0.0.0` exposes the mockup server to the local network.
 
 ## The Loop
 

@@ -18,7 +18,7 @@ A feature map gives a compact overview of what has been built for a named capabi
 ## Required investigation
 
 1. Start from the completed diff and changed packages; group affected files by package or feature-module root.
-2. Read `docs/features/README.md` and neighboring maps to detect overlap.
+2. Read the feature index: `docs/features/index.md`. Read neighboring maps to detect overlap.
 3. Verify the current package roots and stable entry points in source.
 4. Load applicable architecture guides independently for correctness; do not add them as map back-references.
 5. Read only ADRs whose non-obvious decisions may constrain the capability.

@@ -49,11 +49,11 @@ The Explore dispatches in workflow steps 1 and 5 are required and override any d
    - When the approved specification contains `ui-design: required`: read
      both handoffs (`plans/<feature-dir>/ui-design.md` and
      `plans/<feature-dir>/ui-integration.md`).
-     Check that the integration evidence records the routes and deterministic data used, handoff-state mapping, dated command results, audit and critique findings and dispositions, human approval, accepted limitations, and baseline paths when baselines exist.
+     Check that the integration evidence records the routes and deterministic data used, handoff-state mapping, dated command results, audit and critique findings and dispositions, human approval, and accepted limitations.
      Verify every referenced tracked artifact exists.
      On a concrete gap, list the exact missing item and ask the human how to proceed before continuing.
      Record any human-accepted limitation in review findings.
-     When review fixes affect presentation, production mapping, or regression baselines, require refreshed implementation evidence before the review can be marked complete.
+     When review fixes affect presentation or production mapping, require refreshed implementation evidence before the review can be marked complete.
    - When the approved specification contains `ui-design: not-required`: skip
      the evidence check entirely and retain the normal review path.
 5. Review the changed code against architecture, coding guidelines, testing guidance, logging guidance, the approved plan/spec, documented domain language, ADRs, and any area docs loaded from `docs/agents/review-code.md`.

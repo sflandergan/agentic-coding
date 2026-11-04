@@ -24,6 +24,10 @@ This is a placeholder project description. Replace this section with a one-parag
 - Keep commits scoped to one logical change.
 - Do not add `Co-Authored-By` lines.
 
+## Issue Tracking
+
+Replace this section with where the project tracks issues and how agents read them, for example `gh issue view <number>` for GitHub issues.
+
 ## Verification Baseline
 
 Replace this section with the project's verification commands. A typical baseline:

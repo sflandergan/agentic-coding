@@ -153,12 +153,11 @@ After all plan tasks and final implementation reconciliation are complete:
 7. Give `ui-design-task` a self-contained presentation packet. It does not verify, commit, reinterpret design direction, or edit outside that packet.
 8. Inspect every correction diff and reject only out-of-packet worker hunks without disturbing pre-existing work. Rerun affected checks, include accepted non-committing UI corrections in the final integration commit, and repeat until each finding is corrected, explicitly accepted by the human, or escalated as a material design conflict.
 9. Present the checked local result for human approval.
-10. After approval, record concise integration evidence and capture only selected stable screenshots as committed regression baselines.
+10. After approval, record concise integration evidence.
 11. Stop every process started by the gate on success, failure, or cancellation.
 
 Each finding's disposition is corrected, an accepted limitation approved by the human, or an unresolved material conflict requiring focused UI-design reconciliation.
-Write `plans/<feature-dir>/ui-integration.md` with the routes and deterministic data used, handoff-state mapping, dated command results, audit and critique findings and dispositions, human approval, accepted limitations, and baseline paths when baselines exist.
-Baseline updates record the inspected reason; never update a snapshot merely to pass.
+Write `plans/<feature-dir>/ui-integration.md` with the routes and deterministic data used, handoff-state mapping, dated command results, audit and critique findings and dispositions, human approval, and accepted limitations.
 
 ## Verification before any completion claim
 
@@ -168,7 +167,7 @@ Before saying anything is complete, fixed, passing, or ready, use the
 read their current output; a worker's success report does not count. After
 a worker reports success, verify its diff and rerun the relevant checks
 yourself. Final verification: rerun the named verification commands after
-the integrated gate, all corrections, and baseline capture; inspect the
+the integrated gate and all corrections; inspect the
 current output; do not rely on earlier runs, cached task status, or worker
 reports.
 
