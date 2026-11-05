@@ -113,6 +113,59 @@ permission:
     "*>*~/*": deny
     "*>*$*": deny
     "*>*`*": deny
+    "bun --version": allow
+    "opencode --version": allow
+    "ctx7 setup": ask
+    "ctx7 login": ask
+    "ctx7 logout": ask
+    "npm install -g ctx7": ask
+    "npm install -g ctx7@*": ask
+    "bun --version 2>/dev/null": allow
+    "opencode --version 2>/dev/null": allow
+    "find *-fprintf*": deny
+    "git grep *-O=*": deny
+    "git remote -v >*": deny
+    "ls *>*>*": deny
+    "*>*/Applications/*": deny
+    "*>*/bin/*": deny
+    "*>*/cores/*": deny
+    "*>*/etc/*": deny
+    "*>*/home/*": deny
+    "*>*/Library/*": deny
+    "*>*/opt/*": deny
+    "*>*/private/*": deny
+    "*>*/sbin/*": deny
+    "*>*/System/*": deny
+    "*>*/Users/*": deny
+    "*>*/usr/*": deny
+    "*>*/var/*": deny
+    "*>*/Volumes/*": deny
+    "*>*/dev/a*": deny
+    "*>*/dev/b*": deny
+    "*>*/dev/c*": deny
+    "*>*/dev/d*": deny
+    "*>*/dev/e*": deny
+    "*>*/dev/f*": deny
+    "*>*/dev/g*": deny
+    "*>*/dev/h*": deny
+    "*>*/dev/i*": deny
+    "*>*/dev/j*": deny
+    "*>*/dev/k*": deny
+    "*>*/dev/l*": deny
+    "*>*/dev/m*": deny
+    "*>*/dev/o*": deny
+    "*>*/dev/p*": deny
+    "*>*/dev/q*": deny
+    "*>*/dev/r*": deny
+    "*>*/dev/s*": deny
+    "*>*/dev/t*": deny
+    "*>*/dev/u*": deny
+    "*>*/dev/v*": deny
+    "*>*/dev/w*": deny
+    "*>*/dev/x*": deny
+    "*>*/dev/y*": deny
+    "*>*/dev/z*": deny
+    "*>*/dev/nfsclnt*": deny
 ---
 
 # Explore Agent
@@ -141,13 +194,15 @@ Adapt your search to the level the caller requests:
 ### 1. Repository inspection (primary)
 
 - For a feature question, start at `docs/features/index.md` when it exists, then the matching feature map's `Main Packages and Entry Points`. Verify its claims against current source and report stale references.
-- Prefer Glob and Grep for discovery and targeted Read ranges for known files.
+- Use Glob, Grep, Read, and List for repository inspection; prefer Grep and targeted Read ranges over reading whole files.
 - Use Bash only for read-only inspection and read-only Git state. Anything not allowlisted is denied; report the missing capability instead of improvising.
-- A Bash command containing `>` requests approval, even inside a quoted string. Write commands without redirects.
+- Context7 setup, login, and installation commands prompt the user. Skill-provided helper commands are separately allowlisted — invoke the skill and follow its instructions instead of composing the command yourself.
+- Prefer the Grep tool over `rg` or `grep` in Bash. A Bash command containing `>` requests approval, even inside a quoted string, because the permission layer cannot distinguish a redirect operator from a quoted character such as `"=>"`. Write commands without redirects where possible.
+- Use local Git evidence only when history, diffs, commits, or tracked-file state materially help answer the question.
 
 ### 2. Context7 documentation
 
-Invoke the `context7-cli` skill when a framework or library question remains unanswered by repository code and docs. Never include proprietary source, secrets, or personal data in a Context7 query.
+Invoke the `context7-cli` skill when a framework or library question remains unanswered by repository code and docs. First check repository code, documentation, and the dependency version in use. Never include proprietary source, secrets, or personal data in a Context7 query. If Context7 cannot answer, report the limitation and use the best repository evidence; do not fall back to general web research.
 
 ### 3. GitHub pull-request context
 
@@ -155,7 +210,7 @@ Invoke the `github-pr-comments` skill only when the task needs pull-request meta
 
 ### 4. External web research
 
-Use web fetch or web search only when the caller explicitly asks for it, and ask for approval first. Never use web tools to inspect this repository or to work around a blocked channel.
+Use web fetch or web search only when the caller explicitly asks for it, and ask for approval first. Never use web tools to inspect this repository, replace Context7 documentation lookup, or work around a blocked channel.
 
 ## Error Handling
 
