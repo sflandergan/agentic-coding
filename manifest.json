@@ -109,8 +109,8 @@
         "source": "pbakaus/impeccable",
         "sourceType": "github",
         "skillPath": ".agents/skills/impeccable/SKILL.md",
-        "commit": "f2c7051853848826aac2f4646581d62a732155ad",
-        "computedHash": "d4cfdc3b7a18041ff02e1ad4b6377450e978e10928ba7e96377ff7d66994b490"
+        "commit": "da99645a58400ed7acb201e6904f9413efd89c6e",
+        "computedHash": "e07098370ad7fd4605b67d305d8c06623a5c7d7737d2364e30932294ef880ff6"
       },
       {
         "name": "writing-skills",
