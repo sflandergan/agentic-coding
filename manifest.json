@@ -225,7 +225,7 @@
       "source": "agents/opencode/subagents/explore.md",
       "projectTarget": ".opencode/agents/explore.md",
       "globalTarget": "agent/explore.md",
-      "releaseHash": "1ee8609433a225d3a1251722252b4262f8b6fbb2778080379d1cfe845a29f27c"
+      "releaseHash": "67e5f5a7d32675c688c2f1423c36ac0b32f42b77ba8dc00ec15aa43c3d607102"
     },
     {
       "id": "opencode-plugin:mistral-3rd-party",
