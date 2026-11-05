@@ -1,6 +1,6 @@
 ---
 name: implement-task
-description: Use when one plan task is ready for implementation: implement exactly that task with TDD, commit exactly the task's changes, self-review, and report a structured status.
+description: "Use when one plan task is ready for implementation: implement exactly that task with TDD, commit exactly the task's changes, self-review, and report a structured status."
 user-invocable: false
 ---
 
