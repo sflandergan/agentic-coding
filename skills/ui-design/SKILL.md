@@ -1,6 +1,6 @@
 ---
 name: ui-design
-description: Use when an approved specification marks `ui-design: required` — produce approved presentation code through a preview-first interactive loop with ui-design-task workers, inspect every scenario and viewport against the live preview, and write the final handoff.
+description: "Use when an approved specification marks `ui-design: required` — produce approved presentation code through a preview-first interactive loop with ui-design-task workers, inspect every scenario and viewport against the live preview, and write the final handoff."
 argument-hint: [path to approved specification]
 disable-model-invocation: true
 ---
