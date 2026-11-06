@@ -65,7 +65,10 @@
       "Bash(gh run view:*)",
       "Bash(bash .agents/scripts/ui-design/preview.sh start)",
       "Bash(bash .agents/scripts/ui-design/preview.sh probe)",
-      "Bash(bash .agents/scripts/ui-design/preview.sh stop)"
+      "Bash(bash .agents/scripts/ui-design/preview.sh stop)",
+
+      "Bash(.agents/skills/impeccable/scripts/impeccable:*)",
+      "Bash(.claude/skills/impeccable/scripts/impeccable:*)"
     ],
     "ask": [
       "Bash(git reset --hard:*)",
@@ -74,7 +77,15 @@
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
       "Bash(bash *scripts/reply-to-pr-comment.sh:*)",
-      "Bash(bash *scripts/update-bug-issue.sh:*)"
+      "Bash(bash *scripts/update-bug-issue.sh:*)",
+      "Bash(.agents/skills/impeccable/scripts/impeccable hooks:*)",
+      "Bash(.agents/skills/impeccable/scripts/impeccable pin:*)",
+      "Bash(.agents/skills/impeccable/scripts/impeccable doctor:*)",
+      "Bash(.agents/skills/impeccable/scripts/impeccable generate-image:*)",
+      "Bash(.claude/skills/impeccable/scripts/impeccable hooks:*)",
+      "Bash(.claude/skills/impeccable/scripts/impeccable pin:*)",
+      "Bash(.claude/skills/impeccable/scripts/impeccable doctor:*)",
+      "Bash(.claude/skills/impeccable/scripts/impeccable generate-image:*)"
     ],
     "deny": [
       "Bash(git branch -d:*)",

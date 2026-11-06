@@ -26,8 +26,8 @@
       "source": "pbakaus/impeccable",
       "sourceType": "github",
       "skillPath": ".agents/skills/impeccable/SKILL.md",
-      "commit": "da99645a58400ed7acb201e6904f9413efd89c6e",
-      "computedHash": "e07098370ad7fd4605b67d305d8c06623a5c7d7737d2364e30932294ef880ff6"
+      "commit": "414603bf14c7a344edb466bb1f85690c77ce8b7d",
+      "computedHash": "ba5d6e38f26d2e945237bcd0024aa2ff9b1f81f07970fafaa36c09244d2abeaf"
     },
     "writing-skills": {
       "source": "obra/superpowers",

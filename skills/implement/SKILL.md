@@ -147,16 +147,22 @@ After all plan tasks and final implementation reconciliation are complete:
 1. Start the plan's local environment and wait for every documented readiness URL.
 2. Reach each approved handoff state at its planned production route using deterministic local data.
 3. Run the planned behavior, accessibility, responsive, and completed-flow checks.
-4. Invoke `/impeccable audit` and `/impeccable critique` against the checked local result.
-5. Record each test, audit, critique, or human finding with its source and disposition.
-6. Classify every actionable finding and route it by boundary: a presentation correction within the approved direction goes to `ui-design-task`; a behavior, integration, data, test, configuration, or cross-boundary correction goes to `implement-task`; a material conflict with the approved direction stops for focused human-led UI-design reconciliation.
-7. Give `ui-design-task` a self-contained presentation packet. It does not verify, commit, reinterpret design direction, or edit outside that packet.
-8. Inspect every correction diff and reject only out-of-packet worker hunks without disturbing pre-existing work. Rerun affected checks, include accepted non-committing UI corrections in the final integration commit, and repeat until each finding is corrected, explicitly accepted by the human, or escalated as a material design conflict.
+4. Invoke `/impeccable audit` and `/impeccable critique` against the checked local result. Run both from this orchestrating session, which holds the subagent tool (Claude Code `Agent`; OpenCode `task` with `general` allowed), so critique spawns its two assessment subagents. When the critique report starts with `⚠️ DEGRADED`, do not rerun it; record the banner's reason in step 5 as a source limitation of the critique findings and continue.
+5. Record every test, audit, critique, and human finding with its source.
+6. Route each actionable finding:
+
+   | Finding | Route |
+   |---|---|
+   | Presentation correction that keeps the approved direction (layout, spacing, typography, color, copy, responsive behavior) | `ui-design-task`, with a self-contained presentation packet |
+   | Behavior, integration, data, test, or configuration correction, or one that spans presentation and logic | `implement-task` |
+   | Correction that would change the approved direction | Stop and ask the human for a focused UI-design reconciliation |
+
+7. After each worker returns, review its diff and revert only that worker's hunks outside its packet's owned files. Rerun the checks the correction affects. `ui-design-task` does not commit; include its accepted changes in the final integration commit.
+8. Repeat steps 3–7 until every finding is corrected, accepted by the human as a limitation, or stopped as a direction conflict.
 9. Present the checked local result for human approval.
 10. After approval, record concise integration evidence.
-11. Stop every process started by the gate on success, failure, or cancellation.
+11. Delete `.impeccable/critique/` with the gate's other scratch files, and stop every process started by the gate, on success, failure, or cancellation.
 
-Each finding's disposition is corrected, an accepted limitation approved by the human, or an unresolved material conflict requiring focused UI-design reconciliation.
 Write `plans/<feature-dir>/ui-integration.md` with the routes and deterministic data used, handoff-state mapping, dated command results, audit and critique findings and dispositions, human approval, and accepted limitations.
 
 ## Verification before any completion claim

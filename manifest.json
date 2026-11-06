@@ -109,8 +109,8 @@
         "source": "pbakaus/impeccable",
         "sourceType": "github",
         "skillPath": ".agents/skills/impeccable/SKILL.md",
-        "commit": "da99645a58400ed7acb201e6904f9413efd89c6e",
-        "computedHash": "e07098370ad7fd4605b67d305d8c06623a5c7d7737d2364e30932294ef880ff6"
+        "commit": "414603bf14c7a344edb466bb1f85690c77ce8b7d",
+        "computedHash": "ba5d6e38f26d2e945237bcd0024aa2ff9b1f81f07970fafaa36c09244d2abeaf"
       },
       {
         "name": "writing-skills",
@@ -264,7 +264,7 @@
       "globalTarget": "settings.json",
       "format": "json",
       "mergeStrategy": "permission-union",
-      "sourceHash": "6b0da561ddc84d1a904ffd6b8ad0fee30cbaefdf7f5cbab79ee93575b0373485"
+      "sourceHash": "1f8df687f43538fb63b3442ff8c9f063612b47de0a2a84df12f20c9b7b3fb9cb"
     },
     {
       "id": "codex:config",
@@ -284,7 +284,7 @@
       "globalTarget": "opencode.json",
       "format": "json",
       "mergeStrategy": "deep-merge",
-      "sourceHash": "f8e55b53d92fbb348d68c7fa876a87e13a1e2386afbb1a6a5e46ae6b7b109b0c"
+      "sourceHash": "200c52704cc7616e48f8e7ff77cf18accf38133ee8223b5ed1c61d5c26cf5d6e"
     },
     {
       "id": "opencode:model-profile:openai",
