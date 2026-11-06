@@ -1,7 +1,8 @@
 ---
 name: agent-review
 description: Use when reviewing plans or diffs for this toolkit repo against the shared conventions in AGENTS.md
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Review — Self-Maintenance

@@ -19,6 +19,12 @@ manifest whose `schemaVersion` is unsupported before applying any category.
   `path`. These are toolkit-authored skills and are resolved from the declared
   path, such as `skills/brainstorm`. The path must stay inside the selected
   release and contain the expected skill file.
+
+  These entries and the pinned third-party entries are the only skills setup
+  may install. The toolkit's `.agents/skills/` self-maintenance skills are not
+  manifest assets: `agent-planning`, `agent-implementation`, `agent-review`,
+  and `agent-verification` declare `metadata.internal: true` and must never be
+  installed or replaced in a target repository.
 - **Third-party skills in `skills`** — the pinned skill descriptors. Each
   descriptor has a `name`, `source`, `sourceType`, and required `commit`. The
   commit is a 40-character lowercase hexadecimal revision used to construct
@@ -128,3 +134,12 @@ For each harness, first resolve plugin coverage. An authored skill exposed by
 an installed Claude Code or Codex plugin is plugin-managed for that harness;
 exclude it from Vercel CLI installation and updates. Install only uncovered
 authored skills and the pinned third-party skills assigned to that harness.
+
+A repo-internal skill lives under the toolkit repository's `.agents/skills/`
+directory, is absent from the manifest, and declares `metadata.internal: true`
+in its frontmatter. Install only names from `skills.authored` and
+`skills.thirdParty`. Do not build an install list by enumerating
+`.agents/skills/`, `.claude/skills/`, or another agent skill directory; the
+Vercel CLI wildcard is permitted only after the preflight in
+[installation.md](installation.md) step 5 confirms the repo-internal names are
+absent.

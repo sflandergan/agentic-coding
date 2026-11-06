@@ -1,7 +1,8 @@
 ---
 name: agent-planning
 description: Use when a spec or requirements for this toolkit repo need to be turned into a plan, before touching files
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Planning — Self-Maintenance

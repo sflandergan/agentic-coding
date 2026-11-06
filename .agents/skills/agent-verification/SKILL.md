@@ -1,7 +1,8 @@
 ---
 name: agent-verification
 description: Use when about to claim work is complete, committed, or ready — the done gate for this toolkit repo
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Verification — Self-Maintenance

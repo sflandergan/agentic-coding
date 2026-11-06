@@ -56,6 +56,11 @@ These must stay consistent with the actual files:
 - Plugin manifest component paths vs canonical source files
 - `.opencode/agents/implement-task.md` vs `.claude/agents/implement-task.md` worker contract
 - `opencode.json` agent names vs files under `.opencode/agents/` and `.opencode/prompts/`
+- `scripts/validate-release.sh` rejects any `.agents/skills/` directory that is
+  neither a `skills/` symlink, a manifest third-party skill, nor marked
+  `metadata.internal: true`
+- `scripts/validate-release.sh` rejects any `.claude/skills/` entry that is not
+  a resolving symlink to `../../.agents/skills/<name>`
 
 ## Self-Maintenance Runtime
 
@@ -72,6 +77,11 @@ instead of switching between primary agents. Only workers exist as agents:
   sync by hand.
 - `.opencode/plugins/mistral-3rd-party*` adapts Mistral-hosted GLM 5.3, GLM 5.3 Flash, and DeepSeek V4.1 Flash for OpenCode V1.
   Run its tests from `.opencode/` with `bun test ./plugins/mistral-3rd-party/test`.
+
+Skills under `.agents/skills/` that are not symlinks into `skills/` and are not
+manifest third-party skills must declare `metadata.internal: true` in their
+frontmatter. The Vercel skills CLI hides those skills from discovery and
+excludes them from `--skill '*'`; setup installs only manifest-declared assets.
 
 ## Skill Lockfile Scopes
 

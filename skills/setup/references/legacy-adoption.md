@@ -24,6 +24,13 @@ defined in [conflicts.md](conflicts.md). Resolve modified and unproven
 candidates through [conflicts.md](conflicts.md) immediately before their
 affected write.
 
+Repo-internal skills are never adoption candidates. The toolkit's
+`.agents/skills/agent-planning`, `agent-implementation`, `agent-review`, and
+`agent-verification` directories are self-maintenance assets, not manifest
+assets. If a candidate path matches one, report it as unexpected non-manifest
+content, propose removal with `npx skills remove --skill <name> --yes`
+(appending `--global` for global scope), and do not add it to `managedAssets`.
+
 Approve each exact candidate before adopting it. Adoption leaves its bytes in
 place and adds the candidate's `assetId`, harness, scope, canonical target, and
 selected `releaseHash` to `managedAssets` in the state written under
