@@ -12,6 +12,7 @@
         "task": {
           "*": "deny",
           "explore": "allow",
+          "general": "allow",
           "implement-task": "allow",
           "ui-design-task": "allow"
         },
@@ -80,8 +81,18 @@
           "bash .agents/scripts/ui-design/preview.sh start": "allow",
           "bash .agents/scripts/ui-design/preview.sh probe": "allow",
           "bash .agents/scripts/ui-design/preview.sh stop": "allow",
-          "node *.agents/skills/impeccable/scripts/*": "allow",
-          "node *.claude/skills/impeccable/scripts/*": "allow",
+          "*.agents/skills/impeccable/scripts/impeccable": "allow",
+          "*.agents/skills/impeccable/scripts/impeccable *": "allow",
+          "*.agents/skills/impeccable/scripts/impeccable hooks*": "ask",
+          "*.agents/skills/impeccable/scripts/impeccable pin*": "ask",
+          "*.agents/skills/impeccable/scripts/impeccable doctor*": "ask",
+          "*.agents/skills/impeccable/scripts/impeccable generate-image*": "ask",
+          "*.claude/skills/impeccable/scripts/impeccable": "allow",
+          "*.claude/skills/impeccable/scripts/impeccable *": "allow",
+          "*.claude/skills/impeccable/scripts/impeccable hooks*": "ask",
+          "*.claude/skills/impeccable/scripts/impeccable pin*": "ask",
+          "*.claude/skills/impeccable/scripts/impeccable doctor*": "ask",
+          "*.claude/skills/impeccable/scripts/impeccable generate-image*": "ask",
           "ctx7 library *": "allow",
           "ctx7 docs *": "allow",
 

@@ -27,11 +27,15 @@ Load the approved specification from the argument path.
 - Dispatch the Explore subagent when repository investigation is needed to locate existing components, routes, styles, tests, or boundaries.
 - Stop for clarification when required product behavior is unspecified.
 
-## 2. Craft and inventory
+## 2. Direction and first build
 
-- Invoke `/impeccable craft` and follow it exactly.
+- Invoke `/impeccable` with the approved specification path as the brief and run its new-work flow through section 6 (build).
+- Answer impeccable's init and new-work section 2 questions from the approved specification. Ask the human only what the specification leaves open; when nothing is open, send impeccable's compact confirmation.
+- When impeccable asks the human to choose a direction or structure, record the choice and stop the decision-page server afterwards. The first feedback round of section 3 reviews the build of that choice; it does not reopen the choice.
+- Treat the final human approval in section 4 as the finish review and verdict that the direction contract's FINISH block names.
+- End impeccable's flow after new-work section 6 and continue with section 3. Sections 3 and 4 of this skill take the place of new-work section 7.
 - Derive the full state, content, responsive, accessibility, simulated, and deferred inventory in the active session.
-- Working inventory and visual-direction context remain in the active UI-design/Craft session; do not duplicate inventory into a temporary tracked document.
+- Keep the working inventory in the active session. The direction contract lives in the surface brief impeccable wrote.
 
 ## 3. Interactive loop
 
@@ -40,8 +44,8 @@ The interactive loop alternates between implementation and human feedback rounds
 ### Implementation
 
 - Make small presentation changes directly; delegate substantial, clearly bounded presentation slices to `@ui-design-task` using self-contained inline packets.
-- Each packet includes: the approved direction relevant to the slice, exact owned files, target preview scenario and viewport, required states and content variants, responsive, interaction, and accessibility constraints, explicitly deferred behavior, and concise completion criteria.
-- The worker edits its owned presentation scope and reports files and evidence; it does not rerun Craft, reinterpret the direction, connect production services, invent product behavior, or approve its own result.
+- Each packet includes: the approved direction relevant to the slice, exact owned files, target preview scenario and viewport, required states and content variants, responsive, interaction, and accessibility constraints, explicitly deferred behavior, concise completion criteria, the surface brief path, the relevant `DESIGN.md` sections, and the path to impeccable's `reference/craft-floor.md` as the quality checklist.
+- The worker edits its owned presentation scope and reports files and evidence; it does not invoke impeccable, reinterpret the direction, connect production services, invent product behavior, or approve its own result.
 - On `NEEDS_CONTEXT`, supply a corrected packet or take back the slice.
 - On `BLOCKED`, take back or reslice the work; do not redispatch `ui-design-task` or fall back to `implement-task`.
 - If a worker modifies files outside its packet ownership, remove only the unowned hunks introduced by that worker, without overwriting pre-existing changes, and then redispatch or correct the slice safely.
@@ -76,7 +80,7 @@ A response such as "looks good" during iteration is provisional acceptance and s
 
 Collect four evidence classes before requesting final human approval:
 
-1. **Automated screenshot evidence:** capture the documented scenario and viewport inventory without running a Playwright test suite. Screenshots are defect evidence, not approval evidence.
+1. **Automated screenshot evidence:** capture the documented scenario and viewport inventory without running a Playwright test suite, and capture `impeccable detect --json` output on the changed files. Screenshots and `detect` output are defect evidence, not approval evidence.
 2. **Source-inspection evidence:** inspect semantic structure, labels, focus styling, responsive rules, and declared visible states where those facts are established by source.
 3. **Human-review requests:** ask the human to exercise keyboard flow, focus transitions, and interaction usability against the live preview. The agent cannot exercise these with available browser tools.
 4. **Accepted limitations:** identify every inventory item that was not actually inspected and require the human to accept those limitations explicitly before final approval.
@@ -86,11 +90,14 @@ Follow the UI-design exception declared by the repository's verification guide.
 If evidence collection causes a code change, return to a new human feedback round (section 3).
 Whether or not evidence collection finds defects, present the live preview URL together with the collected evidence and accepted limitations, then wait for explicit final human approval.
 
-Only after final approval, write the final handoff at the location in `docs/agents/ui-design.md`.
-- The handoff contains the following sections: Approval, Scope, Source locations, State inventory, Scenario manifest, Responsive contract, Interaction contract, Accessibility contract, Simulated integrations, and Deferred production work.
+After final approval, run the documenter step of impeccable's new-work section 7 once, with `DESIGN.md` and `.impeccable/design.json` as its write boundary, so they describe the approved result.
+
+Then write the final handoff at the location in `docs/agents/ui-design.md`.
+- The handoff contains the following sections: Approval, Scope, Source locations, State inventory, Scenario manifest, Responsive contract, Interaction contract, Accessibility contract, Simulated integrations, Design context, and Deferred production work. Design context lists only the paths to the surface brief, `DESIGN.md`, and `PRODUCT.md`.
 - The Deferred production work section must state that automated verification (lint, typecheck, tests, build, integration, end-to-end) was deferred and that the changed presentation code is not verified.
 - Neither UI-design nor `ui-design-task` edits an existing test whose expectations became obsolete; the handoff records the affected behavior for implementation.
 - Create one final commit; it may run the repository's normal pre-commit hooks. UI-design runs no separate test, lint, typecheck, build, integration, or end-to-end commands before that commit.
+- Stage `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`, `.impeccable/config.json`, and the surface brief when this session created or changed them. Delete `.impeccable/mocks/`, `.impeccable/review/`, and `.impeccable/build/` with the other scratch files, and leave `.impeccable/config.local.json` unstaged.
 
 ## 5. Failure and reconciliation
 
@@ -99,3 +106,4 @@ Only after final approval, write the final handoff at the location in `docs/agen
 - Do not write a draft or temporary handoff, silently reconstruct context when the session loses material state, or connect production services or invent production behavior.
 - Stop every process you started on completion, failure, or cancellation.
 - Material presentation changes after approval require focused UI-design reconciliation.
+- When impeccable reports `CONTEXT_STALE`, include it in the next feedback round. Run `impeccable doctor`, `hooks`, or `pin` only when the human asks.

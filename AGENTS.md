@@ -108,6 +108,9 @@ user-invocable: false     # for skills only loaded by agents, not users
 - Use one term for each concept, define it before use, and make user choices mutually exclusive.
 - Shape verbose or incomplete output with a positive structure. Use prohibitions only for unsafe or disallowed behavior.
 - Keep only information an agent needs to act. Put deterministic mechanics in tested scripts and say whether a script is executed or read.
+- Write every line as an action for the agent running the skill. Plan rationale, change history, deprecated names, and ownership descriptions stay in the plan and the PR.
+- When a skill uses another skill, name the step to run, answer, skip, or stop at, and what to pass in. Write what the agent does at that step, not a prediction of what the other skill will do.
+- Role documents under `templates/docs/agents/` hold only values that differ between target repositories. A value that is the same in every install, such as a third-party skill path or a tool default, belongs in the skill.
 - Test current behavior first, then the candidate skill with the same fresh-agent scenarios. Record the failures fixed and the passing evidence.
 
 ## Symlink Model

@@ -42,6 +42,9 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 - [ ] Choice labels produce distinct outcomes
 - [ ] Required references are directly linked from `SKILL.md`
 - [ ] Explanations justify their token cost
+- [ ] Each changed skill line is an action for the executing agent, with no plan rationale, history, or deprecated names
+- [ ] Calls into another skill name the step to run, skip, or stop at, instead of predicting that skill's behavior
+- [ ] Role-document fields hold only values that differ between target repositories
 
 ## Review Priorities
 
