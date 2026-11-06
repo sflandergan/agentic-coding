@@ -212,6 +212,13 @@ installation for that harness. Uncovered authored skills and pinned third-party
 skills remain Vercel-managed. Project-owned skills and documentation remain
 untouched unless the user approves a change.
 
+The toolkit's own `.agents/skills/` self-maintenance entries are not
+distribution assets. Setup derives its install list only from the selected
+manifest's `skills.authored` and `skills.thirdParty` inventories. It may use
+the Vercel CLI wildcard only after the `--list` preflight proves the four
+repo-internal names are excluded; it never builds a skill list by enumerating
+`.agents/skills/` or another agent skill directory.
+
 This repository's own self-maintenance runtime is separate: its local
 `.agents/skills/` entries and `.claude/skills/` links are retained for the
 agents that maintain this toolkit. That internal arrangement is not the target
@@ -516,6 +523,11 @@ Claude Code permissions live in `.claude/settings.json`; keep them aligned with 
 
 Under `.agents/skills/` (with local `.claude/skills/` links for this repository's
 self-maintenance runtime only):
+
+The four `agent-*` skills are repo-internal: their frontmatter declares
+`metadata.internal: true`, so the Vercel CLI hides them from `--list` and from
+`--skill '*'` when the CLI meets the manifest's `skillsCli >=1.6.0`
+requirement. Setup never installs them into a target repository.
 
 | Skill | Purpose |
 |---|---|

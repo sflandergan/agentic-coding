@@ -4,9 +4,37 @@ Use this workflow for fresh setup and the missing operations after approved
 legacy adoption. Discovery and release resolution happen before this sequence;
 use [release.md](release.md) for release resolution and source fetching.
 
-1. Confirm project or global component scope and selected harnesses. Read the
+1. Confirm project or global component scope and selected harnesses. Record the
+   confirmed skill scope as `skill_scope` (`project` or `global`). Read the
    manifest `skillsCli` requirement and accept only the tested CLI major before
    any write; reject a later major because its lock format may be incompatible.
+
+   Resolve the matching lock path and snapshot existing lock keys before any
+   install:
+
+   ```bash
+   case "$skill_scope" in
+     project)
+       lock_path="$repository_root/skills-lock.json"
+       ;;
+     global)
+       if [ -n "${XDG_STATE_HOME:-}" ]; then
+         lock_path="$XDG_STATE_HOME/skills/.skill-lock.json"
+       else
+         lock_path="$HOME/.agents/.skill-lock.json"
+       fi
+       ;;
+     *)
+       printf 'ERROR: unsupported skill scope: %s\n' "$skill_scope" >&2
+       exit 1
+       ;;
+   esac
+
+   lock_keys_before=""
+   if [ -f "$lock_path" ]; then
+     lock_keys_before="$(jq -r '.skills | keys[]' "$lock_path" | LC_ALL=C sort -u)"
+   fi
+   ```
 2. Run both plugin inventory commands:
 
    ```bash
@@ -25,6 +53,34 @@ use [release.md](release.md) for release resolution and source fetching.
 4. Resolve each collision through [conflicts.md](conflicts.md) immediately
    before writing the affected asset.
 5. Install every uncovered authored skill from the selected immutable commit.
+   The only installable skills are the manifest's `skills.authored` and
+   `skills.thirdParty` inventories. Do not build an install list by enumerating
+   a directory under `skills/`, `.agents/skills/`, `.claude/skills/`, or
+   another agent skill directory; install only manifest-declared names. The
+   `--skill '*'` command below is permitted only after the preflight confirms
+   the four repo-internal names are absent. The toolkit's repo-internal
+   `.agents/skills/agent-*` skills declare `metadata.internal: true`; the Vercel
+   CLI hides them from discovery and excludes them from `--skill '*'` when the
+   selected release marks them and the installed CLI satisfies
+   `requirements.skillsCli`. Ensure `INSTALL_INTERNAL_SKILLS` is unset or `0`
+   for the preflight and install.
+
+   Run the discovery preflight against the selected immutable release before
+   any install:
+
+   ```bash
+   unset INSTALL_INTERNAL_SKILLS
+   listing="$(NO_COLOR=1 npx skills add "$toolkit_remote/tree/${release_commit}" --list)"
+   printf '%s\n' "$listing"
+   ```
+
+   Stop before installing when the listing includes `agent-planning`,
+   `agent-implementation`, `agent-review`, or `agent-verification`. That result
+   means the selected release does not mark its repo-internal skills with
+   `metadata.internal: true`, or the installed CLI does not satisfy
+   `requirements.skillsCli`. Select a release and CLI that meet both
+   conditions.
+
    For each selected harness, run the project-scope form:
 
    ```bash
@@ -38,6 +94,9 @@ use [release.md](release.md) for release resolution and source fetching.
    ```
 
    Run only for selected harnesses without confirmed plugin coverage.
+
+   The preflight above is mandatory; do not run the wildcard install command
+   when it lists any of the four names.
 6. Install every third-party manifest entry from its immutable source tree and
    named skill. For each selected harness, use the matching scope form:
 
@@ -86,11 +145,47 @@ use [release.md](release.md) for release resolution and source fetching.
     `documentation` mappings, then apply the displayed targeted edit.
     Documentation remains project-owned.
 10. Verify CLI-managed skills through the actual Vercel lock path, native
-    hashes, configuration, and documentation. The lock paths are
-    `$repository_root/skills-lock.json` for project scope and
-    `$XDG_STATE_HOME/skills/.skill-lock.json` when `XDG_STATE_HOME` is set, or
-    `$HOME/.agents/.skill-lock.json` otherwise, for global scope. Write
-    `.agentic-coding.json` atomically according to
+    hashes, configuration, and documentation.
+
+    Read the lock and fail only for repo-internal skills or for newly added
+    entries that are absent from the manifest's authored and third-party
+    inventories. Do not treat a pre-existing lock entry from another source as
+    a toolkit asset.
+
+    ```bash
+    if [ -f "$lock_path" ]; then
+      installed_skills="$(jq -r '.skills | keys[]' "$lock_path" | LC_ALL=C sort -u)"
+    else
+      installed_skills=""
+    fi
+    manifest_skills="$(
+      jq -r '.skills.authored[].name, .skills.thirdParty[].name' "$manifest_path" \
+        | LC_ALL=C sort -u
+    )"
+    repo_internal_skills=$'agent-implementation\nagent-planning\nagent-review\nagent-verification'
+    unexpected=""
+    while IFS= read -r installed; do
+      [ -n "$installed" ] || continue
+      if grep -Fxq "$installed" <<< "$repo_internal_skills"; then
+        unexpected+="$installed"$'\n'
+      elif ! grep -Fxq "$installed" <<< "$lock_keys_before" &&
+           ! grep -Fxq "$installed" <<< "$manifest_skills"; then
+        unexpected+="$installed"$'\n'
+      fi
+    done <<< "$installed_skills"
+    if [ -n "$unexpected" ]; then
+      printf 'ERROR: Vercel lock contains unexpected skill(s):\n%s' "$unexpected" >&2
+      exit 1
+    fi
+    ```
+
+    If the check fails, stop before writing state. Report each unexpected name
+    with its installed path and the exact
+    `npx skills remove --skill <name> --yes` command, appending `--global` for
+    global scope; remove only after approval. A pre-existing lock entry from
+    another source is not a toolkit violation and must be left untouched.
+
+    Write `.agentic-coding.json` atomically according to
     [state-file.md](state-file.md), then ask the user to review and commit the
     state, lockfile, and approved project assets.
 

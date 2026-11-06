@@ -335,7 +335,7 @@
   "assetHashes": {},
   "requirements": {
     "node": ">=20",
-    "skillsCli": ">=1.0"
+    "skillsCli": ">=1.6.0"
   },
   "pluginManifests": {
     "claude": ".claude-plugin/plugin.json",

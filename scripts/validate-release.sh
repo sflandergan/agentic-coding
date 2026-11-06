@@ -79,6 +79,38 @@ readFrontmatterName() {
   printf '%s\n' "$frontmatter_name"
 }
 
+frontmatterDeclaresInternal() {
+  local skill_file="$1"
+  local line
+  local in_frontmatter=0
+  local in_metadata=0
+  local declares_internal=0
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if (( in_frontmatter == 0 )); then
+      [[ "$line" == "---" ]] || return 1
+      in_frontmatter=1
+      continue
+    fi
+    if [[ "$line" == "---" ]]; then
+      (( declares_internal == 1 ))
+      return
+    fi
+    if [[ "$line" =~ ^metadata:[[:space:]]*$ ]]; then
+      in_metadata=1
+      continue
+    fi
+    if (( in_metadata == 1 )); then
+      if [[ "$line" =~ ^[[:space:]]+internal:[[:space:]]*true[[:space:]]*$ ]]; then
+        declares_internal=1
+      elif [[ "$line" =~ ^[^[:space:]] ]]; then
+        in_metadata=0
+      fi
+    fi
+  done < "$skill_file"
+  return 1
+}
+
 validateManifestShape() {
   if ! jq -e '
     (type == "object") and
@@ -179,6 +211,61 @@ validateAuthoredSkills() {
     fi
     [[ "$frontmatter_name" == "$name" ]] || exitWithError "authored skill frontmatter name does not match manifest: $declared_path"
   done < <(jq -r '.skills.authored[] | [.name, .path] | @tsv' "$MANIFEST")
+}
+
+validateInternalSkills() {
+  local entry
+  local name
+  local target
+  local third_party_names
+
+  [[ -d "$REPO_ROOT/.agents/skills" ]] ||
+    exitWithError "self-maintenance skill directory is missing: .agents/skills"
+
+  third_party_names="$(jq -r '.skills.thirdParty[].name' "$MANIFEST")"
+
+  for entry in "$REPO_ROOT"/.agents/skills/*; do
+    [[ -e "$entry" || -L "$entry" ]] || continue
+    name="${entry##*/}"
+    if [[ -L "$entry" ]]; then
+      target="$(readlink "$entry")"
+      [[ "$target" == "../../skills/$name" ]] ||
+        exitWithError ".agents/skills/$name must link to ../../skills/$name (found: $target)"
+      [[ -f "$REPO_ROOT/skills/$name/SKILL.md" ]] ||
+        exitWithError ".agents/skills/$name link target is missing: skills/$name/SKILL.md"
+      continue
+    fi
+    [[ -d "$entry" ]] ||
+      exitWithError ".agents/skills/$name must be a directory or a symlink"
+    [[ -f "$entry/SKILL.md" ]] ||
+      exitWithError ".agents/skills/$name is missing SKILL.md"
+    if grep -Fxq "$name" <<< "$third_party_names"; then
+      continue
+    fi
+    frontmatterDeclaresInternal "$entry/SKILL.md" ||
+      exitWithError ".agents/skills/$name must declare metadata.internal: true or be a manifest third-party skill"
+  done
+}
+
+validateSelfMaintenanceLinks() {
+  local entry
+  local name
+  local target
+
+  [[ -d "$REPO_ROOT/.claude/skills" ]] ||
+    exitWithError "self-maintenance link directory is missing: .claude/skills"
+
+  for entry in "$REPO_ROOT"/.claude/skills/*; do
+    [[ -e "$entry" || -L "$entry" ]] || continue
+    name="${entry##*/}"
+    [[ -L "$entry" ]] ||
+      exitWithError ".claude/skills/$name must be a symlink"
+    target="$(readlink "$entry")"
+    [[ "$target" == "../../.agents/skills/$name" ]] ||
+      exitWithError ".claude/skills/$name must link to ../../.agents/skills/$name (found: $target)"
+    [[ -e "$REPO_ROOT/.agents/skills/$name" ]] ||
+      exitWithError ".claude/skills/$name link target is missing: .agents/skills/$name"
+  done
 }
 
 compareAgentInventory() {
@@ -374,6 +461,8 @@ validateThirdPartySkills() {
 
 validateManifestShape
 validateAuthoredSkills
+validateInternalSkills
+validateSelfMaintenanceLinks
 validateNativeAgents
 validateNativeAssets
 validateConfigurationAssets

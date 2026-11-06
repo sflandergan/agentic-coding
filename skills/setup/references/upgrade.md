@@ -15,16 +15,26 @@ succeed.
    cat "$repository_root/.agentic-coding.json"
    case "$(jq -r '.scope.skills' "$repository_root/.agentic-coding.json")" in
      project)
-       cat "$repository_root/skills-lock.json"
+       lock_path="$repository_root/skills-lock.json"
+       cat "$lock_path"
        ;;
      global)
        if [ -n "${XDG_STATE_HOME:-}" ]; then
-         cat "$XDG_STATE_HOME/skills/.skill-lock.json"
+         lock_path="$XDG_STATE_HOME/skills/.skill-lock.json"
        else
-         cat "$HOME/.agents/.skill-lock.json"
+         lock_path="$HOME/.agents/.skill-lock.json"
        fi
+       cat "$lock_path"
+       ;;
+     *)
+       printf 'ERROR: unsupported scope.skills: %s\n' "$(jq -r '.scope.skills' "$repository_root/.agentic-coding.json")" >&2
+       exit 1
        ;;
    esac
+   lock_keys_before=""
+   if [ -f "$lock_path" ]; then
+     lock_keys_before="$(jq -r '.skills | keys[]' "$lock_path" | LC_ALL=C sort -u)"
+   fi
    claude plugin list --json
    codex plugin list --json
    ```
@@ -85,6 +95,12 @@ conflict policy. Then perform these operations in order:
    covered by a plugin for that harness. Use the scoped commands in
    [installation.md](installation.md); one project-scope example is:
 
+   Follow the manifest-only installation rule and the mandatory `--list`
+   preflight in [installation.md](installation.md) step 5. Do not build an
+   install list by enumerating `.agents/skills/` or another agent skill
+   directory; the wildcard command below is permitted only after the preflight
+   confirms the four repo-internal names are absent.
+
    ```bash
    npx skills add "$toolkit_remote/tree/$commit" --skill '*' --agent "$harness" --yes
    ```
@@ -119,7 +135,8 @@ conflict policy. Then perform these operations in order:
 7. Add only approved missing documentation guidance. Keep documentation
    project-owned and follow its targeted-edit rules in
    [installation.md](installation.md).
-8. Verify every category, the named CLI lock path, native hashes,
+8. Verify every category, the named CLI lock path using the non-manifest skill
+   check in [installation.md](installation.md) step 10, native hashes,
    configuration, documentation, and retained outcomes. Write the new state
    atomically only after all required operations succeed, following
    [state-file.md](state-file.md). Ask the user to review and commit the

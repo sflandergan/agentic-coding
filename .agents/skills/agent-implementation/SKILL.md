@@ -1,7 +1,8 @@
 ---
 name: agent-implementation
 description: Use when executing an approved plan for this toolkit repo task-by-task with commits and verification
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Implementation — Self-Maintenance
