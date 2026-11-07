@@ -5,7 +5,7 @@
       "disable": true
     },
     "build": {
-      "model": "mistral-3rd-party/zai-glm-5-3",
+      "model": "mistral-3rd-party/zai-glm-5-3-flash",
       "permission": {
         "edit": "allow",
         "question": "allow",
@@ -251,7 +251,7 @@
       }
     },
     "explore": {
-      "model": "opencode-go/deepseek-v4.1-flash",
+      "model": "mistral-3rd-party/deepseek-v4-1-flash-1017",
       "variant": "low",
       "prompt": "{file:./.opencode/prompts/explore.md}",
       "permission": {
@@ -433,7 +433,7 @@
     },
     "implement-task": {
       "mode": "subagent",
-      "model": "opencode-go/deepseek-v4.1-flash",
+      "model": "mistral-3rd-party/deepseek-v4-1-flash-1017",
       "variant": "max"
     }
   },
@@ -541,5 +541,5 @@
     }
   },
   "model": "mistral-3rd-party/zai-glm-5-3",
-  "small_model": "opencode-go/deepseek-v4.1-flash"
+  "small_model": "mistral-3rd-party/deepseek-v4-1-flash-1017"
 }
