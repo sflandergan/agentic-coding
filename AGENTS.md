@@ -126,6 +126,10 @@ into `.claude/skills/<name>` with `ln -s ../../.agents/skills/<name>`. This
 internal symlink model is for maintaining this toolkit, not for target-repo
 installation.
 
+## Skill-Relative Paths
+
+When a skill names relative paths (e.g. `scripts/`), resolve them from that skill's base directory (`.agents/skills/<name>/`), never from the repo root.
+
 ## .temp/ Scratch Rule
 
 All smoke runs and throwaway work goes in `.temp/`, never `/tmp`. Clean up after use. `.temp/` is gitignored.

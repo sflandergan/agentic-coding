@@ -81,32 +81,45 @@ use [release.md](release.md) for release resolution and source fetching.
    `requirements.skillsCli`. Select a release and CLI that meet both
    conditions.
 
-   For each selected harness, run the project-scope form:
+   Install all uncovered authored skills in one command per scope. Pass every
+   selected harness without confirmed plugin coverage by repeating `--agent`
+   once per harness. The project-scope form:
 
    ```bash
-   npx skills add "$toolkit_remote/tree/${release_commit}" --skill '*' --agent "${harness}" --yes
+   npx skills add "$toolkit_remote/tree/${release_commit}" --skill '*' --agent "${harness_1}" --agent "${harness_2}" --yes
    ```
 
    Append `--global` only for global scope:
 
    ```bash
-   npx skills add "$toolkit_remote/tree/${release_commit}" --skill '*' --agent "${harness}" --yes --global
+   npx skills add "$toolkit_remote/tree/${release_commit}" --skill '*' --agent "${harness_1}" --agent "${harness_2}" --yes --global
    ```
 
-   Run only for selected harnesses without confirmed plugin coverage.
+   One command per batch is required so the CLI stores one shared copy under
+   `.agents/skills/<name>` and installs the remaining harness directories as
+   symlinks instead of duplicate real files. When the batch names a single
+   harness, the CLI writes that harness's real directory; a symlink requires a
+   second harness target in the same command.
 
    The preflight above is mandatory; do not run the wildcard install command
    when it lists any of the four names.
 6. Install every third-party manifest entry from its immutable source tree and
-   named skill. For each selected harness, use the matching scope form:
+   named skill. For each third-party entry, install for every selected harness
+   whose third-party channel is the Vercel CLI in one command by repeating
+   `--agent` once per harness. The project-scope form:
 
    ```bash
-   npx skills add "https://github.com/${source}/tree/${entry_commit}" --skill "${skill_name}" --agent "${harness}" --yes
-   npx skills add "https://github.com/${source}/tree/${entry_commit}" --skill "${skill_name}" --agent "${harness}" --yes --global
+   npx skills add "https://github.com/${source}/tree/${entry_commit}" --skill "${skill_name}" --agent "${harness_1}" --agent "${harness_2}" --yes
    ```
 
-   Use the first form for project scope and the second for global scope. Use
-   the manifest `source`, `commit` (as `entry_commit`), and `name` fields.
+   Append `--global` for global scope:
+
+   ```bash
+   npx skills add "https://github.com/${source}/tree/${entry_commit}" --skill "${skill_name}" --agent "${harness_1}" --agent "${harness_2}" --yes --global
+   ```
+
+   Use the manifest `source`, `commit` (as `entry_commit`), and `name` fields.
+   The one-command rule and its symlink reason are the same as step 5.
 7. Reconcile each approved native asset from `source_dir`, the extracted
    selected-release source from [release.md](release.md), to its manifest
    `nativeAssets` target. Copy `$source_dir/$source` to the approved
@@ -178,6 +191,19 @@ use [release.md](release.md) for release resolution and source fetching.
       exit 1
     fi
     ```
+
+    For each skill installed by a batch covering two or more harnesses, verify
+    that exactly one harness location holds the real directory and the other
+    harness locations are symlinks into it. Project-scope example:
+
+    ```bash
+    test -L "$repository_root/.claude/skills/${skill_name}"
+    ```
+
+    Resolve global-scope harness paths from the harness homes defined by
+    [manifest-schema.md](manifest-schema.md). A real directory where a symlink
+    is required means the batch ran without combining its harnesses; rerun the
+    batch as one command before writing state.
 
     If the check fails, stop before writing state. Report each unexpected name
     with its installed path and the exact

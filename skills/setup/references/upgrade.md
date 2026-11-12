@@ -102,20 +102,23 @@ conflict policy. Then perform these operations in order:
    confirms the four repo-internal names are absent.
 
    ```bash
-   npx skills add "$toolkit_remote/tree/$commit" --skill '*' --agent "$harness" --yes
+   npx skills add "$toolkit_remote/tree/$commit" --skill '*' --agent "${harness_1}" --agent "${harness_2}" --yes
    ```
 
-   Append `--global` only for global scope.
+   Follow the one-command batch rule in [installation.md](installation.md)
+   step 5: repeat `--agent` once per uncovered harness, and append `--global`
+   only for global scope.
 3. Install every selected third-party skill from
    `https://github.com/$source/tree/$entry_commit`, passing the manifest's
-   `name` as the skill name and each selected harness. The project-scope form
-   is:
+   `name` as the skill name and every selected harness in one command. The
+   project-scope form is:
 
    ```bash
-   npx skills add "https://github.com/$source/tree/$entry_commit" --skill "$skill_name" --agent "$harness" --yes
+   npx skills add "https://github.com/$source/tree/$entry_commit" --skill "$skill_name" --agent "${harness_1}" --agent "${harness_2}" --yes
    ```
 
-   Append `--global` only for global scope. The source, entry commit, and
+   Append `--global` only for global scope. Follow the one-command batch rule
+   in [installation.md](installation.md) step 6. The source, entry commit, and
    named-skill fields are defined by [manifest-schema.md](manifest-schema.md).
 4. Reconcile each approved native asset and verify its hash as specified by
    [installation.md](installation.md):
