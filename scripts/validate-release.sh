@@ -157,15 +157,13 @@ validateManifestShape() {
        (.projectTarget | type == "string" and length > 0) and
        ((.globalTarget == null) or (.globalTarget | type == "string" and length > 0)) and
        (.format | type == "string" and (. == "json" or . == "toml")) and
-       (.mergeStrategy | type == "string" and (. == "deep-merge" or . == "permission-union")) and
+       (.mergeStrategy | type == "string" and . == "deep-merge") and
        (.sourceHash | type == "string" and test("^[0-9a-f]{64}$"))
      )) and
      (.templates | type == "object") and
     (.templates.agentsMd | type == "string" and length > 0) and
     (.templates.roleDocs | type == "string" and length > 0) and
     (.templates.harnessConfig | type == "object") and
-     (.templates.harnessConfig.claude | type == "string" and length > 0) and
-     (.templates.harnessConfig.codex | type == "string" and length > 0) and
      (.templates.harnessConfig.opencode | type == "string" and length > 0) and
      (.documentation | type == "object") and
      (.documentation.agentsMd.source == "templates/AGENTS.md") and
@@ -377,8 +375,6 @@ validateConfigurationAssets() {
 
   if ! jq -e '
     [
-      {id: "claude-code:settings", harness: "claude-code", source: "templates/claude/settings.json", projectTarget: ".claude/settings.json", globalTarget: "settings.json", format: "json", mergeStrategy: "permission-union"},
-      {id: "codex:config", harness: "codex", source: "templates/codex/config.toml", projectTarget: ".codex/config.toml", globalTarget: "config.toml", format: "toml", mergeStrategy: "deep-merge"},
       {id: "opencode:config", harness: "opencode", source: "templates/opencode/opencode.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"},
       {id: "opencode:model-profile:openai", harness: "opencode", source: "templates/opencode/models-openai.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"},
       {id: "opencode:model-profile:mistral", harness: "opencode", source: "templates/opencode/models-mistral.json", projectTarget: "opencode.json", globalTarget: "opencode.json", format: "json", mergeStrategy: "deep-merge"}
@@ -399,16 +395,13 @@ validateConfigurationAssets() {
 
 validateTemplates() {
   local declared_path
-  local harness
 
   declared_path="$(jq -r '.templates.agentsMd' "$MANIFEST")"
   assertExists "$declared_path" 'templates.agentsMd'
   declared_path="$(jq -r '.templates.roleDocs' "$MANIFEST")"
   assertExists "$declared_path" 'templates.roleDocs'
-  for harness in claude codex opencode; do
-    declared_path="$(jq -r --arg harness "$harness" '.templates.harnessConfig[$harness]' "$MANIFEST")"
-    assertExists "$declared_path" "templates.harnessConfig.$harness"
-  done
+  declared_path="$(jq -r '.templates.harnessConfig.opencode' "$MANIFEST")"
+  assertExists "$declared_path" 'templates.harnessConfig.opencode'
 }
 
 validateThirdPartySkills() {

@@ -316,7 +316,7 @@ validate_manifest() {
     (.templates | object_of(
       (.agentsMd | nonempty) and
       (.roleDocs | nonempty) and
-      (.harnessConfig | object_of((.claude | nonempty) and (.codex | nonempty) and (.opencode | nonempty))))) and
+      (.harnessConfig | object_of(.opencode | nonempty)))) and
     (.release.ref == $expected_ref) and (.release.channel == $expected_channel)
   ' "$manifest_path" >/dev/null
 }

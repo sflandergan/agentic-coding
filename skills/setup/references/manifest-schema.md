@@ -50,7 +50,6 @@ manifest whose `schemaVersion` is unsupported before applying any category.
 - **`configurationAssets`** — the complete inventory of harness configuration
   contributions. Each entry has an ID, harness, source, project/global
   targets, format, merge strategy, and lowercase SHA-256 `sourceHash`.
-  `claude-code:settings` uses `permission-union`; `codex:config`,
   `opencode:config`, `opencode:model-profile:openai`, and
   `opencode:model-profile:mistral` use `deep-merge`.
   Configuration hashes protect only approved managed contributions, not the
@@ -92,8 +91,8 @@ harness home:
 
 | Harness | Global home | Agent target | Configuration target |
 |---|---|---|---|
-| Claude Code | `${CLAUDE_CONFIG_DIR:-$HOME/.claude}` | `agents/<name>.md` | `settings.json` |
-| Codex | `${CODEX_HOME:-$HOME/.codex}` | `agents/<name>.toml` | `config.toml` |
+| Claude Code | `${CLAUDE_CONFIG_DIR:-$HOME/.claude}` | `agents/<name>.md` | — |
+| Codex | `${CODEX_HOME:-$HOME/.codex}` | `agents/<name>.toml` | — |
 | OpenCode | `${XDG_CONFIG_HOME:-$HOME/.config}/opencode` | `agent/<name>.md` | `opencode.json` |
 
 Plugin native assets for OpenCode resolve their logical global targets under the

@@ -117,16 +117,6 @@ is a project responsibility. The adapter contract is:
 - `bash .agents/scripts/ui-design/preview.sh stop` — stop the preview server
 
 The installer preserves an existing `preview.sh` in every copy mode (add/override/skip).
-If a target replaces the adapter with a wrapper (e.g., Docker Compose), the new wrapper's
-dependencies may require re-applying the presentation-root permissions.
-
-## Permissions
-
-`settings.json` encodes the project-wide permission union the skills need: edit
-allowed; read-only git and common Unix commands allowed; `git push`, `gh pr create`,
-`gh pr ready`, branch deletion, and worktree removal are denied; publishing goes
-through the `git-publish` skill; `rm` asks first. The three preview-adapter
-commands are allowed explicitly.
 
 ## Usage
 

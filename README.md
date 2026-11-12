@@ -92,8 +92,8 @@ new installations.
 
 ## OpenCode model profiles
 
-Setup inspects the target environment and proposes model or permission changes
-for explicit approval. It offers three named profiles:
+Setup inspects the target environment and proposes model changes for explicit
+approval. It offers three named profiles:
 
 | Profile | Default | Behavior |
 |---|---|---|
@@ -124,11 +124,7 @@ The top-level default model is Qwen 3.8 Flash, with DeepSeek V4.1 Flash as
 table; none of the profiles configures a provider router.
 
 The base `opencode.json` sets `default_agent` to `build`, disables `plan`, and
-carries the `build` bash allowlist: read-only Git and GitHub queries, local Git
-writes, skill helper scripts, and common read-only shell tools are allowed;
-`git push`, PR creation, branch deletion, worktree removal, inline interpreters,
-and redirects into system paths are denied; other commands ask. OpenCode applies
-the last matching rule, so deny rules follow the allow rules.
+assigns models to the agents.
 
 ## Installed Assets
 
@@ -157,8 +153,7 @@ OpenCode's **worker subagents** under `agents/opencode/subagents/` are:
 
 `explore`, `implement-task`, `ui-design-task`
 
-`explore` replaces OpenCode's built-in Explore with a read-only investigator
-(Context7 and `github-pr-comments` allowed, everything else denied or asked).
+`explore` replaces OpenCode's built-in Explore with a read-only investigator.
 
 The same workers are available under `agents/claude/` as Claude Code
 subagents; `implement-task` and `ui-design-task` are also available under
@@ -186,20 +181,18 @@ assets.
 ### Project templates and docs
 
 The `templates/` tree contains candidate target-repository instructions, role
-docs, and harness configuration contributions. Setup proposes documentation and
+docs, and OpenCode model assignments. Setup proposes documentation and
 context assets when repository discovery justifies them:
 
 - `templates/AGENTS.md` and `templates/CLAUDE.md` — instruction entry points
 - `templates/docs/agents/` — per-agent loading contracts
 - `templates/docs/` — context maps, ADRs, feature docs, and area guidance
 - `templates/opencode/` — OpenCode configuration and model profiles
-- `templates/claude/` — Claude Code configuration
-- `templates/codex/` — Codex configuration
+- `templates/claude/` — Claude Code workflow guide
 
-Stack overlays under `stacks/<name>/` add only stack-specific guidance and
-configuration after the selected OpenCode model profile. Initial overlays are
-`pnpm` and `maven`; their OpenCode overlays contribute permission rules, not
-model assignments.
+Stack overlays under `stacks/<name>/` add only stack-specific guidance:
+`AGENTS.md` additions and role-doc additions. Initial overlays are `pnpm` and
+`maven`.
 
 ## Skill installation and ownership
 
@@ -382,7 +375,7 @@ The only allowed exception to the "no force-push" rule is an explicitly authoriz
 - Requires explicit human authorization per invocation.
 - One attempt with no weaker-force fallback (no bare `--force` or `-f` if the lease fails).
 
-This is encoded in the agent permissions and enforced by the publication scripts themselves.
+The publication scripts enforce this rule.
 
 ### UI-Design Preview-First Verification Exception
 
@@ -395,8 +388,6 @@ The `ui-design` workflow verifies presentation output differently from code impl
   - `stop` — stop the preview server
 - The toolkit **does not supply** this script. It is a target-owned adapter.
   Setup preserves an existing adapter rather than silently replacing it.
-- Claude settings encode exact permissions for the three preview commands: `Bash(bash .agents/scripts/ui-design/preview.sh start)`, `Bash(bash .agents/scripts/ui-design/preview.sh probe)`, `Bash(bash .agents/scripts/ui-design/preview.sh stop)`.
-- If a target overrides the preview adapter via a wrapper (e.g., Docker Compose), the new wrapper's own dependencies may require re-applying the presentation-root permissions.
 
 ## Maintainers: releasing the toolkit
 
@@ -481,14 +472,10 @@ To add a new stack:
 
 1. Create `stacks/<new-stack>/` with:
    - `AGENTS.md`
-   - `opencode.json`
-   - `claude/settings.json`
    - `docs/agents/{planner,implement,implement-task,review-code,review-plan,finish}.md`
 
 2. The stack assets are merged as follows:
     - **Stack `AGENTS.md`** is proposed as an addition to `templates/AGENTS.md`.
-     - **Stack `opencode.json`** is deep-merged after the selected model profile; stack values win only for stack-owned keys.
-    - **Stack `claude/settings.json`** permission arrays are unioned with de-duplication.
     - **Stack role-doc additions** are concatenated to the matching `templates/docs/agents/` role docs.
 
 3. The `setup` skill proposes stack additions after repository evidence is

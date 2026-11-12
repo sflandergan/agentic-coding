@@ -224,16 +224,6 @@ cp "$ROOT/templates/opencode/models-openai.json" "$STAGE/models-openai.json"
 cp "$ROOT/core/skills-lock.json" "$STAGE/skills-lock.json"
 
 # --- 6c. Merge stack overlays (stack overrides core) ---
-jq -s '.[0] * .[1]' "$ROOT/templates/opencode/opencode.json" "$ROOT/stacks/$STACK/opencode.json" > "$STAGE/opencode.json"
-
-jq -s '
-  def uniq_array(a; b): ((a // []) + (b // [])) | unique;
-  .[0] as $core | .[1] as $stack |
-  ($core * $stack)
-  | .permissions.allow = uniq_array($core.permissions.allow; $stack.permissions.allow)
-  | .permissions.ask = uniq_array($core.permissions.ask; $stack.permissions.ask)
-  | .permissions.deny = uniq_array($core.permissions.deny; $stack.permissions.deny)
-' "$ROOT/templates/claude/settings.json" "$ROOT/stacks/$STACK/claude/settings.json" > "$STAGE/.claude/settings.json"
 
 # skills-lock.json: merge only if stack has one
 if [[ -f "$ROOT/stacks/$STACK/skills-lock.json" ]]; then
@@ -368,27 +358,6 @@ if [[ -f "$TARGET/opencode.json" ]]; then
 else
   cp "$STAGE/opencode.json" "$TARGET/opencode.json"
   COPIED+=("opencode.json (new)")
-fi
-
-# ---------------------------------------------------------------------------
-# 9. .claude/settings.json handling
-# ---------------------------------------------------------------------------
-if [[ -f "$TARGET/.claude/settings.json" ]]; then
-  mkdir -p "$TARGET/.claude"
-  jq -s '
-    def uniq_array(a; b): ((a // []) + (b // [])) | unique;
-    .[0] as $existing | .[1] as $staged |
-    $existing
-    | .permissions.allow = uniq_array($existing.permissions.allow; $staged.permissions.allow)
-    | .permissions.ask = uniq_array($existing.permissions.ask; $staged.permissions.ask)
-    | .permissions.deny = uniq_array($existing.permissions.deny; $staged.permissions.deny)
-  ' "$TARGET/.claude/settings.json" "$STAGE/.claude/settings.json" > "$STAGE/.claude/settings.json.tmp"
-  mv "$STAGE/.claude/settings.json.tmp" "$TARGET/.claude/settings.json"
-  COPIED+=(".claude/settings.json (merged permissions)")
-else
-  mkdir -p "$TARGET/.claude"
-  cp "$STAGE/.claude/settings.json" "$TARGET/.claude/settings.json"
-  COPIED+=(".claude/settings.json (new)")
 fi
 
 # ---------------------------------------------------------------------------

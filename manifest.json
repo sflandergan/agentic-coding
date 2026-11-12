@@ -162,7 +162,7 @@
       "source": "agents/opencode/subagents/implement-task.md",
       "projectTarget": ".opencode/agents/implement-task.md",
       "globalTarget": "agent/implement-task.md",
-      "releaseHash": "0d7006b5c1d237b3fffabc3d45159ba3cd807b5dc02c4d70f8e485291aa7ca54"
+      "releaseHash": "25930956f21b16244541732f2252c4d0405f33b81ecff48f7fc05c24375dc1c8"
     },
     {
       "id": "opencode-subagent:ui-design-task",
@@ -171,7 +171,7 @@
       "source": "agents/opencode/subagents/ui-design-task.md",
       "projectTarget": ".opencode/agents/ui-design-task.md",
       "globalTarget": "agent/ui-design-task.md",
-      "releaseHash": "5f2eeceb8935823d79dedb987ebc936ef4647e521a49b01ce1ecb1217162d6d4"
+      "releaseHash": "a7585fef30106f3cef9fc457fc17a6f3f3359ea624aeaa997edab665f32d1f2b"
     },
     {
       "id": "claude-subagent:explore",
@@ -225,7 +225,7 @@
       "source": "agents/opencode/subagents/explore.md",
       "projectTarget": ".opencode/agents/explore.md",
       "globalTarget": "agent/explore.md",
-      "releaseHash": "67e5f5a7d32675c688c2f1423c36ac0b32f42b77ba8dc00ec15aa43c3d607102"
+      "releaseHash": "4902292df72bca06ec88005b39d9dcdec84fa792c90f5ff2733e43afb4fbc2c4"
     },
     {
       "id": "opencode-plugin:mistral-3rd-party",
@@ -257,26 +257,6 @@
   ],
   "configurationAssets": [
     {
-      "id": "claude-code:settings",
-      "harness": "claude-code",
-      "source": "templates/claude/settings.json",
-      "projectTarget": ".claude/settings.json",
-      "globalTarget": "settings.json",
-      "format": "json",
-      "mergeStrategy": "permission-union",
-      "sourceHash": "1f8df687f43538fb63b3442ff8c9f063612b47de0a2a84df12f20c9b7b3fb9cb"
-    },
-    {
-      "id": "codex:config",
-      "harness": "codex",
-      "source": "templates/codex/config.toml",
-      "projectTarget": ".codex/config.toml",
-      "globalTarget": "config.toml",
-      "format": "toml",
-      "mergeStrategy": "deep-merge",
-      "sourceHash": "872e51445b6d8209accf692b08d66eeaba5d5b28fb4aef9e3930201e0264afaa"
-    },
-    {
       "id": "opencode:config",
       "harness": "opencode",
       "source": "templates/opencode/opencode.json",
@@ -284,7 +264,7 @@
       "globalTarget": "opencode.json",
       "format": "json",
       "mergeStrategy": "deep-merge",
-      "sourceHash": "200c52704cc7616e48f8e7ff77cf18accf38133ee8223b5ed1c61d5c26cf5d6e"
+      "sourceHash": "2a8e2b9a99dae75c08e1989c4495c7345ba784f91b3e7b8f64fa3fbe292fa095"
     },
     {
       "id": "opencode:model-profile:openai",
@@ -304,15 +284,13 @@
       "globalTarget": "opencode.json",
       "format": "json",
       "mergeStrategy": "deep-merge",
-      "sourceHash": "6e6b0f73fae114779f36fdde5e4de5d15a6be597dce277cc93955c13fe814430"
+      "sourceHash": "6304d8692a1d89e0b80533da821812e2125a04a28bd96efc07f1b427d920f537"
     }
   ],
   "templates": {
     "agentsMd": "templates/AGENTS.md",
     "roleDocs": "templates/docs/agents",
     "harnessConfig": {
-      "claude": "templates/claude",
-      "codex": "templates/codex",
       "opencode": "templates/opencode"
     }
   },

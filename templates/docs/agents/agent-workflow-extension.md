@@ -5,7 +5,7 @@ Use this guide when changing coding assistant workflows, agents, or reusable ski
 ## Boundaries
 
 - `docs/agents/*.md` files are role loading/reference contracts. Keep them focused on which repository docs an agent must load for a workflow. Do not put detailed executable workflow behavior there.
-- `opencode.json` defines the OpenCode `build` agent (the default agent that runs every workflow skill) and its permissions; `.opencode/agents/*.md` files define only the worker subagents (`explore`, `implement-task`, `ui-design-task`).
+- `opencode.json` defines the OpenCode `build` agent (the default agent that runs every workflow skill); `.opencode/agents/*.md` files define only the worker subagents (`explore`, `implement-task`, `ui-design-task`).
 - `.claude/skills/*/SKILL.md` files define Claude skill behavior for the matching workflow.
 - Shared skill files provide reusable mechanics shared by workflows. They may describe how to use bundled scripts or helpers, but they should not own role-level orchestration for review-plan, review-code, planner, implement, or finish workflows.
 
@@ -47,7 +47,6 @@ The `ui-design` workflow verifies presentation output differently from code:
 - **Preview-first:** Verification runs by starting a local preview server, probing it for expected visual content, and stopping it. This replaces the typical verification-before-completion gates for UI work.
 - **Adapter location:** `.agents/scripts/ui-design/preview.sh` — a target-owned script with three commands: `start`, `probe`, `stop`.
 - **Toolkit boundary:** The toolkit does not supply this script. It is a target responsibility. The installer (`init.sh` and `copy.sh`) preserves an existing `preview.sh` in every skill mode (add/override/skip).
-- **Permissions:** The exact three preview commands are encoded in `.claude/settings.json` as allowed Bash invocations. If a target replaces the adapter with a wrapper (e.g., Docker Compose), applying the new wrapper's permissions may require updating the presentation-root permissions in `settings.json`.
 
 ## Support and Worker Skills
 
@@ -73,7 +72,7 @@ the same workflow definitions without relying on a fixed installation root.
 
 ## Default placement rules
 
-- If the change says what a role should do by default, update the matching workflow skill's `SKILL.md`; change `opencode.json` or `.claude/settings.json` only for permissions or model assignments.
+- If the change says what a role should do by default, update the matching workflow skill's `SKILL.md`; change `opencode.json` only for model assignments.
 - If the change says which docs a role must load, update the matching `docs/agents/*.md` file.
 - If the change says how to run a shared helper script or avoid helper-specific mistakes, update the matching shared skill file.
 - If a workflow change affects both OpenCode and Claude, update both definitions in the same plan and verify they remain aligned.

@@ -223,6 +223,18 @@ create_mutated_tagged_manifest() {
   [ ! -e "$scratch_dir/release.json" ]
 }
 
+@test "manifest mode rejects a missing templates.harnessConfig.opencode" {
+  create_mutated_tagged_manifest v9.9.9 v9.9.9 stable 'del(.templates.harnessConfig.opencode)'
+  scratch_dir="$TEST_ROOT/scratch"
+  mkdir -p "$scratch_dir"
+
+  run bash "$HELPER" manifest "$REMOTE" v9.9.9 "$scratch_dir"
+
+  [ "$status" -ne 0 ]
+  [ ! -e "$scratch_dir/manifest.json" ]
+  [ ! -e "$scratch_dir/release.json" ]
+}
+
 @test "manifest mode rejects a third-party commit that is not a lowercase 40-hex sha" {
   create_mutated_tagged_manifest v9.9.9 v9.9.9 stable \
     '.skills.thirdParty = [{name:"x",source:"y",sourceType:"github",commit:"not-a-commit"}]'

@@ -1,9 +1,0 @@
-{
-  "permission": {
-    "bash": {
-      "mvn *": "allow",
-      "mvn deploy*": "ask",
-      "mvn * deploy*": "ask"
-    }
-  }
-}

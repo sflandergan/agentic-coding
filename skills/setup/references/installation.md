@@ -124,8 +124,8 @@ use [release.md](release.md) for release resolution and source fetching.
 8. Structurally merge each approved harness configuration contribution from
    `configurationAssets` using its declared merge strategy. Preserve unrelated
    keys. Parse the existing target first and reject invalid configuration
-   instead of replacing it. Apply structural agent and permission additions
-   independently from model changes.
+   instead of replacing it. Apply structural agent additions independently
+   from model changes.
    When OpenCode is selected, show existing and proposed model values and offer
    these profiles:
 
