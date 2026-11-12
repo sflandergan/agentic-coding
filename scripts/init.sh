@@ -145,19 +145,6 @@ cp "$ROOT/core/skills-lock.json" "$STAGE/skills-lock.json"
 
 # --- 5c. Merge stack overlays (stack overrides core) ---
 
-# opencode.json: deep-merge (stack overrides on conflict)
-jq -s '.[0] * .[1]' "$ROOT/templates/opencode/opencode.json" "$ROOT/stacks/$STACK/opencode.json" > "$STAGE/opencode.json"
-
-# .claude/settings.json: merge permission arrays by tier with de-duplication
-jq -s '
-  def uniq_array(a; b): ((a // []) + (b // [])) | unique;
-  .[0] as $core | .[1] as $stack |
-  ($core * $stack)
-  | .permissions.allow = uniq_array($core.permissions.allow; $stack.permissions.allow)
-  | .permissions.ask = uniq_array($core.permissions.ask; $stack.permissions.ask)
-  | .permissions.deny = uniq_array($core.permissions.deny; $stack.permissions.deny)
-' "$ROOT/templates/claude/settings.json" "$ROOT/stacks/$STACK/claude/settings.json" > "$STAGE/.claude/settings.json"
-
 # skills-lock.json: merge only if stack has one
 if [[ -f "$ROOT/stacks/$STACK/skills-lock.json" ]]; then
   jq -s '{ version: (.[0].version // .[1].version // 1), skills: ((.[0].skills // {}) * (.[1].skills // {})) }' \
@@ -329,7 +316,7 @@ echo "  - Claude workflow skills in .claude/skills/"
 echo "  - Authored skills in .agents/skills/"
 echo "  - DDD docs in docs/"
 echo "  - Area docs (AGENTS.md, ARCHITECTURE.md, etc.)"
-echo "  - Configuration: opencode.json, .claude/settings.json"
+echo "  - Configuration: opencode.json"
 echo ""
 echo "Next steps:"
 echo "  cd $TARGET"

@@ -1,3 +1,0 @@
-# Structural contributions merged into the target repository's .codex/config.toml
-# by the setup skill. Keys here are the minimum required by installed worker
-# subagents; setup proposes the merge and preserves unrelated user keys.

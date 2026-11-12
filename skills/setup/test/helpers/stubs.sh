@@ -141,8 +141,6 @@ write_test_manifest() {
         agentsMd: "templates/AGENTS.md",
         roleDocs: "templates/docs/agents",
         harnessConfig: {
-          claude: "templates/claude",
-          codex: "templates/codex",
           opencode: "templates/opencode"
         }
       }

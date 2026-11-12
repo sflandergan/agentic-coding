@@ -47,6 +47,6 @@ Replace this section with the project's verification commands. A typical baselin
 
 To add a new stack overlay (e.g. Gradle, Go, Cargo):
 
-1. Create `stacks/<name>/` with `AGENTS.md`, `opencode.json`, `claude/settings.json`, and `docs/agents/<role>.md` additions for the affected roles.
+1. Create `stacks/<name>/` with `AGENTS.md` and `docs/agents/<role>.md` additions for the affected roles.
 2. Update `scripts/init.sh` and `scripts/copy.sh` to include the new stack in their stack selection prompt.
 3. Document the stack in the top-level `README.md`.
