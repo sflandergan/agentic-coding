@@ -94,14 +94,15 @@
           },
           "temperature": true,
           "tool_call": true,
-          "attachment": false,
+          "attachment": true,
           "limit": {
             "context": 1048576,
             "output": 128000
           },
           "modalities": {
             "input": [
-              "text"
+              "text",
+              "image"
             ],
             "output": [
               "text"
