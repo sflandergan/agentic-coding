@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "release": {
-    "ref": "main",
-    "channel": "preview"
+    "ref": "v3.0.1",
+    "channel": "stable"
   },
   "skills": {
     "authored": [
