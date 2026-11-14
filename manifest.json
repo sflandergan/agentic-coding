@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "release": {
+    "ref": "v3.0.1",
+    "channel": "stable"
+  },
+  "skills": {
+    "authored": [
+      {
+        "name": "brainstorm",
+        "path": "skills/brainstorm"
+      },
+      {
+        "name": "bugfix",
+        "path": "skills/bugfix"
+      },
+      {
+        "name": "feature-documentation",
+        "path": "skills/feature-documentation"
+      },
+      {
+        "name": "finish",
+        "path": "skills/finish"
+      },
+      {
+        "name": "git-publish",
+        "path": "skills/git-publish"
+      },
+      {
+        "name": "github-pr-comments",
+        "path": "skills/github-pr-comments"
+      },
+      {
+        "name": "grill-with-docs",
+        "path": "skills/grill-with-docs"
+      },
+      {
+        "name": "idea",
+        "path": "skills/idea"
+      },
+      {
+        "name": "implement",
+        "path": "skills/implement"
+      },
+      {
+        "name": "implement-task",
+        "path": "skills/implement-task"
+      },
+      {
+        "name": "planner",
+        "path": "skills/planner"
+      },
+      {
+        "name": "planning-structure",
+        "path": "skills/planning-structure"
+      },
+      {
+        "name": "review-code",
+        "path": "skills/review-code"
+      },
+      {
+        "name": "review-plan",
+        "path": "skills/review-plan"
+      },
+      {
+        "name": "setup",
+        "path": "skills/setup"
+      },
+      {
+        "name": "ui-design",
+        "path": "skills/ui-design"
+      },
+      {
+        "name": "ui-design-task",
+        "path": "skills/ui-design-task"
+      },
+      {
+        "name": "verification-before-completion",
+        "path": "skills/verification-before-completion"
+      }
+    ],
+    "thirdParty": [
+      {
+        "name": "context7-cli",
+        "source": "upstash/context7",
+        "sourceType": "github",
+        "skillPath": "skills/context7-cli/SKILL.md",
+        "commit": "dedb03d589e6e03e8fb5a2b858bd3c853ac6893e",
+        "computedHash": "f22d21491528a0aaaf21a2a7c546428ffd208852473d6afbaf5e2d4845388639"
+      },
+      {
+        "name": "domain-modeling",
+        "source": "mattpocock/skills",
+        "sourceType": "github",
+        "skillPath": "skills/engineering/domain-modeling/SKILL.md",
+        "commit": "272f99b22574f50e4266791c86b9302682970e23",
+        "computedHash": "67343881f5def98487d56243155716110afbcbf22ec92421c882d532b941cb17"
+      },
+      {
+        "name": "grilling",
+        "source": "mattpocock/skills",
+        "sourceType": "github",
+        "skillPath": "skills/productivity/grilling/SKILL.md",
+        "commit": "272f99b22574f50e4266791c86b9302682970e23",
+        "computedHash": "bf1e75d96966edd298902d63348c828921b8b095d7306d0cdd56b4a591a7a82b"
+      },
+      {
+        "name": "impeccable",
+        "source": "pbakaus/impeccable",
+        "sourceType": "github",
+        "skillPath": ".agents/skills/impeccable/SKILL.md",
+        "commit": "414603bf14c7a344edb466bb1f85690c77ce8b7d",
+        "computedHash": "ba5d6e38f26d2e945237bcd0024aa2ff9b1f81f07970fafaa36c09244d2abeaf"
+      },
+      {
+        "name": "writing-skills",
+        "source": "obra/superpowers",
+        "sourceType": "github",
+        "skillPath": "skills/writing-skills/SKILL.md",
+        "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+        "computedHash": "e5dfc1a942f56dc757421b0d87ae1f38ab693ebc71138e65268fd408bb5c93d3"
+      },
+      {
+        "name": "test-driven-development",
+        "source": "obra/superpowers",
+        "sourceType": "github",
+        "skillPath": "skills/test-driven-development/SKILL.md",
+        "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+        "computedHash": "a4126a9c5f17be3c228aa9e5755898ade283448b86099f56f40852e8c14532be"
+      }
+    ]
+  },
+  "opencode": {
+    "primary": [],
+    "subagents": [
+      "explore",
+      "implement-task",
+      "ui-design-task"
+    ]
+  },
+  "subagents": {
+    "claude": [
+      "explore",
+      "implement-task",
+      "ui-design-task"
+    ],
+    "codex": [
+      "implement-task",
+      "ui-design-task"
+    ],
+    "opencode": [
+      "explore",
+      "implement-task",
+      "ui-design-task"
+    ]
+  },
+  "nativeAssets": [
+    {
+      "id": "opencode-subagent:implement-task",
+      "kind": "subagent",
+      "harness": "opencode",
+      "source": "agents/opencode/subagents/implement-task.md",
+      "projectTarget": ".opencode/agents/implement-task.md",
+      "globalTarget": "agent/implement-task.md",
+      "releaseHash": "25930956f21b16244541732f2252c4d0405f33b81ecff48f7fc05c24375dc1c8"
+    },
+    {
+      "id": "opencode-subagent:ui-design-task",
+      "kind": "subagent",
+      "harness": "opencode",
+      "source": "agents/opencode/subagents/ui-design-task.md",
+      "projectTarget": ".opencode/agents/ui-design-task.md",
+      "globalTarget": "agent/ui-design-task.md",
+      "releaseHash": "a7585fef30106f3cef9fc457fc17a6f3f3359ea624aeaa997edab665f32d1f2b"
+    },
+    {
+      "id": "claude-subagent:explore",
+      "kind": "subagent",
+      "harness": "claude-code",
+      "source": "agents/claude/explore.md",
+      "projectTarget": ".claude/agents/explore.md",
+      "globalTarget": "agents/explore.md",
+      "releaseHash": "d0c65c4d6388ba0d8f48c90e388d379320f0e0ad510b2204a24df3ac8ee7e478"
+    },
+    {
+      "id": "claude-subagent:implement-task",
+      "kind": "subagent",
+      "harness": "claude-code",
+      "source": "agents/claude/implement-task.md",
+      "projectTarget": ".claude/agents/implement-task.md",
+      "globalTarget": "agents/implement-task.md",
+      "releaseHash": "044d2b958f5e89f3990a28d3640cb683b96b1a95e740cd76c4d375c2c91d1f58"
+    },
+    {
+      "id": "claude-subagent:ui-design-task",
+      "kind": "subagent",
+      "harness": "claude-code",
+      "source": "agents/claude/ui-design-task.md",
+      "projectTarget": ".claude/agents/ui-design-task.md",
+      "globalTarget": "agents/ui-design-task.md",
+      "releaseHash": "085efe0f7f4cd0d003c1a285f25ebe0461f103602f72d2504689d34fb76ce00c"
+    },
+    {
+      "id": "codex-subagent:implement-task",
+      "kind": "subagent",
+      "harness": "codex",
+      "source": "agents/codex/implement-task.toml",
+      "projectTarget": ".codex/agents/implement-task.toml",
+      "globalTarget": "agents/implement-task.toml",
+      "releaseHash": "a07da052809a01101ae60961fd96f50ede53f9241840ce5625836434e296a485"
+    },
+    {
+      "id": "codex-subagent:ui-design-task",
+      "kind": "subagent",
+      "harness": "codex",
+      "source": "agents/codex/ui-design-task.toml",
+      "projectTarget": ".codex/agents/ui-design-task.toml",
+      "globalTarget": "agents/ui-design-task.toml",
+      "releaseHash": "def46d93ed3cc7f9d5d4800b49ef3f2c1c76fb33c051e77b16787a92d5baba45"
+    },
+    {
+      "id": "opencode-subagent:explore",
+      "kind": "subagent",
+      "harness": "opencode",
+      "source": "agents/opencode/subagents/explore.md",
+      "projectTarget": ".opencode/agents/explore.md",
+      "globalTarget": "agent/explore.md",
+      "releaseHash": "4902292df72bca06ec88005b39d9dcdec84fa792c90f5ff2733e43afb4fbc2c4"
+    },
+    {
+      "id": "opencode-plugin:mistral-3rd-party",
+      "kind": "plugin",
+      "harness": "opencode",
+      "source": ".opencode/plugins/mistral-3rd-party.ts",
+      "projectTarget": ".opencode/plugins/mistral-3rd-party.ts",
+      "globalTarget": "plugins/mistral-3rd-party.ts",
+      "releaseHash": "f64740fa473608f03aecce5a52afa5157e334cee6bc09532956bbced29150a2e"
+    },
+    {
+      "id": "opencode-plugin:mistral-3rd-party-compatibility",
+      "kind": "plugin",
+      "harness": "opencode",
+      "source": ".opencode/plugins/mistral-3rd-party/compatibility.ts",
+      "projectTarget": ".opencode/plugins/mistral-3rd-party/compatibility.ts",
+      "globalTarget": "plugins/mistral-3rd-party/compatibility.ts",
+      "releaseHash": "23bc9523c30cd94bfb3234c79bc697436ff814525a780ddfdbdc6c710498117a"
+    },
+    {
+      "id": "opencode-plugin:mistral-3rd-party-readme",
+      "kind": "plugin",
+      "harness": "opencode",
+      "source": ".opencode/plugins/mistral-3rd-party/README.md",
+      "projectTarget": ".opencode/plugins/mistral-3rd-party/README.md",
+      "globalTarget": "plugins/mistral-3rd-party/README.md",
+      "releaseHash": "fb0fa0c5d0f61a7dd785b809c1bc35dd6b83968fd41e6553a888cc6411d66211"
+    }
+  ],
+  "configurationAssets": [
+    {
+      "id": "opencode:config",
+      "harness": "opencode",
+      "source": "templates/opencode/opencode.json",
+      "projectTarget": "opencode.json",
+      "globalTarget": "opencode.json",
+      "format": "json",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "2a8e2b9a99dae75c08e1989c4495c7345ba784f91b3e7b8f64fa3fbe292fa095"
+    },
+    {
+      "id": "opencode:model-profile:openai",
+      "harness": "opencode",
+      "source": "templates/opencode/models-openai.json",
+      "projectTarget": "opencode.json",
+      "globalTarget": "opencode.json",
+      "format": "json",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "b4648dbf2c3145fa4a9fc33388d5aea5e75acc9eb721014f1c1d5c0dafba4792"
+    },
+    {
+      "id": "opencode:model-profile:mistral",
+      "harness": "opencode",
+      "source": "templates/opencode/models-mistral.json",
+      "projectTarget": "opencode.json",
+      "globalTarget": "opencode.json",
+      "format": "json",
+      "mergeStrategy": "deep-merge",
+      "sourceHash": "6304d8692a1d89e0b80533da821812e2125a04a28bd96efc07f1b427d920f537"
+    }
+  ],
+  "templates": {
+    "agentsMd": "templates/AGENTS.md",
+    "roleDocs": "templates/docs/agents",
+    "harnessConfig": {
+      "opencode": "templates/opencode"
+    }
+  },
+  "documentation": {
+    "agentsMd": {
+      "source": "templates/AGENTS.md",
+      "target": "AGENTS.md"
+    },
+    "roleDocs": {
+      "source": "templates/docs/agents/*",
+      "target": "docs/agents/*"
+    },
+    "claudeMdLink": {
+      "condition": "Claude Code is selected and CLAUDE.md does not exist",
+      "source": "AGENTS.md",
+      "target": "CLAUDE.md",
+      "action": "relative-symlink"
+    }
+  },
+  "assetHashes": {},
+  "requirements": {
+    "node": ">=20",
+    "skillsCli": ">=1.6.0"
+  },
+  "pluginManifests": {
+    "claude": ".claude-plugin/plugin.json",
+    "codex": ".codex-plugin/plugin.json"
+  },
+  "retired": [
+    "opencode-primary:brainstorm",
+    "opencode-primary:bugfix",
+    "opencode-primary:finish",
+    "opencode-primary:idea",
+    "opencode-primary:implement",
+    "opencode-primary:planner",
+    "opencode-primary:review-code",
+    "opencode-primary:review-plan",
+    "opencode-primary:ui-design"
+  ]
+}

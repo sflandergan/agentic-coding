@@ -1,0 +1,5 @@
+interface:
+  display_name: "Review Code"
+  short_description: "Reviews code changes, reports findings, and writes an approved fix plan under plans/** when needed."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Planner"
+  short_description: "Turns an approved spec or clear requirements into a reviewable plan.md summary index plus tasks/*.md executable task files with TDD steps."
+policy:
+  allow_implicit_invocation: false

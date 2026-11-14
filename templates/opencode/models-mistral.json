@@ -1,0 +1,137 @@
+{
+  "provider": {
+    "mistral-3rd-party": {
+      "name": "Mistral 3rd-party (V1 compatibility)",
+      "npm": "@ai-sdk/openai-compatible",
+      "env": [
+        "MISTRAL_API_KEY"
+      ],
+      "options": {
+        "baseURL": "https://api.mistral.ai/v1"
+      },
+      "models": {
+        "zai-glm-5-3": {
+          "name": "GLM 5.3 (Mistral)",
+          "reasoning": true,
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "temperature": true,
+          "tool_call": true,
+          "attachment": false,
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "cost": {
+            "input": 1.4,
+            "output": 4.4,
+            "cache_read": 0.14
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "zai-glm-5-3-flash": {
+          "name": "GLM 5.3 Flash (Mistral)",
+          "reasoning": true,
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "temperature": true,
+          "tool_call": true,
+          "attachment": false,
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "cost": {
+            "input": 0.15,
+            "output": 0.5,
+            "cache_read": 0.03
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "deepseek-v4-1-flash-1017": {
+          "name": "DeepSeek V4.1 Flash (Mistral)",
+          "reasoning": true,
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "temperature": true,
+          "tool_call": true,
+          "attachment": true,
+          "limit": {
+            "context": 1048576,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "cost": {
+            "input": 0.3,
+            "output": 1.2,
+            "cache_read": 0.007
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        }
+      }
+    }
+  },
+  "model": "mistral-3rd-party/zai-glm-5-3",
+  "agent": {
+    "build": {
+      "model": "mistral-3rd-party/zai-glm-5-3"
+    }
+  }
+}

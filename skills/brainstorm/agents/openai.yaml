@@ -1,0 +1,5 @@
+interface:
+  display_name: "Brainstorm"
+  short_description: "Turns an unclear feature idea into an approved spec.md through collaborative dialogue, grilling the design against the domain model."
+policy:
+  allow_implicit_invocation: false

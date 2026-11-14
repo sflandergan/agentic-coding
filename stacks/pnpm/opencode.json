@@ -1,9 +1,0 @@
-{
-  "permission": {
-    "bash": {
-      "pnpm *": "allow",
-      "pnpm *-g*": "deny",
-      "pnpm *--global*": "deny"
-    }
-  }
-}

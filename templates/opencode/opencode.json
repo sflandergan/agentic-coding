@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "plan": {
+      "disable": true
+    },
+    "build": {
+      "model": "opencode-go/glm-5.3-flash"
+    },
+    "explore": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "variant": "low"
+    },
+    "implement-task": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "variant": "max",
+      "mode": "subagent"
+    },
+    "ui-design-task": {
+      "model": "opencode-go/glm-5.3-flash",
+      "mode": "subagent"
+    }
+  },
+  "default_agent": "build",
+  "model": "opencode-go/qwen3.8-flash",
+  "small_model": "opencode-go/deepseek-v4.1-flash"
+}

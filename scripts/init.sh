@@ -13,6 +13,14 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+warn_deprecation() {
+  cat >&2 <<'EOF'
+WARNING: installer scripts are deprecated and will be removed in the next release.
+Install the setup skill using the current command documented in README.md.
+EOF
+}
+warn_deprecation
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -112,41 +120,30 @@ STAGE="$(mktemp -d)"
 
 echo "Building staging area in $STAGE ..."
 
-# --- 5a. Copy core directories (base layer) ---
-# opencode/ → .opencode/
-cp -R "$ROOT/core/opencode" "$STAGE/.opencode"
+# --- 5a. Copy template directories and native agent definitions (base layer) ---
+# agents/opencode/ → .opencode/agents/
+mkdir -p "$STAGE/.opencode/agents"
+cp -R "$ROOT/agents/opencode/subagents/." "$STAGE/.opencode/agents"
 
-# claude/ → .claude/
-cp -R "$ROOT/core/claude" "$STAGE/.claude"
+# templates/claude/ → .claude/
+cp -R "$ROOT/templates/claude" "$STAGE/.claude"
 
 # agents/ → .agents/
-cp -R "$ROOT/core/agents" "$STAGE/.agents"
+mkdir -p "$STAGE/.agents/skills"
+cp -R "$ROOT/skills/." "$STAGE/.agents/skills"
 
-# docs/ → docs/
-cp -R "$ROOT/core/docs" "$STAGE/docs"
+# templates/docs/ → docs/
+cp -R "$ROOT/templates/docs" "$STAGE/docs"
 
-# --- 5b. Copy root files from core ---
-cp "$ROOT/core/AGENTS.md" "$STAGE/AGENTS.md"
-cp "$ROOT/core/CLAUDE.md" "$STAGE/CLAUDE.md"
-cp "$ROOT/core/CONTEXT-MAP.md" "$STAGE/CONTEXT-MAP.md"
-cp "$ROOT/core/opencode.json" "$STAGE/opencode.json"
-cp "$ROOT/core/models-openai.json" "$STAGE/models-openai.json"
+# --- 5b. Copy root files from templates ---
+cp "$ROOT/templates/AGENTS.md" "$STAGE/AGENTS.md"
+cp "$ROOT/templates/CLAUDE.md" "$STAGE/CLAUDE.md"
+cp "$ROOT/templates/CONTEXT-MAP.md" "$STAGE/CONTEXT-MAP.md"
+cp "$ROOT/templates/opencode/opencode.json" "$STAGE/opencode.json"
+cp "$ROOT/templates/opencode/models-openai.json" "$STAGE/models-openai.json"
 cp "$ROOT/core/skills-lock.json" "$STAGE/skills-lock.json"
 
 # --- 5c. Merge stack overlays (stack overrides core) ---
-
-# opencode.json: deep-merge (stack overrides on conflict)
-jq -s '.[0] * .[1]' "$ROOT/core/opencode.json" "$ROOT/stacks/$STACK/opencode.json" > "$STAGE/opencode.json"
-
-# .claude/settings.json: merge permission arrays by tier with de-duplication
-jq -s '
-  def uniq_array(a; b): ((a // []) + (b // [])) | unique;
-  .[0] as $core | .[1] as $stack |
-  ($core * $stack)
-  | .permissions.allow = uniq_array($core.permissions.allow; $stack.permissions.allow)
-  | .permissions.ask = uniq_array($core.permissions.ask; $stack.permissions.ask)
-  | .permissions.deny = uniq_array($core.permissions.deny; $stack.permissions.deny)
-' "$ROOT/core/claude/settings.json" "$ROOT/stacks/$STACK/claude/settings.json" > "$STAGE/.claude/settings.json"
 
 # skills-lock.json: merge only if stack has one
 if [[ -f "$ROOT/stacks/$STACK/skills-lock.json" ]]; then
@@ -156,19 +153,19 @@ else
   cp "$ROOT/core/skills-lock.json" "$STAGE/skills-lock.json"
 fi
 
-# --- 5d. AGENTS.md: concatenate core + stack (stack appended) ---
+# --- 5d. AGENTS.md: concatenate template + stack (stack appended) ---
 if [[ -f "$ROOT/stacks/$STACK/AGENTS.md" ]]; then
   {
-    cat "$ROOT/core/AGENTS.md"
+    cat "$ROOT/templates/AGENTS.md"
     echo ""
     cat "$ROOT/stacks/$STACK/AGENTS.md"
   } > "$STAGE/AGENTS.md"
 else
-  cp "$ROOT/core/AGENTS.md" "$STAGE/AGENTS.md"
+  cp "$ROOT/templates/AGENTS.md" "$STAGE/AGENTS.md"
 fi
 
-# --- 5e. Role docs: concatenate core + stack additions ---
-# For each .md in core/docs/agents/ AND stacks/<stack>/docs/agents/ with the
+# --- 5e. Role docs: concatenate template + stack additions ---
+# For each .md in templates/docs/agents/ AND stacks/<stack>/docs/agents/ with the
 # same name, concatenate with a blank line between. Otherwise copy as-is.
 mkdir -p "$STAGE/docs/agents"
 
@@ -176,23 +173,23 @@ mkdir -p "$STAGE/docs/agents"
 # (bash 3.2 compatible: no associative arrays; dedupe via sort -u)
 _seen_tmp="$(mktemp)"
 trap 'rm -rf "$STAGE" "$_seen_tmp"' EXIT
-for f in "$ROOT/core/docs/agents/"*.md "$ROOT/stacks/$STACK/docs/agents/"*.md; do
+for f in "$ROOT/templates/docs/agents/"*.md "$ROOT/stacks/$STACK/docs/agents/"*.md; do
   [[ -f "$f" ]] || continue
   fname="$(basename "$f")"
   grep -qxF "$fname" "$_seen_tmp" && continue
   echo "$fname" >> "$_seen_tmp"
 
-  core_file="$ROOT/core/docs/agents/$fname"
+  template_file="$ROOT/templates/docs/agents/$fname"
   stack_file="$ROOT/stacks/$STACK/docs/agents/$fname"
 
-  if [[ -f "$core_file" && -f "$stack_file" ]]; then
+  if [[ -f "$template_file" && -f "$stack_file" ]]; then
     {
-      cat "$core_file"
+      cat "$template_file"
       echo ""
       cat "$stack_file"
     } > "$STAGE/docs/agents/$fname"
-  elif [[ -f "$core_file" ]]; then
-    cp "$core_file" "$STAGE/docs/agents/$fname"
+  elif [[ -f "$template_file" ]]; then
+    cp "$template_file" "$STAGE/docs/agents/$fname"
   elif [[ -f "$stack_file" ]]; then
     cp "$stack_file" "$STAGE/docs/agents/$fname"
   fi
@@ -201,7 +198,7 @@ rm -f "$_seen_tmp"
 
 # --- 5f. OpenAI patch (model option) ---
 if [[ "$MODELS" == "opencode-go+openai" ]]; then
-  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$ROOT/core/models-openai.json" > "$STAGE/opencode.json.tmp"
+  jq -s '.[0] * .[1]' "$STAGE/opencode.json" "$ROOT/templates/opencode/models-openai.json" > "$STAGE/opencode.json.tmp"
   mv "$STAGE/opencode.json.tmp" "$STAGE/opencode.json"
 fi
 
@@ -319,10 +316,10 @@ echo "  - Claude workflow skills in .claude/skills/"
 echo "  - Authored skills in .agents/skills/"
 echo "  - DDD docs in docs/"
 echo "  - Area docs (AGENTS.md, ARCHITECTURE.md, etc.)"
-echo "  - Configuration: opencode.json, .claude/settings.json"
+echo "  - Configuration: opencode.json"
 echo ""
 echo "Next steps:"
 echo "  cd $TARGET"
 echo "  # Review AGENTS.md and customize for your project"
-echo "  # Start with @brainstorm or /brainstorm"
+echo "  # Start with /brainstorm"
 echo ""

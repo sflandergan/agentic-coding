@@ -1,144 +1,233 @@
 # Agentic Coding Toolkit
 
-A reusable agentic coding toolkit that layers OpenCode agents and Claude Code workflow skills over DDD docs and area docs.
+A reusable agentic coding toolkit that combines shared workflow skills, native
+harness agents, and DDD docs and area docs.
 
 ## What the Toolkit Is
 
-The toolkit provides a two-layer overlay model:
+The release is organized around three canonical source trees:
 
-- **`core/`** — Always staged. Contains base agents, skills, configs, and docs.
-- **`stacks/<name>/`** — Stack-specific overlay (e.g. `pnpm`, `maven`). Merged on top of core during init or copy.
-
-Installer scripts (`init.sh`, `copy.sh`) map template directories under `core/` to dot target directories:
-
-| Source in repo | Target dot-directory |
+| Source path | Contents |
 |---|---|
-| `core/opencode/` | `.opencode/` |
-| `core/claude/` | `.claude/` |
-| `core/agents/` | `.agents/` |
-| `core/docs/` | `docs/` |
+| `skills/` | Authored workflow skills, installed through the Vercel `skills` CLI |
+| `agents/` | Harness-native worker agents for OpenCode, Claude Code, and Codex |
+| `templates/` | Target-repository instructions, role docs, and harness configuration |
 
-The `.agents/skills/` tree is the single canonical source for all authored workflow skills. Entry-point agent skills under `.claude/skills/` are **symlinks** pointing to `../../.agents/skills/<name>`. This avoids duplicating skill content and keeps the OpenCode pipeline and Claude Code pipeline reading the same files.
+`manifest.json` is the release inventory. It records the authored and pinned
+skills, agent sets, templates, plugin manifests, requirements, asset hashes, and
+retired assets. `stacks/<name>/` contains optional stack overlays such as `pnpm`
+and `maven`.
+
+The legacy installer scripts are retained for one transition release only. They
+are deprecated and will be removed in the next release; new installations must
+use the `setup` skill.
 
 ## Target Users / Projects
 
-Engineers who want OpenCode + Claude Code workflows with shared DDD docs, grilling, and TDD in their pnpm or Maven repos.
+Engineers who want OpenCode, Claude Code, or Codex workflows with shared DDD
+docs, grilling, and TDD in their pnpm or Maven repositories.
 
-The toolkit is stack-agnostic in `core/`. Stack overlays add verification commands, role-doc additions, and config merges for a specific build system.
+The toolkit is stack-agnostic. Stack overlays add verification commands,
+role-document additions, and configuration merges for a specific build system.
 
 ## Required Tools
 
 | Tool | Install | Notes |
 |---|---|---|
-| `jq` | [Download or install via package manager](https://jqlang.github.io/jq/download/) | Required by init and copy scripts |
-| `npx` (Node.js) | [Download and install](https://nodejs.org/en/download) | Runs the [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add …`) for remote skill installation; init.sh and copy.sh warn but do not fail when missing |
+| `jq` | [Download or install via package manager](https://jqlang.github.io/jq/download/) | Used by the deprecated installer scripts and release validation |
+| `npx` (Node.js) | [Download and install](https://nodejs.org/en/download) | Runs the [`skills`](https://github.com/vercel-labs/skills) CLI (`npx skills add …`) |
 | `codespell` | [Install via pip](https://github.com/codespell-project/codespell#installation) or [brew](https://formulae.brew.sh/formula/codespell) | Spellchecks markdown templates, agent/skill files, README content, and user-facing script text |
 
-## Quick Start: init.sh
+## Quick Start: the setup skill
 
-Scaffold a brand new project:
+Install `setup` inside the target Git repository. Project scope is recommended
+because each repository can choose its own release, harnesses, and
+configuration.
 
-```bash
-./scripts/init.sh
-```
+### Stable bootstrap
 
-The script prompts for:
-
-1. **Stack** — e.g. `pnpm` or `maven`
-2. **Model option** — `opencode-go only` (default) or `opencode-go + OpenAI`
-3. **Target path** — where to create the project
-
-## Quick Start: copy.sh
-
-Merge toolkit assets into an existing project:
+List the published tags, choose a semantic-version tag, and install `setup`
+from that exact tag:
 
 ```bash
-./scripts/copy.sh /path/to/existing-project
+git ls-remote --tags --refs https://github.com/sflandergan/agentic-coding
+tag='vMAJOR.MINOR.PATCH' # set this to a listed semantic-version tag
+npx skills add https://github.com/sflandergan/agentic-coding/tree/$tag --skill setup --agent claude-code --agent opencode --agent codex --yes
+npx skills add https://github.com/sflandergan/agentic-coding/tree/$tag --skill setup --agent claude-code --agent opencode --agent codex --yes --global
 ```
 
-Requires a **clean Git working tree** in the target. The script validates this by checking that `git status --short` prints no output. If the working tree is dirty, the script fails with instructions to commit or stash first.
+Use the first command for project scope and the second for global scope.
+
+### Preview bootstrap (`main`)
+
+`main` is preview content. Select it explicitly when preview behavior is wanted:
+
+```bash
+toolkit_remote='https://github.com/sflandergan/agentic-coding'
+npx skills add "$toolkit_remote/tree/main" --skill setup --agent claude-code --agent opencode --agent codex --yes
+npx skills add "$toolkit_remote/tree/main" --skill setup --agent claude-code --agent opencode --agent codex --yes --global
+```
+
+After bootstrap, invoke `/setup` (or the harness's equivalent skill invocation)
+and approve its proposed reconciliation. Setup reads the selected release's
+`manifest.json`; it does not copy skills from a fetched checkout.
+
+Global installation still requires running from an existing Git repository. It
+affects the user's other repositories and sessions, and all of them share one
+installed skill and agent version; use project scope when repositories need
+independent release versions or harness configuration.
+
+## Legacy installer scripts
+
+`scripts/init.sh` and `scripts/copy.sh` are deprecated and will be removed in
+the next release. During this one-release transition window they remain
+available for existing users, but they do not replace the setup workflow. The
+scripts scaffold or merge the legacy template layout and should not be used for
+new installations.
 
 ## Initial Stacks
 
 - **pnpm** — TypeScript/Node.js monorepos
 - **maven** — Java/Kotlin projects
 
-## Model Option
+## OpenCode model profiles
 
-During init you choose a model option:
+Setup inspects the target environment and proposes model changes for explicit
+approval. It offers three named profiles:
 
-| Option | Default | Behavior |
+| Profile | Default | Behavior |
 |---|---|---|
-| `opencode-go only` | Yes | All agents use the bundled OpenCode-Go profile below |
-| `opencode-go + OpenAI` | No | Applies one deterministic OpenAI overlay on top of the bundled profile for high-reasoning workflows |
+| `opencode-go` | Yes | Uses the bundled OpenCode-Go assignments below |
+| `opencode-go-openai` | No | Adds the deterministic OpenAI overlay to the bundled assignments |
+| `opencode-go-mistral` | No | Adds the Mistral overlay (GLM 5.3, GLM 5.3 Flash, DeepSeek V4.1 Flash) for OpenCode V1; also approve the bundled Mistral 3rd-party compatibility plugin assets |
+
+When existing model values are retained instead of selecting a profile,
+setup records `configuration.opencodeModelProfile: custom-retained`.
+
+The `opencode-go-mistral` profile adds the `mistral-3rd-party` provider block and
+moves the default model and the `build` agent onto
+`mistral-3rd-party/zai-glm-5-3` through the Mistral 3rd-party compatibility plugin, distributed
+as `plugin`-kind native assets; the other agent assignments stay at the base
+profile's values.
 
 ### Workflow Assignments
 
-| Workflow | Bundled OpenCode-Go profile | OpenAI overlay |
+| Agent | `opencode-go` | OpenAI overlay in `opencode-go-openai` |
 |---|---|---|
-| `brainstorm` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
-| `bugfix` | `opencode-go/qwen3.8-flash` | unchanged |
-| `explore` | `opencode-go/mimo-v2.5` | unchanged |
-| `finish` | `opencode-go/qwen3.8-flash` | unchanged |
-| `idea` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
-| `implement` | `opencode-go/qwen3.8-flash` | unchanged |
-| `implement-task` | `opencode-go/deepseek-v4-flash`, `high` | `openai/gpt-5.6-luna`, `xhigh` |
-| `planner` | `opencode-go/qwen3.8-flash` | unchanged |
-| `review-code` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
-| `review-plan` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
-| `ui-design` | `opencode-go/glm-5.3-flash` | `openai/gpt-5.6-sol`, `medium` |
-| `ui-design-task` | `opencode-go/qwen3.8-flash` | `openai/gpt-5.6-luna`, `xhigh` |
+| `build` (runs every workflow skill) | `opencode-go/glm-5.3-flash` | `openai/gpt-6.1-sol`, `medium` |
+| `explore` | `opencode-go/deepseek-v4.1-flash`, `low` | unchanged |
+| `implement-task` | `opencode-go/deepseek-v4.1-flash`, `max` | `openai/gpt-5.6-luna`, `xhigh` |
+| `ui-design-task` | `opencode-go/glm-5.3-flash` | `openai/gpt-6-luna`, `xhigh` |
 
-The top-level default model is Qwen 3.8 Flash, with DeepSeek V4 Flash as `small_model`.
+The top-level default model is Qwen 3.8 Flash, with DeepSeek V4.1 Flash as
+`small_model`. The OpenAI overlay changes only the agents shown in the
+table; none of the profiles configures a provider router.
 
-### Model Choice Rationale
-
-The bundled OpenCode-Go profile assigns models by workflow shape:
-
-- **GLM 5.3 Flash** handles idea intake, brainstorming, holistic code/plan reviews, and UI design orchestration (`idea`, `brainstorm`, `review-code`, `review-plan`, and `ui-design`) as the sol alternative when OpenAI is not used.
-- **Qwen 3.8 Flash** handles implementation, planning, and bugfixing (`implement`, `planner`, `bugfix`); `ui-design-task` also starts on Qwen 3.8 Flash but is overridden by the OpenAI overlay.
-- **DeepSeek V4 Flash at `high`** handles tightly bounded implementation tasks (`implement-task`). DeepSeek V4 Flash is text-only, so it is not used for UI work.
-- **Mimo V2.5** handles frequent exploration (`explore`), where speed and cost dominate.
-
-When you pick the `opencode-go + OpenAI` option, the installer applies `core/models-openai.json` as a single deterministic overlay: **Sol at `medium`** takes over open-ended ideation, holistic reviews, and UI design orchestration (`idea`, `brainstorm`, `review-code`, `review-plan`, `ui-design`), while **Luna at `xhigh`** handles implementation tasks and UI design slices (`implement-task`, `ui-design-task`). Implementation, planning, and bugfixing (`implement`, `planner`, `bugfix`) always keep their bundled Qwen 3.8 Flash assignments and are never overridden by OpenAI models; `explore` and `finish` also keep their bundled assignments.
-
-Neither profile configures a third-party provider router, and the `opencode-go only` selection contains no `openai/` model references.
+The base `opencode.json` sets `default_agent` to `build`, disables `plan`, and
+assigns models to the agents.
 
 ## Installed Assets
 
-### OpenCode Agents
+### Authored skills
 
-Under `.opencode/agents/` — agents invoked with `@agentname` in OpenCode:
+The authored skills live under the release's canonical `skills/` tree:
 
-`brainstorm`, `bugfix`, `finish`, `idea`, `implement`, `implement-task`, `planner`, `review-code`, `review-plan`, `ui-design`, `ui-design-task`
+`brainstorm`, `bugfix`, `feature-documentation`, `finish`, `git-publish`, `github-pr-comments`, `grill-with-docs`, `idea`, `implement`, `implement-task`, `planner`, `planning-structure`, `review-code`, `review-plan`, `setup`, `ui-design`, `ui-design-task`, `verification-before-completion`
 
-### Authored Reusable Skills (Single Canonical Source)
+The `setup` skill installs skills through the Vercel `skills` CLI. Claude Code
+and Codex plugins can provide the authored skills for their harnesses; setup
+checks plugin coverage first and installs only uncovered skills. OpenCode and
+other harnesses use the Vercel CLI skill installation mechanism. The toolkit
+does not ask target repositories to maintain a copied canonical skill tree or
+manually-created Claude skill symlinks.
 
-Under `.agents/skills/` — the single canonical skill tree. Every skill lives here. Those that are also visible to Claude Code are symlinked into `.claude/skills/`:
+### Harness agents
 
-`brainstorm`, `bugfix`, `feature-documentation`, `finish`, `git-publish`, `github-pr-comments`, `grill-with-docs`, `idea`, `implement`, `implement-task`, `planner`, `planning-structure`, `review-code`, `review-plan`, `ui-design`, `ui-design-task`, `verification-before-completion`
+OpenCode runs the workflow skills (`/idea`, `/brainstorm`, `/planner`, and the
+rest) in its built-in `build` agent, configured by `templates/opencode/opencode.json`;
+the release ships no OpenCode primary agents. Earlier releases installed one
+primary agent per workflow; `manifest.json` lists those as `retired` so setup
+proposes removing them.
 
-#### Support and Worker Skills (Hidden from Users)
+OpenCode's **worker subagents** under `agents/opencode/subagents/` are:
 
-Hidden support skills are marked `user-invocable: false` so they stay invisible in Claude Code's user-facing skill list and are never invoked directly by the user. They are loaded by agents on demand:
+`explore`, `implement-task`, `ui-design-task`
 
-| Hidden Skill | Purpose |
-|---|---|
-| `feature-documentation` | Compact package-driven capability maps under `docs/features/` |
-| `git-publish` | Guarded Git/GitHub branch publication — protected-branch rejection, draft PR creation, lease-safe retained-head updates |
-| `github-pr-comments` | GitHub PR comment fetching, classification, and reply workflow |
-| `implement-task` | Single-task implementation worker — dispatched by the implement controller, not user-facing |
-| `planning-structure` | Shared artifact contract for implementation and review-fix plan structures |
-| `ui-design-task` | Presentation-only worker for one self-contained UI-design task packet — dispatched by ui-design controller, not user-facing |
-| `verification-before-completion` | Evidence-before-claims gate — must run verification before claiming completion |
+`explore` replaces OpenCode's built-in Explore with a read-only investigator.
 
-### Claude Workflow Entry Skills
+The same workers are available under `agents/claude/` as Claude Code
+subagents; `implement-task` and `ui-design-task` are also available under
+`agents/codex/` as Codex TOML subagents:
 
-Under `.claude/skills/` — all authored skills are symlinked from `.agents/skills/` to `../../.agents/skills/<name>`:
+`explore` (Claude Code only), `implement-task`, `ui-design-task`
 
-`brainstorm`, `bugfix`, `feature-documentation`, `finish`, `git-publish`, `github-pr-comments`, `grill-with-docs`, `idea`, `implement`, `implement-task`, `planner`, `planning-structure`, `review-code`, `review-plan`, `ui-design`, `ui-design-task`, `verification-before-completion`
+Claude Code's `agents/claude/explore.md` shadows the built-in `Explore` so
+repository investigation runs read-only on Haiku instead of inheriting the main
+conversation's model. Other harnesses receive the skills only and have no native
+agent bundle in this release.
 
-User-facing skills are marked `disable-model-invocation: true` so they never auto-trigger and are invoked with `/skillname`; hidden support and worker skills are marked `user-invocable: false` and are loaded on demand by agents.
+Setup-managed native agents use `.opencode/agents/*.md`,
+`.claude/agents/*.md`, and `.codex/agents/*.toml` in project scope. Global
+agents use the harness-logical `agent/` or `agents/` targets under the selected
+harness home; the state file does not store absolute home paths.
+
+OpenCode's Mistral 3rd-party compatibility plugin ships as `plugin`-kind native assets
+installed to `.opencode/plugins/` (global: the OpenCode `plugins/` directory):
+`mistral-3rd-party.ts`, `mistral-3rd-party/compatibility.ts`, and `mistral-3rd-party/README.md`.
+The plugin's tests stay in this repository. Selecting the
+`opencode-go-mistral` profile should be paired with approving these three
+assets.
+
+### Project templates and docs
+
+The `templates/` tree contains candidate target-repository instructions, role
+docs, and OpenCode model assignments. Setup proposes documentation and
+context assets when repository discovery justifies them:
+
+- `templates/AGENTS.md` and `templates/CLAUDE.md` — instruction entry points
+- `templates/docs/agents/` — per-agent loading contracts
+- `templates/docs/` — context maps, ADRs, feature docs, and area guidance
+- `templates/opencode/` — OpenCode configuration and model profiles
+- `templates/claude/` — Claude Code workflow guide
+
+Stack overlays under `stacks/<name>/` add only stack-specific guidance:
+`AGENTS.md` additions and role-doc additions. Initial overlays are `pnpm` and
+`maven`.
+
+## Skill installation and ownership
+
+For target repositories, `npx skills add` is the supported distribution path.
+The Vercel CLI manages installed skills and its `skills-lock.json`; setup uses
+that mechanism rather than copying a fetched release checkout. A Claude Code or
+Codex `agentic-coding` plugin owns authored skills only when its installed
+metadata exposes those skills, so setup excludes those skills from Vercel-managed
+installation for that harness. Uncovered authored skills and pinned third-party
+skills remain Vercel-managed. Project-owned skills and documentation remain
+untouched unless the user approves a change.
+
+The toolkit's own `.agents/skills/` self-maintenance entries are not
+distribution assets. Setup derives its install list only from the selected
+manifest's `skills.authored` and `skills.thirdParty` inventories. It may use
+the Vercel CLI wildcard only after the `--list` preflight proves the four
+repo-internal names are excluded; it never builds a skill list by enumerating
+`.agents/skills/` or another agent skill directory.
+
+This repository's own self-maintenance runtime is separate: its local
+`.agents/skills/` entries and `.claude/skills/` links are retained for the
+agents that maintain this toolkit. That internal arrangement is not the target
+repository distribution contract.
+
+### Reconciliation state
+
+A successful reconciliation writes `.agentic-coding.json`. Its `release` object
+records the selected `ref`, `channel`, and immutable `commit`. For each harness,
+`skillDistribution` records `authored` and `thirdParty` channels as `plugin` or
+`vercel-cli`; `managedAssets` records each approved asset's ID, harness, scope,
+logical target, and release hash; `configuration.contributions` records approved
+managed configuration keys and values; and `retained` records existing content
+with its asset ID, logical target, observed source, and reason. The state
+records ownership and outcomes, not conversation text or a duplicate Vercel
+lockfile.
 
 ### DDD Docs
 
@@ -148,7 +237,7 @@ Under `docs/`:
 - `docs/contexts/placeholder/CONTEXT.md`
 - `docs/adr/0001-record-architecture-decisions.md`
 - `docs/adr/ADR-TEMPLATE.md`
-- `docs/features/README.md`
+- `docs/features/index.md`
 
 ### Area Docs
 
@@ -163,21 +252,75 @@ Under `docs/agents/` — per-agent loading contracts:
 
 `brainstorm.md`, `bugfix.md`, `finish.md`, `idea.md`, `implement.md`, `implement-task.md`, `planner.md`, `review-code.md`, `review-plan.md`, `ui-design.md`, `ui-design-task.md`
 
-## Claude Symlink Model
+## Setup reconciliation flow
 
-All authored skills under `.agents/skills/` are symlinked into `.claude/skills/<name>` → `../../.agents/skills/<name>`. There are no "real" skill directories under `.claude/skills/` — every skill is accessed via symlink. This means:
+`setup` is an interactive, reversible workflow. It begins with repository
+discovery and release selection, resolves the selected ref and channel once to
+an immutable commit, and then routes to the workflow for the repository's
+state. Fresh setup and legacy adoption use the installation route; managed
+repositories use the upgrade, repair, or reconfiguration route. Each route
+shows findings, requests approval before writes, preserves unrelated project
+content, and verifies the resulting assets and state.
 
-- **OpenCode** reads agent files from `.opencode/agents/` and skill methodology from `.agents/skills/`.
-- **Claude Code** reads entry-point skill files from `.claude/skills/<name>/SKILL.md`, which are real symlinked directories, and loads shared methodology from the same `.agents/skills/` tree.
-- **No duplication.** A change to a skill's files under `.agents/skills/` is immediately visible to both pipelines.
+### Modes and lifecycle
 
-| Symlink | Resolves To |
+The same `setup` entry point determines the mode from repository evidence:
+
+- **Fresh setup:** neither a usable `.agentic-coding.json` nor recognizable
+  toolkit content exists. Discovery and a complete scoped proposal come first;
+  a dirty tree requires approval before setup continues.
+- **Legacy adoption:** recognizable skills, agents, role documents, or
+  configuration exist without usable state. Setup classifies each candidate as
+  exact, modified, or unproven against the selected release source or hash,
+  presents the mapping, and obtains approval before adoption. An existing
+  Vercel lockfile is not required.
+- **Managed installation:** a valid `.agentic-coding.json` identifies an
+  existing installation. Setup checks for a newer stable release or an
+  explicitly selected preview, then offers upgrade, repair, or
+  reconfiguration.
+
+Stable and preview channels never switch silently, and the installed immutable
+commit remains recorded in state. Upgrades reconcile the complete inventory
+according to each harness's plugin or Vercel CLI ownership, update managed
+assets, and propose retired assets for explicit removal. A changed Vercel-managed
+`setup` skill is refreshed by itself and requires reinvocation; a changed
+plugin-managed `setup` requires the owning plugin to be updated. Repair keeps
+the installed release unless an upgrade is approved, while reconfiguration
+changes only the selected scope, harness, distribution, configuration, model,
+or documentation fields.
+
+Same-name content is never auto-overwritten. Conflict choices follow one table:
+
+| Evidence | Choices |
 |---|---|
-| `.claude/skills/<skill-name>` | `../../.agents/skills/<name>` |
+| Exact selected-release content | Adopt or replace |
+| Modified or unproven content | Replace, rename then replace, or retain |
+| Modified managed native asset | Replace or retain |
+| Retired managed asset | Remove or retain |
+| Project-owned documentation | Apply the displayed targeted edit or keep current text |
 
-Each authored skill under `.agents/skills/` carries a `SKILL.md` with frontmatter. User-facing skills are marked `disable-model-invocation: true` and are visible in Claude Code's `/` command list; hidden support and worker skills are marked `user-invocable: false`.
+Retention records a warning and observed source; it does not claim that
+selected-release content is installed. Documentation remains project-owned.
 
-> **Note:** Support skills (`implement-task`, `feature-documentation`, `git-publish`, `github-pr-comments`, `planning-structure`, `ui-design-task`, `verification-before-completion`) are loaded by agents on demand, never invoked directly by the user. They remain symlinked like all other skills so Claude Code can resolve their `SKILL.md` when an agent references them.
+Failed operations report their actual on-disk result and keep the prior recorded
+release unchanged; incomplete required work is not reported as successful.
+Scratch is removed after successful verification and retained for recovery after
+a failure.
+
+## Installation scope and harness support
+
+Project scope is the recommended default. It keeps skills, native agents, and
+release upgrades isolated to one repository. Global scope is useful for a
+shared personal setup, but its skills and native agents use one shared version
+across the user's repositories and sessions. Use project scope when different
+repositories need different releases or harness configuration.
+
+The three first-class harnesses are Claude Code, OpenCode, and Codex. OpenCode
+runs the workflow skills in its `build` agent and receives the worker
+subagents. Claude Code and Codex use shared skills as their workflow entry
+points and receive the same worker subagents. Other compatible harnesses can
+install the skills, but this toolkit creates no native agent definitions for
+them.
 
 ## Recommended Human-in-the-Loop Workflow
 
@@ -197,23 +340,23 @@ idea → brainstorm → [optional ui-design] → planner → implement → revie
 
 | # | Step | Invocation |
 |---|---|---|
-| 1 | **Idea pitch** — a rough prompt or high-level feature request. | OpenCode `@idea` or Claude `/idea`. |
-| 2 | **Brainstorm feature/spec** — generate or refine a spec. Optionally grill it against existing DDD docs. | OpenCode `@brainstorm` or Claude `/brainstorm`. |
+| 1 | **Idea pitch** — a rough prompt or high-level feature request. | `/idea` in OpenCode (`build` agent) or Claude Code. |
+| 2 | **Brainstorm feature/spec** — generate or refine a spec. Optionally grill it against existing DDD docs. | `/brainstorm` in OpenCode (`build` agent) or Claude Code. |
 | 3 | **Human reviews the spec** — read, comment, and refine. Pause and iterate as needed. | Human checkpoint (no agent invocation). |
-| 4 | **UI Design (optional)** — when presentation or visual structure decisions are needed, a ui-design phase generates HTML/CSS mockups and design tokens before planning starts. | OpenCode `@ui-design` (controller) which spawns `@ui-design-task` workers. |
-| 5 | **Review spec** — validate the spec for completeness and alignment. | OpenCode `@review-plan` or Claude `/review-plan`. |
-| 6 | **Planner writes the implementation plan** — break the spec into ordered, verifiable tasks. | OpenCode `@planner` or Claude `/planner`. |
+| 4 | **UI Design (optional)** — when presentation or visual structure decisions are needed, a ui-design phase generates HTML/CSS mockups and design tokens before planning starts. | `/ui-design` (controller skill) which dispatches `ui-design-task` workers. |
+| 5 | **Review spec** — validate the spec for completeness and alignment. | `/review-plan` in OpenCode (`build` agent) or Claude Code. |
+| 6 | **Planner writes the implementation plan** — break the spec into ordered, verifiable tasks. | `/planner` in OpenCode (`build` agent) or Claude Code. |
 | 7 | **Human reviews the plan** — confirm scope, ordering, and task granularity. | Human checkpoint (no agent invocation). |
 
 ### Implementation Cycle (steps 8–12)
 
 | # | Step | Invocation |
 |---|---|---|
-| 8 | **Review plan** — final plan review before implementation begins. | OpenCode `@review-plan` or Claude `/review-plan`. |
-| 9 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | OpenCode `@implement` (controller) which spawns `@implement-task` workers. |
+| 8 | **Review plan** — final plan review before implementation begins. | `/review-plan` in OpenCode (`build` agent) or Claude Code. |
+| 9 | **Implement task-by-task** — dispatch one worker per plan task, verify, and commit. | `/implement` (controller skill) which dispatches `implement-task` workers. |
 | 10 | **Human comments code** — review the diff and leave inline comments or GitHub review notes. | Human checkpoint (no agent invocation). |
-| 11 | **Review code** — analyze review feedback and determine required changes. | OpenCode `@review-code` or Claude `/review-code`. |
-| 12 | **Finish** — write summary and feature documentation, reconcile durable docs (ADRs, context maps, etc.). | OpenCode `@finish` or Claude `/finish`. |
+| 11 | **Review code** — analyze review feedback and determine required changes. | `/review-code` in OpenCode (`build` agent) or Claude Code. |
+| 12 | **Finish** — write summary and feature documentation, reconcile durable docs (ADRs, context maps, etc.). | `/finish` in OpenCode (`build` agent) or Claude Code. |
 
 ### Draft-First GitHub Pull-Request Publication
 
@@ -221,7 +364,8 @@ Publication of branches and change requests follows a draft-first model:
 
 - **`git-publish`** — Guarded Git/GitHub branch publication. Pushes the current branch to the remote with safe defaults, prints the existing PR URL or creates a draft PR (`gh pr create --fill --draft`), and supports lease-safe retained-head updates (`--existing-pr`, `--expected-head`, `--head-branch`).
 
-The skill is authored (not remote) and no lockfile tracks it. It lives under `.agents/skills/` and is symlinked into `.claude/skills/`.
+The skill is authored (not remote), so it lives under the canonical
+`skills/git-publish/` tree and is included in the authored-skill inventory.
 
 #### Retained-Head Lease Exception
 
@@ -231,7 +375,7 @@ The only allowed exception to the "no force-push" rule is an explicitly authoriz
 - Requires explicit human authorization per invocation.
 - One attempt with no weaker-force fallback (no bare `--force` or `-f` if the lease fails).
 
-This is encoded in the agent permissions and enforced by the publication scripts themselves.
+The publication scripts enforce this rule.
 
 ### UI-Design Preview-First Verification Exception
 
@@ -242,9 +386,85 @@ The `ui-design` workflow verifies presentation output differently from code impl
   - `start` — start the preview server
   - `probe` — probe the server and return true/false
   - `stop` — stop the preview server
-- The toolkit **does not supply** this script. It is a target-owned adapter. The installer preserves an existing `preview.sh` in every copy mode (add/override/skip).
-- Claude settings encode exact permissions for the three preview commands: `Bash(bash .agents/scripts/ui-design/preview.sh start)`, `Bash(bash .agents/scripts/ui-design/preview.sh probe)`, `Bash(bash .agents/scripts/ui-design/preview.sh stop)`.
-- If a target overrides the preview adapter via a wrapper (e.g., Docker Compose), the new wrapper's own dependencies may require re-applying the presentation-root permissions.
+- The toolkit **does not supply** this script. It is a target-owned adapter.
+  Setup preserves an existing adapter rather than silently replacing it.
+
+## Maintainers: releasing the toolkit
+
+Stable releases are published by the manual **Stable release** workflow
+(`.github/workflows/release-stable.yml`). `main` permanently declares
+`main`/`preview`; stable release metadata is never committed to `main`. The
+workflow builds a release-only commit on top of the selected preview revision,
+tags it, and pushes only the tag, so preview tracking repositories are never
+disturbed by metadata-restoration commits.
+
+To publish a release, dispatch the workflow with a bump selector:
+
+```bash
+gh workflow run release-stable.yml --ref main -f bump=patch
+```
+
+The workflow computes the next version from the highest existing stable tag
+(a `patch` bump of `v2.1.0` publishes `v2.1.1`). Optionally pass
+`-f source_revision=<branch-or-sha>` to release from a specific preview
+revision (default `main`). The workflow validates the computed version and
+repository state, prepares the stable manifest with
+`scripts/prepare-release.sh`, runs `scripts/validate-release.sh` and the setup
+test suite, creates the release-only commit and annotated tag, verifies the
+tagged tree locally, pushes only `refs/tags/<version>`, re-resolves the
+published tag from the remote, and creates the GitHub Release for that tag with
+generated notes.
+
+After the run succeeds, verify the release manually. Fetch the tag locally first
+(`git fetch --tags`); the check compares against your local `$release_ref`.
+
+```bash
+toolkit_remote='https://github.com/sflandergan/agentic-coding'
+release_ref='v2.1.1'
+mkdir -p .temp
+release_verification_dir="$(mktemp -d .temp/release-verification.XXXXXX)"
+if bash skills/setup/scripts/fetch-release.sh manifest \
+    "$toolkit_remote" "$release_ref" "$release_verification_dir" && \
+  jq -e --arg ref "$release_ref" \
+    --arg commit "$(git rev-parse "$release_ref^{commit}")" \
+    '.ref == $ref and .channel == "stable" and .commit == $commit' \
+    "$release_verification_dir/release.json"; then
+  rm -rf "$release_verification_dir"
+  rmdir .temp 2>/dev/null || true
+else
+  printf 'ERROR: release verification failed; inspect %s\n' \
+    "$release_verification_dir" >&2
+  false
+fi
+```
+
+Failed verification preserves the generated directory for inspection and
+blocks completion of the release checklist.
+
+Recovery rules:
+
+- If the workflow fails before the push step, nothing was published; fix the
+  cause and re-run.
+- If the push fails because the remote tag already exists, do not force-push.
+  Compare the remote tag's commit and manifest with the intended release and
+  resolve the conflict explicitly.
+- If post-push verification reports a mismatch, leave the immutable tag in
+  place and investigate; never delete or move a published tag.
+
+To exercise the preparation mechanics locally without pushing, run the script
+against a scratch clone in `.temp/`:
+
+```bash
+rm -rf .temp/release-smoke
+git clone --quiet --branch main . .temp/release-smoke
+(cd .temp/release-smoke && bash scripts/prepare-release.sh --compute-version patch)
+(cd .temp/release-smoke && bash scripts/prepare-release.sh v0.0.999)
+git -C .temp/release-smoke checkout -- manifest.json
+rm -rf .temp/release-smoke
+```
+
+The tagged `manifest.json` and declared assets are the immutable release source
+that setup fetches and verifies.
 
 ## Extension Guide: Adding Future Stacks
 
@@ -252,17 +472,15 @@ To add a new stack:
 
 1. Create `stacks/<new-stack>/` with:
    - `AGENTS.md`
-   - `opencode.json`
-   - `claude/settings.json`
    - `docs/agents/{planner,implement,implement-task,review-code,review-plan,finish}.md`
 
 2. The stack assets are merged as follows:
-   - **Stack `AGENTS.md`** is concatenated to the core `AGENTS.md` on init.
-   - **Stack `opencode.json`** is deep-merged with the core one (stack values win on conflict).
-   - **Stack `claude/settings.json`** permission arrays are unioned with de-duplication.
-   - **Stack role-doc additions** are concatenated to the matching core role docs.
+    - **Stack `AGENTS.md`** is proposed as an addition to `templates/AGENTS.md`.
+    - **Stack role-doc additions** are concatenated to the matching `templates/docs/agents/` role docs.
 
-3. The `init.sh` and `copy.sh` scripts already support the new stack once the directory exists — no script changes needed.
+3. The `setup` skill proposes stack additions after repository evidence is
+   inspected. The deprecated `init.sh` and `copy.sh` scripts retain their
+   transition-window stack support.
 
 ## Self-Maintenance Agents
 
@@ -270,36 +488,48 @@ This repo maintains its own markdown templates and bash scripts with a small age
 
 ### Shared Conventions
 
-`AGENTS.md` at the repo root carries the conventions every agent needs (maintenance surface, dot-mapping, sync invariants, git conventions, verification baseline). It is loaded ambiently by OpenCode and inherited by Claude Code via `CLAUDE.md`, which is a one-line file containing `@AGENTS.md`.
+`AGENTS.md` at the repo root carries the conventions every agent needs (maintenance surface, dot-mapping, sync invariants, git conventions, verification baseline). It is loaded ambiently by OpenCode and inherited by Claude Code via `CLAUDE.md`, which imports `@AGENTS.md` and adds the Explore-dispatch note.
 
 ### Agents
 
-Under `.opencode/agents/`:
+This repo uses OpenCode's `build` agent (the `default_agent`) with the skills below; it has no
+primary workflow agents. `opencode.json` carries the `build` permissions, the `explore` and
+`implement-task` worker settings, and the Mistral 3rd-party provider (GLM 5.3, GLM 5.3 Flash, DeepSeek V4.1 Flash).
 
-| Agent | Mode | Purpose |
+| Agent | Runtime | Purpose |
 |---|---|---|
-| `planning` | primary | Writes lightweight plans to `plans/YYYY-MM-DD-<feature>/plan.md` |
-| `implement` | primary | Controller that dispatches `implement-task` workers per plan task |
-| `implement-task` | subagent (hidden) | Worker for exactly one task — verifies, commits, reports |
-| `review` | primary | Reviews plans and diffs against `AGENTS.md` conventions |
+| `build` | OpenCode | Loads the `agent-*` skills, edits, commits, and publishes through `scripts/publish-branch.sh` |
+| `explore` | OpenCode (`opencode.json`, `.opencode/prompts/explore.md`), Claude Code (`.claude/agents/explore.md`) | Read-only repository investigator |
+| `implement-task` | OpenCode (`.opencode/agents/implement-task.md`, hidden), Claude Code (`.claude/agents/implement-task.md`) | Worker for exactly one task — verifies, commits, reports |
 
-Invoke with `@planning`, `@implement`, `@implement-task`, or `@review` in OpenCode.
+Claude Code permissions live in `.claude/settings.json`; keep them aligned with `opencode.json` by hand.
+`.opencode/plugins/mistral-3rd-party.ts` adapts Mistral-hosted GLM 5.3, GLM 5.3 Flash, and DeepSeek V4.1 Flash to OpenCode V1; see
+`.opencode/plugins/mistral-3rd-party/README.md` for setup and tests.
 
 ### Skills
 
-Under `.agents/skills/` (symlinked into `.claude/skills/` for Claude Code compatibility):
+Under `.agents/skills/` (with local `.claude/skills/` links for this repository's
+self-maintenance runtime only):
+
+The four `agent-*` skills are repo-internal: their frontmatter declares
+`metadata.internal: true`, so the Vercel CLI hides them from `--list` and from
+`--skill '*'` when the CLI meets the manifest's `skillsCli >=1.6.0`
+requirement. Setup never installs them into a target repository.
 
 | Skill | Purpose |
 |---|---|
-| `agent-planning` | Plan structure, file mapping, task granularity, self-review |
-| `agent-implementation` | Controller orchestration, worker status handling, completion |
-| `agent-verification` | Evidence-before-claims gate, verification commands, smoke runs |
-| `agent-review` | Plan + diff review checklist aligned to `AGENTS.md` |
-| `github-pr-comments` | PR comment fetching, classification, and reply workflow |
+| `agent-planning` | Plan structure, file mapping, task granularity, self-review, and skill-change evaluation requirements |
+| `agent-implementation` | Controller orchestration, worker status handling, skill evaluation gate, and completion |
+| `agent-verification` | Evidence-before-claims gate, skill evaluation results, verification commands, and smoke runs |
+| `agent-review` | Plan + diff review checklist, including skill evaluation evidence, aligned to `AGENTS.md` |
+| `github-pr-comments` | PR comment fetching, classification, and reply workflow (symlink to `skills/github-pr-comments`) |
+| `finish` | Finalize a reviewed change: sync-invariant check, plan cleanup, freshness, verification, publish and mark ready (symlink to `skills/finish`; role doc `docs/agents/finish.md`) |
+| `git-publish` | Guarded branch publication used by `finish` (symlink to `skills/git-publish`) |
+| `verification-before-completion` | Evidence-before-claims gate used by `finish` (symlink to `skills/verification-before-completion`) |
 | `test-driven-development` | Remote skill from `obra/superpowers` — TDD discipline for feature and bugfix work |
 | `writing-skills` | Remote skill from `obra/superpowers` for authoring skills |
 
-Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, or `/github-pr-comments`. The `test-driven-development` and `writing-skills` skills are also exposed as `/test-driven-development` and `/writing-skills`.
+Invoke in Claude Code with `/agent-planning`, `/agent-implementation`, `/agent-verification`, `/agent-review`, `/github-pr-comments`, or `/finish`. The `test-driven-development` and `writing-skills` skills are also exposed as `/test-driven-development` and `/writing-skills`.
 
 ### Lockfiles
 
@@ -312,6 +542,6 @@ When updating skills, edit only the lockfile for the scope you changed.
 
 ## Future Work
 
-Framework-specific stacks such as NestJS, Next.js/UI, Spring Boot, Java, and Kotlin conventions are out of scope. The toolkit is intentionally stack-agnostic in `core/`.
+Framework-specific stacks such as NestJS, Next.js/UI, Spring Boot, Java, and Kotlin conventions are out of scope. The toolkit is intentionally stack-agnostic; add stack-specific behavior through `stacks/<name>/` overlays.
 
-For Claude-specific workflow details, see `core/claude/README.md`.
+For Claude-specific workflow details, see `templates/claude/README.md`.

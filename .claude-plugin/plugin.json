@@ -1,0 +1,7 @@
+{
+  "name": "agentic-coding",
+  "description": "Agentic coding workflow toolkit.",
+  "version": "0.1.0",
+  "skills": "./skills",
+  "agents": "./agents/claude"
+}

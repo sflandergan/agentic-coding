@@ -4,51 +4,95 @@ Shared conventions for AI agents maintaining this toolkit repo. This file is loa
 
 ## What This Repo Is
 
-A reusable agentic coding toolkit. The `core/` and `stacks/` trees are **templates** installed into other repos by `scripts/init.sh` and `scripts/copy.sh`. There is no application code, no DDD contexts, and no test suite — only markdown templates and bash scripts.
+A reusable agentic coding toolkit. The `skills/`, `agents/`, `templates/`, and
+`stacks/` trees are source assets distributed to other repositories by the
+setup skill; `scripts/init.sh` and `scripts/copy.sh` are deprecated transition
+tools. There is no application code and no DDD contexts — only markdown
+templates and bash scripts, plus the self-maintenance runtime below.
 
 ## Maintenance Surface
 
 The files this repo's agents operate on:
 
-- Markdown templates under `core/` and `stacks/`
+- Authored skills under `skills/`
+- Harness-native agents under `agents/`
+- Markdown and harness templates under `templates/` and `stacks/`
 - `README.md`
+- `manifest.json`
+- `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`
 - `skills-lock.json` for this repo's self-maintenance skills
-- `core/skills-lock.json` for the toolkit installed into target repos
-- `scripts/init.sh` (~325 lines), `scripts/copy.sh` (~618 lines)
+- Self-maintenance runtime: root `opencode.json`, `.opencode/`, `.claude/`
+- `core/skills-lock.json` for third-party skills installed into target repos
+- Deprecated `scripts/init.sh` (~325 lines), `scripts/copy.sh` (~618 lines)
 
 ## Dot-Mapping (Source → Target)
 
-The scripts copy these source directories to target dot-directories:
+During the deprecation window, the scripts copy these source directories to
+target paths:
 
 | Source in repo | Target dot-directory |
 |---|---|
-| `core/opencode/` | `.opencode/` |
-| `core/claude/` | `.claude/` |
-| `core/agents/` | `.agents/` |
-| `core/docs/` | `docs/` |
+| `templates/opencode/` + `agents/opencode/` | `.opencode/` |
+| `templates/claude/` | `.claude/` |
+| `templates/docs/` | `docs/` |
+| `templates/AGENTS.md` | `AGENTS.md` |
 
-## Core + Stacks Dual-Maintenance
+## Canonical Sources + Stacks Dual-Maintenance
 
-When modifying a file under `core/`, check whether `stacks/pnpm/` or `stacks/maven/` has an overlay for the same file. Update stack overlays when the change affects stack-specific installed output, especially when adding a new template or changing behavior that an overlay intentionally customizes.
+When modifying `templates/`, `agents/`, or `skills/`, check whether
+`stacks/pnpm/` or `stacks/maven/` has an overlay for the same installed output.
+Update stack overlays when a change affects stack-specific behavior, especially
+when adding a new template or changing behavior that an overlay intentionally
+customizes.
 
 ## Sync Invariants
 
 These must stay consistent with the actual files:
 
 - `README.md` agent/skill lists
+- `manifest.json` inventories and declared paths
 - The dot-mapping table above
-- Agent file names in `.opencode/agents/` vs what `opencode.json` references
+- Agent file names in `agents/opencode/` vs what `templates/opencode/opencode.json` references
+- Plugin manifest component paths vs canonical source files
+- `.opencode/agents/implement-task.md` vs `.claude/agents/implement-task.md` worker contract
+- `opencode.json` agent names vs files under `.opencode/agents/` and `.opencode/prompts/`
+- `scripts/validate-release.sh` rejects any `.agents/skills/` directory that is
+  neither a `skills/` symlink, a manifest third-party skill, nor marked
+  `metadata.internal: true`
+- `scripts/validate-release.sh` rejects any `.claude/skills/` entry that is not
+  a resolving symlink to `../../.agents/skills/<name>`
+
+## Self-Maintenance Runtime
+
+This repo's own agent runtime follows the build-with-skills model: OpenCode's
+`build` agent (`default_agent`) loads the `agent-*` skills from `.agents/skills/`
+instead of switching between primary agents. Only workers exist as agents:
+
+- `explore` (read-only) and `implement-task` (hidden worker) in OpenCode,
+  configured in `opencode.json` and `.opencode/agents/implement-task.md`.
+- `.claude/agents/explore.md` (symlink to `agents/claude/explore.md`) and
+  `.claude/agents/implement-task.md` in Claude Code.
+- Permissions live in `opencode.json` (`build`, `explore`, global) and
+  `.claude/settings.json`; different runtimes, no shared source, so keep them in
+  sync by hand.
+- `.opencode/plugins/mistral-3rd-party*` adapts Mistral-hosted GLM 5.3, GLM 5.3 Flash, and DeepSeek V4.1 Flash for OpenCode V1.
+  Run its tests from `.opencode/` with `bun test ./plugins/mistral-3rd-party/test`.
+
+Skills under `.agents/skills/` that are not symlinks into `skills/` and are not
+manifest third-party skills must declare `metadata.internal: true` in their
+frontmatter. The Vercel skills CLI hides those skills from discovery and
+excludes them from `--skill '*'`; setup installs only manifest-declared assets.
 
 ## Skill Lockfile Scopes
 
 The two lockfiles have different scopes and are not expected to match.
 
 - `skills-lock.json` tracks remote skills installed in this repo for self-maintenance. Compare it against remote-sourced skill directories under `.agents/skills/`.
-- `core/skills-lock.json` tracks remote skills installed into target repos by `scripts/init.sh` and `scripts/copy.sh`. Compare it against the skills the toolkit templates install for downstream projects.
+- `core/skills-lock.json` tracks remote skills installed into target repos by the Vercel `skills` CLI (and by the deprecated scripts during the transition). Compare it against the pinned third-party skills declared in `manifest.json`.
 
 When updating skills, edit only the lockfile for the scope you changed.
 
-## SKILL.md Frontmatter Conventions
+## Skill Authoring
 
 ```yaml
 ---
@@ -58,9 +102,33 @@ user-invocable: false     # for skills only loaded by agents, not users
 ---
 ```
 
+- Load and follow `writing-skills` and `test-driven-development` before creating or editing a skill.
+- State each workflow as trigger, action, and observable result; include exact commands, paths, state changes, and failure behavior where only one implementation is safe.
+- Give each rule one owner and link to it elsewhere. Required references are linked directly from `SKILL.md` and stay one level deep.
+- Use one term for each concept, define it before use, and make user choices mutually exclusive.
+- Shape verbose or incomplete output with a positive structure. Use prohibitions only for unsafe or disallowed behavior.
+- Keep only information an agent needs to act. Put deterministic mechanics in tested scripts and say whether a script is executed or read.
+- Write every line as an action for the agent running the skill. Plan rationale, change history, deprecated names, and ownership descriptions stay in the plan and the PR.
+- When a skill uses another skill, name the step to run, answer, skip, or stop at, and what to pass in. Write what the agent does at that step, not a prediction of what the other skill will do.
+- Role documents under `templates/docs/agents/` hold only values that differ between target repositories. A value that is the same in every install, such as a third-party skill path or a tool default, belongs in the skill.
+- Test current behavior first, then the candidate skill with the same fresh-agent scenarios. Record the failures fixed and the passing evidence.
+
 ## Symlink Model
 
-OpenCode is configured to read skills from `.agents/skills/<name>/SKILL.md`. Each skill is symlinked into `.claude/skills/<name>` (`ln -s ../../.agents/skills/<name>`) so Claude Code also sees it. This matches the model `copy.sh` uses for authored skills.
+For target repositories, the setup skill installs skills through the Vercel
+`skills` CLI. That CLI and an installed Claude Code or Codex plugin own their
+respective skill distribution; setup does not treat a copied skill directory or
+hand-written `.claude/skills/` symlink as the canonical source.
+
+This repository's own runtime is unchanged: OpenCode reads self-maintenance
+skills from `.agents/skills/<name>/SKILL.md`, and each local skill is symlinked
+into `.claude/skills/<name>` with `ln -s ../../.agents/skills/<name>`. This
+internal symlink model is for maintaining this toolkit, not for target-repo
+installation.
+
+## Skill-Relative Paths
+
+When a skill names relative paths (e.g. `scripts/`), resolve them from that skill's base directory (`.agents/skills/<name>/`), never from the repo root.
 
 ## .temp/ Scratch Rule
 

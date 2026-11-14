@@ -1,7 +1,8 @@
 ---
 name: agent-implementation
 description: Use when executing an approved plan for this toolkit repo task-by-task with commits and verification
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Implementation — Self-Maintenance
@@ -19,6 +20,22 @@ Controller orchestration for implementing plans against this toolkit repo.
 3. Review the worker report and diff before moving on.
 4. Fix and re-review every open issue before marking the task complete.
 5. Run final verification before any completion or push claim.
+
+## Skill tasks
+
+For every task modifying `skills/**` or `.agents/skills/**`, the controller must:
+
+1. Load and follow [`writing-skills`](../writing-skills/SKILL.md) and [`test-driven-development`](../test-driven-development/SKILL.md) before dispatch.
+2. Refuse to start edits until current-skill RED evidence exists.
+3. Give the worker the evaluation prompt, rubric, owning files, and current branch state.
+4. Rerun the same prompt with a fresh worker after the edit.
+5. Review the diff for duplicated ownership, undefined terms, overlapping choices, and non-executable verbs such as "handle," "apply," or "as appropriate" without a defined operation.
+
+Extend the worker report for skill tasks with:
+
+- `RED evidence`
+- `GREEN evidence`
+- `instruction ownership`
 
 ## Worker Contract
 

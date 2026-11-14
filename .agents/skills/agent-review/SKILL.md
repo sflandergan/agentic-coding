@@ -1,7 +1,8 @@
 ---
 name: agent-review
 description: Use when reviewing plans or diffs for this toolkit repo against the shared conventions in AGENTS.md
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Review — Self-Maintenance
@@ -32,6 +33,18 @@ Review plans and diffs against the conventions in `AGENTS.md`.
 - [ ] No force-push, no branch deletion, no worktree removal
 - [ ] Commits are concise, imperative, scoped to one logical change
 - [ ] No Co-Authored-By lines
+
+### For skill plans and diffs
+
+- [ ] Skill tasks contain RED/GREEN evaluations
+- [ ] Workflow instructions are executable at their declared degree of freedom
+- [ ] Referenced rules have one owner
+- [ ] Choice labels produce distinct outcomes
+- [ ] Required references are directly linked from `SKILL.md`
+- [ ] Explanations justify their token cost
+- [ ] Each changed skill line is an action for the executing agent, with no plan rationale, history, or deprecated names
+- [ ] Calls into another skill name the step to run, skip, or stop at, instead of predicting that skill's behavior
+- [ ] Role-document fields hold only values that differ between target repositories
 
 ## Review Priorities
 
@@ -64,7 +77,7 @@ Use this standard self-maintenance review workflow unless the user explicitly re
 8. After plan updates or review-finding plan creation, self-review every tracked remark and finding. Map each item to the changed section, review-finding plan section, or intentional unresolved status.
 9. Draft exact GitHub replies for resolved PR comments and ask for explicit approval before posting. Approval to edit files or write a plan does not authorize posting GitHub comments.
 
-**Distinction:** Plan review updates the reviewed plan/spec after approval; diff review writes a review-finding implementation plan for `@implement` after approval.
+**Distinction:** Plan review updates the reviewed plan/spec after approval; diff review writes a review-finding implementation plan for the `agent-implementation` skill after approval.
 
 ## Output
 

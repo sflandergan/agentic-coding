@@ -1,7 +1,8 @@
 ---
 name: agent-verification
 description: Use when about to claim work is complete, committed, or ready — the done gate for this toolkit repo
-user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Agent Verification — Self-Maintenance
@@ -60,6 +61,9 @@ No compilation check, but verify:
 - Run `codespell` on changed markdown, agent, skill, README, and prose-heavy script files
 - No broken relative links (manual spot-check)
 
+For a skill change, do not mark the work complete until the named evaluation
+scenarios pass with the candidate skill and their result summary is committed.
+
 ```bash
 codespell README.md .agents/skills/agent-planning/SKILL.md
 ```
@@ -70,7 +74,7 @@ Scope `codespell` to changed files by default. Run it more broadly when a plan e
 
 ```bash
 # README lists match actual files
-ls .opencode/agents/          # should match README's agent list
+ls .opencode/agents/ .claude/agents/   # workers should match README's agent list (build and explore come from opencode.json)
 ls .agents/skills/            # should match README's skill list
 
 # Lockfiles match their distinct scopes
