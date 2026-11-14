@@ -54,10 +54,12 @@ manifest whose `schemaVersion` is unsupported before applying any category.
   `opencode:model-profile:mistral` use `deep-merge`.
   Configuration hashes protect only approved managed contributions, not the
   rest of a project-owned configuration file.
-- **`templates`** — paths for `agentsMd`, role documents, and the Claude Code,
-  Codex, and OpenCode harness configuration contributions. These are source
-  paths for approved reconciliation, not a license to overwrite project-owned
-  files.
+- **`templates`** — paths for `agentsMd`, role documents, and the OpenCode
+  harness configuration template directory (`templates/opencode`, declared as
+  `harnessConfig.opencode`). This release supplies OpenCode configuration
+  templates only. These are source paths for approved reconciliation, not a
+  license to overwrite project-owned files, and are distinct from the
+  `configurationAssets` inventory, whose entries are `sourceHash` managed.
 - **`documentation`** — project-owned documentation mappings. The manifest
   maps `templates/AGENTS.md` to `AGENTS.md` and
   `templates/docs/agents/*` to `docs/agents/*`. When Claude Code is selected
